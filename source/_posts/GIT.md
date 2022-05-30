@@ -41,7 +41,7 @@ git restore <file> 表示将在工作空间更改但是不在暂存区的文件f
 
 # 使用逻辑
 
-![Git大致图](./GIT/git-command.jpg)
+![Git大致图](./git/git-command.jpg)
 
 
 
