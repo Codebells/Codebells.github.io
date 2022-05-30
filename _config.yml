@@ -46,7 +46,7 @@ post_asset_folder: true
 relative_link: false
 future: true
 highlight:
-  enable: false
+  enable: true
   line_number: true
   auto_detect: false
   tab_replace: ''
@@ -57,11 +57,7 @@ prismjs:
   preprocess: true
   line_number: true
   tab_replace: ''
-prism_plugin:
-  mode: 'preprocess'    # realtime/preprocess
-  theme: 'tomorrow'
-  line_number: false    # default false
-  custom_css:
+
 
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
@@ -137,3 +133,8 @@ wordCount:
   min2read: true
   totalCount: true
 plugins: hexo-generate-feed
+
+prism_plugin:
+  mode: 'preprocess' # realtime/preprocess
+  theme: 'default'
+  line_number: false # default false

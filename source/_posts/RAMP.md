@@ -6,6 +6,7 @@ categories:
   - [paper_read]
 tags: [paper_read,database]
 category_bar: true
+excerpt: 阅读Scalable Atomic Visibility with RAMP Transactions笔记。
 ---
 
 阅读Scalable Atomic Visibility with RAMP Transactions笔记。
@@ -67,7 +68,7 @@ RA是一个相当弱的隔离级别，仅比读已提交高一点点。
 
 基本思路：通过写时记录相关写Item，然后在读时根据时间戳判断是否符合原子读。
 
-![image-20220526103954979](./ramp/image-20220526103954979-165363662621712.png)
+![RAMP-FAST](./ramp/image-20220526103954979-165363662621712.png)
 
 **写事务**
 
@@ -79,7 +80,7 @@ RA是一个相当弱的隔离级别，仅比读已提交高一点点。
 
 > 简单的例子就是，T1事务写x,y，T2事务读x,y。x在P~X~分区，y在P~y~分区，T1事务的x已提交，y未提交，T2事务就开始读了。这时有读x和y的请求，初始时读到的ret[x].ts~V~=V~latest~[x]=x1，ret[y].ts~V~=V~latest~[y]=$\emptyset$。经过这个for循环V~latest~[y]=x1，因为在找x的latest值时，会遍历当时写x的事务的其他写，并将V~latest~[y]更新。所以此时会进入到31-32，进行二次读。去读取符合版本的y值，以此达到避免读半更新的问题。也就是跨分区的原子读。
 
-![image-20220526163740866](./ramp/image-20220526163740866-16536366167669.png)
+![RAMP-F例子](./ramp/image-20220526163740866-16536366167669.png)
 
 #### RAMP-Small
 
@@ -87,7 +88,7 @@ RA是一个相当弱的隔离级别，仅比读已提交高一点点。
 
 基本思路：读时将事务涉及到的item时间戳全部验证，取出最新的作为结果。
 
-![image-20220526192541246](./ramp/image-20220526192541246.png)
+![RAMP-Small](./ramp/image-20220526192541246.png)
 
 **写事务**
 
@@ -109,11 +110,11 @@ RA是一个相当弱的隔离级别，仅比读已提交高一点点。
 
 第一次RTT令Ret存放所有item的最新提交的版本信息，然后进行原子性检查,判断当前读事务的其他读操作是否是同一个事务的，并且版本不同，如果未通过原子性检查，就进行第二轮RTT，否则不进行。
 
-![image-20220526201312664](./ramp/image-20220526201312664.png)
+![RAMP-Hybrid](./ramp/image-20220526201312664.png)
 
 ## 实验
 
-分区，多版本，主存数据库，YCSB-A测试
+分区，多版本，主存数据库，YCSB-A测试，默认一个事务4个操作
 
 **NWNR**：无读写锁，作为实验baseline
 **LWLR**：长读锁长写锁，提供可重复读隔离级别，也支持RA

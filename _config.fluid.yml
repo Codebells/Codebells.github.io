@@ -57,7 +57,7 @@ code:
     # 实现高亮的库，对应下面的设置
     # Highlight library
     # Options: highlightjs | prismjs
-    lib: "highlightjs"
+    lib: "prismjs"
 
     highlightjs:
       # 在链接中挑选 style 填入
@@ -427,13 +427,13 @@ footer:
     <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a>
     <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a>
     <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/>
-    <span>I wish you to become your own sun,no need to rely on who`s light!</span>
+    <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span>
   '
 
   # 展示网站的 PV、UV 统计数
   # Display website PV and UV statistics
   statistics:
-    enable: false
+    enable: true
 
     # 统计数据来源，使用 leancloud 需要设置 `web_analytics: leancloud` 中的参数；使用 busuanzi 不需要额外设置，但是有时不稳定，另外本地运行时 busuanzi 显示统计数据很大属于正常现象，部署后会正常
     # Data source. If use leancloud, you need to set the parameter in `web_analytics: leancloud`
@@ -480,7 +480,7 @@ index:
 
     # 为空则按 hexo config.subtitle 显示
     # If empty, text based on `subtitle` in hexo config
-    text: "生命是一场盛大的腐烂"
+    text: "少而好学，如日出之阳；壮而好学，如日中之光；老而好学，如炳烛之明。"
 
     # 通过 API 接口作为首页副标题的内容，必须返回的是 JSON 格式，如果请求失败则按 text 字段显示，该功能必须先开启 typing 打字机功能
     # Subtitle of the homepage through the API, must be returned a JSON. If the request fails, it will be displayed in `text` value. This feature must first enable the typing animation
@@ -577,7 +577,7 @@ post:
     # 浏览量计数
     # Number of visits
     views:
-      enable: false
+      enable: true
       # 统计数据来源
       # Data Source
       # Options: busuanzi | leancloud
@@ -725,11 +725,11 @@ post:
   # 评论插件
   # Comment plugin
   comments:
-    enable: false
+    enable: true
     # 指定的插件，需要同时设置对应插件的必要参数
     # The specified plugin needs to set the necessary parameters at the same time
     # Options: utterances | disqus | gitalk | valine | waline | changyan | livere | remark42 | twikoo | cusdis
-    type: disqus
+    type: valine
 
 
 #---------------------------
@@ -790,8 +790,8 @@ gitalk:
 # Based on LeanCloud
 # See: https://valine.js.org/
 valine:
-  appId:
-  appKey:
+  appId: WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz
+  appKey: cPvJTOuCUdA2Hs8Nnkk2pxMA
   path: window.location.pathname
   placeholder:
   avatar: 'retro'
@@ -800,11 +800,11 @@ valine:
   pageSize: 10
   lang: 'zh-CN'
   highlight: false
-  recordIP: false
+  recordIP: true
   serverURLs: ''
   emojiCDN:
   emojiMaps:
-  enableQQ: false
+  enableQQ: true
 
 # Waline
 # 从 Valine 衍生而来，额外增加了服务端和多种功能
@@ -932,7 +932,7 @@ about:
   banner_mask_alpha: 0.3
   avatar: /img/headpic.jpg
   name: "Codebells"
-  intro: "任何一个你不喜欢又离不开的地方，任何一种你不喜欢又摆脱不了的生活，就是监狱。"
+  intro: "人为之学，不日进则日退。"
   # 更多图标可从 https://hexo.fluid-dev.com/docs/icon/ 查找，`class` 代表图标的 css class，添加 `qrcode` 后，图标不再是链接而是悬浮二维码
   # More icons can be found from https://hexo.fluid-dev.com/docs/en/icon/  `class` is the css class of the icon. If adding `qrcode`, The icon is no longer a link, but a hovering QR code
   icons:
