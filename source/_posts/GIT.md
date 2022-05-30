@@ -86,4 +86,18 @@ git push origin remoteBranch
 
 # Git拉取指定分支代码
 
+```
 git clone -b SourceCode https://github.com/Codebells/Codebells.github.io.git
+```
+
+# 多机协作
+
+远程仓库有一个分支SourceCode，节点1本地代码是从该仓库clone下来的，修改后，如果远程仓库已经更新。则进行如下操作。
+
+```
+git add .
+git commit -m "message"
+git pull origin SourceCode
+git push origin SourceCode
+```
+

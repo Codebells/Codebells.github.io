@@ -4,7 +4,9 @@ date: 2022-04-19 16:42:06
 categories: 
   - [database]
   - [paper_read]
-tags: [paper_read,database]
+  - [concurrency_control]
+  - [transaction]
+tags: [paper_read,database,并发控制,OCC,txn]
 category_bar: true
 excerpt: 阅读Epoch based Commit and Replication in Distributed OLTP笔记。
 ---

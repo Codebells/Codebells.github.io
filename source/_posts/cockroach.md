@@ -8,7 +8,9 @@ tags: [paper_read,database,cockroach]
 category_bar: true
 ---
 
-CockroachDB: The Resilient Geo-Distributed SQL Database
+CockroachDB: The Resilient Geo-Distributed SQL Database阅读笔记
+
+<!-- more -->
 
 以下分享一下个人对于CRDB论文的些许浅见
 
