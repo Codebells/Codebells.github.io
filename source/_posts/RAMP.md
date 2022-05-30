@@ -1,5 +1,5 @@
 ---
-title: Scalable Atomic Visibility with RAMP Transactions
+title: SIGMOD 2014 RAMP论文阅读
 date: 2022-05-28 16:42:06
 categories: 
   - [database]
