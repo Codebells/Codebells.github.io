@@ -4,7 +4,7 @@ date: 2022-04-1 16:42:06
 categories: 
   - [database]
   - [paper_read]
-tags: [paper_read,database]
+tags: [paper_read,database,HTAP]
 category_bar: true
 excerpt: 阅读Retrofitting High Availability Mechanism to Tame Hybrid Transaction/Analytical Processing笔记。
 ---
