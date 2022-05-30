@@ -9,6 +9,8 @@ excerpt: 常用Git命令记录
 
 # GIT 
 
+```
+
 git commit -m<message> 创建新版本快照到仓库，Head一同移动，并添加信息
 
 git branch <-b> <branch> 创建分支 参数-b   创建后将头指针移动到该分支
@@ -38,6 +40,7 @@ git add <files> 将文件添加到暂存区
 git push origin <branch> 将本地分支提交到git仓库
 
 git restore <file> 表示将在工作空间更改但是不在暂存区的文件file撤销更改
+```
 
 # 使用逻辑
 
@@ -62,15 +65,15 @@ git config --local --list
 
 打开终端，依次输入
 
-> git config --global http.proxy http://127.0.0.1:41091
->
-> git config --global https.proxy https://127.0.0.1:41091
->
-> 关闭
->
-> git config --global --unset http.proxy
->
-> git config --global --unset https.proxy
+```
+git config --global http.proxy http://127.0.0.1:41091
+git config --global https.proxy https://127.0.0.1:41091
+关闭
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+
 
 # Git不拉取代码新建远程分支上传本地代码
 
