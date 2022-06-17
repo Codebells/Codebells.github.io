@@ -4,7 +4,8 @@ date: 2022-05-28 16:42:06
 categories: 
   - [database]
   - [paper_read]
-tags: [paper_read,database]
+  -	[isolation]
+tags: [paper_read,database,isolation]
 category_bar: true
 excerpt: 阅读Scalable Atomic Visibility with RAMP Transactions笔记。
 ---
