@@ -29,8 +29,23 @@
 <meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625195631374.png">
 <meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625203410240.png">
 <meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625205019501.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626153400907.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170106558.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170117211.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170143731.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170156954.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170215059.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170222730.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170257428.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170311588.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093814891.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093823986.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093909234.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093858698.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093932034.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093947242.png">
 <meta property="article:published_time" content="2022-06-24T10:56:37.000Z">
-<meta property="article:modified_time" content="2022-06-26T02:31:45.684Z">
+<meta property="article:modified_time" content="2022-06-27T06:52:22.915Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="paper_read">
 <meta property="article:tag" content="database">
@@ -231,7 +246,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.9k 字
+          4.2k 字
         
       </span>
     
@@ -242,7 +257,7 @@
         
         
         
-          33 分钟
+          36 分钟
         
       </span>
     
@@ -668,8 +683,13 @@
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>分片复制到多数据中心，分片的Leader可能不在同一个数据中心，事务Coordinator一般选事务发起的客户端所在的DataCenter，可能不是事务涉及的数据分区的Leader，但是必须是某个分区的Leader</p>
 <p>可能DC1：<strong>1shard</strong> 2shard，DC2：1shard <strong>3shard</strong>，DC3：<strong>2shard</strong> 3shard</p>
 <h1 id="2FI事务"><a href="#2FI事务" class="headerlink" title="2FI事务"></a>2FI事务</h1><p>即2-round Fixed-set interactive 事务，读写涉及的key必须提前知道</p>
-<p>一个特殊的读写事务，第一轮是读，读后跟着一轮写，在第一轮读完成后，读写涉及的key就都知道了</p>
+<p>一个特殊的读写事务，第一轮是读，读后跟着一轮写，在第一轮读完成后，读的值就都知道了，有些Read modified write可以直接借助于第一轮的结果实现</p>
 <p>所有的读操作可以在第一轮时并发执行</p>
+<p>_为什么要2FI事务？_</p>
+<ul>
+<li>直接在事务中实现read modified write，而非依赖于CPU架构</li>
+<li>事务的读操作在第一轮可以并行执行</li>
+</ul>
 <h1 id="Carousel的事务流程"><a href="#Carousel的事务流程" class="headerlink" title="Carousel的事务流程"></a>Carousel的事务流程</h1><p>Coordinator是replica的Leader，分区的Leader可能和Coordinator不同</p>
 <p>通过2PC和2FI事务的第二轮写重合来缩短事务完成时间</p>
 <p>如图是Carousel的2FI事务执行流程</p>
@@ -701,15 +721,34 @@
 <h2 id="提前提交状态转发"><a href="#提前提交状态转发" class="headerlink" title="提前提交状态转发"></a>提前提交状态转发</h2><p>当无法priority abort低优先级事务的时候，高优先级事务必须等待，直到低优先级事务提交后并将数据同步至follower才能进行。为了解决这个问题，提出Early committed state forwarding(ECSF)，来允许提交的事务更新，尽早的对后续冲突事务可见。</p>
 <h3 id="Local-ECSF"><a href="#Local-ECSF" class="headerlink" title="Local ECSF"></a>Local ECSF</h3><p>一旦分区Leader收到一个从Coordinator的已提交事务的数据更新，他会将数据对下一个冲突的事务可见，以此来减少所有事务的延迟</p>
 <blockquote>
-<p>例，$T_0$时刻$Txn_1$开始写A，在$T_20$ 开始执行$Txn_2$但是因为有数据冲突，必须等待$Txn_1$执行完，并且对$Txn_2$可见才能执行$Txn_2$，一旦分区Leader收到协调者发来的$Txn_1$提交请求，那么使用LECSF，使$Txn_2$提前拿到这个值，而不需要等待数据同步以维持容错的过程，这就减少了事务延迟。</p>
+<p>例，$T_0$时刻$Txn_1$开始写A，在$ T_{20} $开始执行$Txn_2$但是因为有数据冲突，必须等待$Txn_1$执行完，并且对$Txn_2$可见才能执行$Txn_2$，一旦分区Leader收到协调者发来的$Txn_1$提交请求，那么使用LECSF，使$Txn_2$提前拿到这个值，而不需要等待数据同步以维持容错的过程，这就减少了事务延迟。</p>
 </blockquote>
 <p><img src="natto/image-20220625203410240.png" srcset="/img/loading.gif" lazyload alt="Example of LECSF"></p>
 <h3 id="Remote-ECSF"><a href="#Remote-ECSF" class="headerlink" title="Remote ECSF"></a>Remote ECSF</h3><p>提交的事务更新首先要在Coordinator上同步，实现容错，然后再转发给分区Leader。分区Leader必须等待更新的commit信息，才能处理后续的高优先级事务。RECSF目的为了减少高优先级事务的等待时间。</p>
-<p>方法就是，当分区Leader处理事务的时候，它直到在等待的高优先级事务的前一个冲突事务，分区Leader将其读取请求转发给冲突事务的Coordinator，让Coordinator返回提交的结果即可。</p>
+<p>方法就是，当分区Leader处理事务的时候，它知道在等待的高优先级事务的前一个冲突事务，分区Leader将其读取请求转发给冲突事务的Coordinator，让Coordinator返回提交的结果即可。</p>
 <blockquote>
 <p>例，前段类似于LECSF，但是当处理$Txn_2$时，分区Leader不再等待Coordinator的提交更新数据传来，而是会将读取$Txn_1$的请求先转发给Coordinator，一旦Coordinator确定了要提交$Txn_1$，那么就会回应$Txn_2$的读取请求，这样就节省了时间。</p>
 </blockquote>
 <p><img src="natto/image-20220625205019501.png" srcset="/img/loading.gif" lazyload alt="Example of RECSF"></p>
+<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>和Carousel(2PC+OCC)，TAPIR(2PC+OCC)，类似Spanner(2PC+2PL)的系统对比，在本地集群模拟广域网延迟以及云服务器集群，使用三种不同负载，YCSB-T(KV事务测试)，Retwis(类似Twitter的工作负载)，SmallBank(模拟银行工作负载)</p>
+<p>5分区3副本，每个数据中心最多存放一个分区的一个副本</p>
+<p><img src="natto/image-20220626153400907.png" srcset="/img/loading.gif" lazyload alt="DataPlaced"></p>
+<p>10%的事务被标记为高优先级事务，每100ms获取一次各分区的延迟信息</p>
+<h2 id="YCSB-T"><a href="#YCSB-T" class="headerlink" title="YCSB-T"></a>YCSB-T</h2><p>当事务输入速率从50增加到350txn/s时，carousel和2PL+2PC及TAPIR的高优先级事务的延迟显著增加，Natto增加的就不明显</p>
+<p><img src="natto/image-20220626170106558.png" srcset="/img/loading.gif" lazyload alt="image-20220626170106558"></p>
+<p><img src="natto/image-20220626170117211.png" srcset="/img/loading.gif" lazyload alt="image-20220626170117211"></p>
+<p><img src="natto/image-20220626170143731.png" srcset="/img/loading.gif" lazyload alt="image-20220626170143731"></p>
+<p><img src="natto/image-20220626170156954.png" srcset="/img/loading.gif" lazyload alt="image-20220626170156954"></p>
+<p><img src="natto/image-20220626170215059.png" srcset="/img/loading.gif" lazyload alt="image-20220626170215059"></p>
+<p><img src="natto/image-20220626170222730.png" srcset="/img/loading.gif" lazyload alt="image-20220626170222730"></p>
+<p><img src="natto/image-20220626170257428.png" srcset="/img/loading.gif" lazyload alt="image-20220626170257428"></p>
+<p><img src="natto/image-20220626170311588.png" srcset="/img/loading.gif" lazyload alt="image-20220626170311588"></p>
+<p><img src="natto/image-20220627093814891.png" srcset="/img/loading.gif" lazyload alt="image-20220627093814891"></p>
+<p><img src="natto/image-20220627093823986.png" srcset="/img/loading.gif" lazyload alt="image-20220627093823986"></p>
+<p><img src="natto/image-20220627093909234.png" srcset="/img/loading.gif" lazyload alt="image-20220627093909234"></p>
+<p><img src="natto/image-20220627093858698.png" srcset="/img/loading.gif" lazyload alt="image-20220627093858698"></p>
+<p><img src="natto/image-20220627093932034.png" srcset="/img/loading.gif" lazyload alt="image-20220627093932034"></p>
+<p><img src="natto/image-20220627093947242.png" srcset="/img/loading.gif" lazyload alt="image-20220627093947242"></p>
 
               
             </div>
