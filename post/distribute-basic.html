@@ -16,34 +16,30 @@
   <meta name="author" content="Codebells">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Enabling Lightweight Transactions with Precision Time阅读笔记">
+    <meta name="description" content="一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。  容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。 数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。  CAP定理 通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ASPLOS 2017 SEMEL&amp;MILANA">
-<meta property="og:url" content="https://codebells.github.io/post/semel.html">
+<meta property="og:title" content="分布式系统中的Data Consistency">
+<meta property="og:url" content="https://codebells.github.io/post/distribute-basic.html">
 <meta property="og:site_name" content="Codebells">
-<meta property="og:description" content="Enabling Lightweight Transactions with Precision Time阅读笔记">
+<meta property="og:description" content="一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。  容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。 数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。  CAP定理 通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184549693.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184557314.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184604671.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184611705.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184618800.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184625310.png">
-<meta property="og:image" content="https://codebells.github.io/post/semel/image-20220530184629363.png">
-<meta property="article:published_time" content="2022-03-23T08:42:06.000Z">
-<meta property="article:modified_time" content="2022-05-30T10:54:03.713Z">
+<meta property="og:image" content="https://codebells.github.io/post/distribute-basic/image-20220703210216966.png">
+<meta property="article:published_time" content="2022-06-27T08:43:20.000Z">
+<meta property="article:modified_time" content="2022-07-04T13:04:51.189Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="paper_read">
 <meta property="article:tag" content="database">
+<meta property="article:tag" content="并发控制">
+<meta property="article:tag" content="OCC">
 <meta property="article:tag" content="txn">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://codebells.github.io/post/semel/image-20220530184549693.png">
+<meta name="twitter:image" content="https://codebells.github.io/post/distribute-basic/image-20220703210216966.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>ASPLOS 2017 SEMEL&amp;MILANA - Codebells</title>
+  <title>分布式系统中的Data Consistency - Codebells</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -209,7 +205,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="ASPLOS 2017 SEMEL&amp;MILANA"></span>
+            <span id="subtitle" data-typed-text="分布式系统中的Data Consistency"></span>
           
         </div>
 
@@ -220,8 +216,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-03-23 16:42" pubdate>
-          2022年3月23日 下午
+        <time datetime="2022-06-27 16:43" pubdate>
+          2022年6月27日 下午
         </time>
       </span>
     
@@ -232,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          3k 字
         
       </span>
     
@@ -243,7 +239,7 @@
         
         
         
-          11 分钟
+          26 分钟
         
       </span>
     
@@ -317,7 +313,7 @@
       
         <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
            class="list-group-item list-group-item-action
-           active">
+           ">
           <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
         </a>
       
@@ -488,7 +484,7 @@
       
         <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
            class="list-group-item list-group-item-action
-           ">
+           active">
           <span class="category-post">分布式系统中的Data Consistency</span>
         </a>
       
@@ -525,7 +521,7 @@
       
         <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
            class="list-group-item list-group-item-action
-           active">
+           ">
           <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
         </a>
       
@@ -642,7 +638,71 @@
       
         <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
            class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="concurrency_control"
+        id="heading-3fccfc744c0abeedd8574310bfb3ffb4" role="tab" data-toggle="collapse" href="#collapse-3fccfc744c0abeedd8574310bfb3ffb4"
+        aria-expanded="true"
+      >
+        concurrency_control
+        <span class="list-group-count">(4)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-3fccfc744c0abeedd8574310bfb3ffb4"
+           role="tabpanel" aria-labelledby="heading-3fccfc744c0abeedd8574310bfb3ffb4">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
            ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           active">
           <span class="category-post">分布式系统中的Data Consistency</span>
         </a>
       
@@ -679,7 +739,7 @@
       
         <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
            class="list-group-item list-group-item-action
-           active">
+           ">
           <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
         </a>
       
@@ -715,7 +775,7 @@
       
         <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
            class="list-group-item list-group-item-action
-           ">
+           active">
           <span class="category-post">分布式系统中的Data Consistency</span>
         </a>
       
@@ -739,46 +799,75 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">ASPLOS 2017 SEMEL&amp;MILANA</h1>
+            <h1 style="display: none">分布式系统中的Data Consistency</h1>
             
             <div class="markdown-body">
               
-              <p>Enabling Lightweight Transactions with Precision Time阅读笔记</p>
-<span id="more"></span>
-<p><strong>如何结合Software-Defined Flash(SDF)和精确同步时钟来提高性能并降低数据中心事务存储的复杂性</strong></p>
-<p>提出分布式事务系统MILANA在多版本key-value store上主要处理读操作工作负载特别大的数据中心</p>
-<p>优化了单个数据中心的低延迟访问，使用IEEE的PTP作为全球同步时间，保证服务器时间精确，当时的系统好像用的是NTP</p>
-<p>Software-Defined Flash (SDF)</p>
-<p>Precision Time Protocol(PTP)</p>
-<p>Flash Translation Layer (FTL)</p>
-<p> Network Time Protocol (NTP)</p>
-<p><strong>贡献</strong></p>
-<p>因为OCC事务可能会因为时间戳分配的问题产生冲突，例如，使用PTP就能减少这样的冲突</p>
-<p>SEMEL利用闪存SSD写入前重新映射来实现简易版本的多版本存储</p>
-<p>Milana快速在本地处理只读事务</p>
-<p>PTP将服务器分为主从结构，从服务器可以计算网络延迟以及和主服务器的时钟的偏移量</p>
-<p>​    <img src="semel/image-20220530184549693.png" srcset="/img/loading.gif" lazyload alt="image-20220530184549693"></p>
-<p>Clock skew会造成的影响，比如C1的偏移量是一个单位的e，c2的偏移量是0.1个单位，那么又因为我c2是后写的，所以c2是应该成功的，但是因为时钟偏移量问题，我误判版本是旧版本，导致abort，其实这个版本是新的，只不过是因为时间偏移的问题，PTP不能解决这个问题，只能尽量减少这个问题，因为精度更好</p>
-<p>​    <img src="semel/image-20220530184557314.png" srcset="/img/loading.gif" lazyload alt="image-20220530184557314"></p>
-<p>左边的是内存中的逻辑地址，右边的部分是SSD的物理地址，每次写入的时候讲逻辑块重新映射到新的物理页面，旧值保存再原处，等待垃圾回收，存多少个版本由垃圾回收这边程序进行判断，利用了centiman中的watermark的思想，把这个watermark之前的版本全回收了就可以。watermark就是在某个时间之前的事务已经全部完成，不会对当前的value造成影响了，所以垃圾回收掉</p>
-<p><strong>SEMEL</strong></p>
-<p>通过ssd实现存储的多版本key value store， 主备结构 replication  </p>
-<p>SEMEL的FTL方式Key → LBA → 就能找到对应的最新data</p>
-<p>​    <img src="semel/image-20220530184604671.png" srcset="/img/loading.gif" lazyload alt="image-20220530184604671"></p>
-<p>左边的v维护page号和偏移量</p>
-<p>每次写入的时候讲逻辑块重新映射到新的物理页面，旧值保存再原处，等待垃圾回收，存多少个版本由垃圾回收这边程序进行判断，利用了centiman中的watermark的思想，把这个watermark之前的版本全回收了就可以。watermark就是在某个时间之前的事务已经全部完成，不会对当前的value造成影响了，所以垃圾回收掉</p>
-<p><strong>MILANA</strong></p>
-<p>分布式事务处理系统，使用OCC，2PC</p>
-<p>​    <img src="semel/image-20220530184611705.png" srcset="/img/loading.gif" lazyload alt="image-20220530184611705"></p>
-<p>majority of replica接受了之后，返回确认信息，可以提交，那就进入commit，这就是一个普通的2pc，使用</p>
-<p><img src="semel/image-20220530184618800.png" srcset="/img/loading.gif" lazyload alt="image-20220530184618800"></p>
-<p>MILANA primary server maintains in DRAM a latestRead, prepared and latestCommitted timestamp for each active key</p>
-<p>key.prepared不等于none 代表有一个事务验证通过</p>
-<p><strong>实验</strong></p>
-<p>​    <img src="semel/image-20220530184625310.png" srcset="/img/loading.gif" lazyload alt="image-20220530184625310"></p>
-<p>多版本的FTL相对于单版本的也是降低了很多的abort率</p>
-<p>​    <img src="semel/image-20220530184629363.png" srcset="/img/loading.gif" lazyload alt="image-20220530184629363"></p>
-<p>PTP相比于NTP降低了Abort率</p>
+              <p>一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。</p>
+<ul>
+<li>容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。</li>
+<li>数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。</li>
+</ul>
+<p><strong>CAP定理</strong></p>
+<p>通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系统的停机时间，我们需要容忍一台节点或者多台节点出现问题不可用的情况，这样就需要引入冗余，而一旦添加了冗余机制，那么就会涉及到多副本的同步问题以及节点恢复问题。</p>
+<p>而CAP定理就将实际问题抽象出3个概念，一致性(consistency)，可用性(Availability)，分区容忍性(Partition tolerance)。首先理解这三个概念</p>
+<ul>
+<li>一致性：各个数据副本数据的一致情况</li>
+<li>可用性：客户端的访问能得到回应</li>
+<li>分区容忍性：在一定时间内各个节点能够通信，达成数据一致</li>
+</ul>
+<p>CAP定理指出，无法同时满足上述三个特性，因为如果要满足高一致性，那么必须等待数据副本的数据同步，那么可用性即降低，如果保证高可用性，那么就无法花太多时间等待数据副本同步。而如果想要同时满足CA，那么，节点之间需要互相通信以同步数据，这样分区容忍性无法保证，但是实际情况下，网络分区无法控制，所以，只能于CA中选择一个，或者CP，或者AP。</p>
+<p>CAP中的C和ACID中的C是完全不一样的，ACID中的C是，事务将数据库从一个有效状态到另一个有效状态，这个有效状态即没有违反任何完整性约束条件。而在CAP中的C意味着事务的原子性和一致性，不让数据处于不一致的状态；CAP中的A和数据库的高可用性也是不一样的。CAP的A对延迟没有限制，而是需要客户端的访问都能得到响应。而系统中的高可用性并不要求每个非故障节点响应每个请求。</p>
+<h1 id="数据一致性"><a href="#数据一致性" class="headerlink" title="数据一致性"></a>数据一致性</h1><p>一致性。比较复杂，涉及理论一致性和并发模型，在这精简描述一下，一致性模型可以看成参与者之间的约定，及用户在发出读写请求时期望得到什么结果，描述了在存在多份并发访问的情况下可能出现的结果。这是从值传播的角度考虑一致性。</p>
+<h2 id="严格一致性"><a href="#严格一致性" class="headerlink" title="严格一致性"></a>严格一致性</h2><p>任何进程的任何写入都可以立即被任何进程的后续读操作读取。涉及全局时钟的概念，即在全局情况下，时间戳靠后的事务一定能够读取到时间戳靠前的事务的数据。不可能实现，理论模型。</p>
+<h2 id="可线性化"><a href="#可线性化" class="headerlink" title="可线性化"></a>可线性化</h2><p>是最强的单对象、单操作一致性模型。写操作的效果严格一次性的对所有读取者可见，可线性化可能存在不同的方式来确定事件的全序关系，在一个系统中，这个顺序应该一致的，也就是读取到的值必须是至少与之前读取的值是一样新的，也就是单调的读取。</p>
+<p>原子原语，例如原子写和原子比较-交换(CAS)操作。原子写无需考虑当前寄存器值，这和CAS仅在前一个值没有变化的时候才能从一个值变为另一个值，也就是交换值，因为需要避免ABA问题。ABA问题就是A被存入寄存器中的时候，可能会又两个并发写入操作，设置了值B并切换回值A，也就是A不变，并不能保证A从上次读取后就没有更改。</p>
+<p><strong>线性化点</strong>也就是，在线性化点之前，旧值可见，之后新值可见。</p>
+<p>目前大部分系统避免可线性化，因为开销过高，即使是CPU访问主存也不提供可线性化，因为同步指令开销太大了，严重影响速度，但是可以使用CAS来引入可线性化，可以先准备结果，准备好后，交换指针即可使结果可见。</p>
+<h2 id="顺序一致性"><a href="#顺序一致性" class="headerlink" title="顺序一致性"></a>顺序一致性</h2><p>可线性化的代价太高，可以放松模型的同时仍提供相当强的一致性保证。顺序一致性允许对事务进行排序，保证了同属一台进程的顺序不变，但是全局的顺序有可能不按照真实时间排序，但是要注意一点，其他节点观测到的顺序也必须是一致的。</p>
+<h2 id="因果一致性"><a href="#因果一致性" class="headerlink" title="因果一致性"></a>因果一致性</h2><p>存在因果关系的操作保证顺序，其他的可以不保证相同的顺序被读取者观测。</p>
+<p>因果一致性可以使用逻辑时钟实现，而且使用因果一致性可以在消息无序传递的情况下重新构建事务序列，填补消息空隙，直到收集所有的操作依赖项并恢复因果顺序。Dynamo和Riak使用向量时钟建立因果关系。</p>
+<p><strong>向量时钟</strong>是一种用于在事件中建立偏序关系，检测和解决事件链分歧的结构。向量时钟是更细粒度的在数据上追加，而逻辑时钟是在本地进行维护</p>
+<p>如图Dynamo</p>
+<p><img src="distribute-basic/image-20220703210216966.png" srcset="/img/loading.gif" lazyload alt="Dynamo Vector clock"></p>
+<ol>
+<li>client 端写入数据，该请求被 Sx 处理并创建相应的 vector ([Sx, 1])，记为数据 D1</li>
+<li>第 2 次请求也被 Sx 处理，数据修改为 D2，vector 修改为([Sx, 2])</li>
+<li>第 3、4 次请求分别被 Sy、Sz 处理，client 端先读取到 D2，然后 D3、D4 被写入 Sy、Sz</li>
+<li>第 5 次更新时 client 端读取到 D2、D3 和 D4 3个数据版本，通过类似向量时钟判断同时发生关系的方法可判断 D3、D4 是同时发生的事件，因此存在数据冲突，最终通过一定方法解决数据冲突并写入 D5</li>
+</ol>
+<p>版本向量借鉴了向量时钟中利用向量来判断事件的因果关系的思想，用于检测数据冲突，和向量时钟不是一个东西。</p>
+<h1 id="会话模型"><a href="#会话模型" class="headerlink" title="会话模型"></a>会话模型</h1><p>也成为以客户端为中心的一致性模型，从客户端的角度看分布式系统的状态，</p>
+<p><strong>读自己写</strong>(read own write)一致性模型，当写操作完成后，在相同或其他副本上的读操作必须可以观测到写入的值。</p>
+<p><strong>单调读</strong>模型读到的值一定不会是旧的。</p>
+<p><strong>单调写</strong>模型同一客户端写入操作的执行顺序和写入的值的顺序一致。</p>
+<p><strong>读后写</strong>确保写入被排在之前的读取操作返回结果之后。</p>
+<p>将单调读单调写读自己写结合，就可以提供流水线随机访问存储器(PRAM)一致性，保证来自一个进程的写操作将按照进程执行的顺序传播。顺序一致性来自不同进程的写入可以以不同的顺序被观测</p>
+<h1 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h1><p>更新被异步的传播，最终所有的访问都会返回最新的写入结果，没有时间限制多久必须达成一致，非常不可靠。</p>
+<h1 id="可调一致性"><a href="#可调一致性" class="headerlink" title="可调一致性"></a>可调一致性</h1><p>使用三个参数调节数据复制读取和写入。</p>
+<p>复制因子 N，存储数据副本的节点数</p>
+<p>写入一致性 W，需要确认成功写入的节点数</p>
+<p>读取一致性 R，需要确认成功读取的节点数。</p>
+<p>通过调整参数保证W+R&gt;N来达成一致性。保证读取到的一定是最新的值，类似抽屉原理，读取和写入的集合总是存在重叠。</p>
+<p>Quorum协议是可以容忍不超过半数节点故障的可调一致性。即N和W为N/2+1或N/2.</p>
+<p>为了降低存储成本，可以将副本分为见证者副本和拷贝副本，见证者副本仅存储部分记录，表示写操作发生过的关键源信息。</p>
+<h1 id="强最终一致性和CRDT"><a href="#强最终一致性和CRDT" class="headerlink" title="强最终一致性和CRDT"></a>强最终一致性和CRDT</h1><p>在可线性化和最终一致性之间，还存在一个可能的中间地带，强最终一致性，提供了两种模式各自的好处。在这种一致性下，更新可能会延迟或者无序的传播到其他节点，但当所有更新都发送过去的时候，冲突可以被解决，他们最终将合并产生相同的有效状态，也就是conflict-free replicated data type(CRDT)，无冲突复制数据类型。</p>
+<p>可能存在网络分区，但是可以独立的在每个节点执行操作，当通信恢复时，所有节点的数据可以进行协调合并，网络分区期间执行的操作不会丢失。</p>
+<p>最简单的例子<strong>CmRDT</strong>(Commutative Replicated Data Type)，基于操作的可交换复制数据类型。需要满足三点</p>
+<ul>
+<li>无副作用，操作不会改变系统状态</li>
+<li>可交换，顺序无关紧要，即操作满足交换律</li>
+<li>按照因果关系排序，操作成功传递依赖的前提条件是，确保系统已经到达操作可以应用的状态</li>
+</ul>
+<p>CvRDT(Convergent Replicated Data Type)，基于状态的同步，需要满足</p>
+<ul>
+<li>幂等律，不管发送多少次，结果总是一样的</li>
+<li>单调的</li>
+</ul>
+<blockquote>
+<p>参考<a target="_blank" rel="noopener" href="https://highlyscalable.wordpress.com/2012/09/18/distributed-algorithms-in-nosql-databases/">DISTRIBUTED ALGORITHMS IN NOSQL DATABASES</a></p>
+<p>《数据库系统内幕》 Alex Petrov</p>
+</blockquote>
 
               
             </div>
@@ -816,6 +905,16 @@
     
       <span class="category-chain">
         
+  <a href="/categories/concurrency-control/" class="category-chain-item">concurrency_control</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
   <a href="/categories/transaction/" class="category-chain-item">transaction</a>
   
   
@@ -835,6 +934,10 @@
       
         <a href="/tags/database/">#database</a>
       
+        <a href="/tags/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">#并发控制</a>
+      
+        <a href="/tags/OCC/">#OCC</a>
+      
         <a href="/tags/txn/">#txn</a>
       
     </div>
@@ -847,8 +950,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>ASPLOS 2017 SEMEL&amp;MILANA</div>
-      <div>https://codebells.github.io/post/semel.html</div>
+      <div>分布式系统中的Data Consistency</div>
+      <div>https://codebells.github.io/post/distribute-basic.html</div>
     </div>
     <div class="license-meta">
       
@@ -860,7 +963,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年3月23日</div>
+          <div>2022年6月27日</div>
         </div>
       
       
@@ -890,18 +993,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">VLDB 2019 通过事务重排序OCC优化</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc">
-                        <span class="hidden-mobile">SIGMOD 2016 Tictoc</span>
+                      <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读">
+                        <span class="hidden-mobile">SIGMOD2022 Natto论文阅读</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
