@@ -6,7 +6,7 @@
   <link href="https://codebells.github.io/atom.xml" rel="self"/>
   
   <link href="https://codebells.github.io/"/>
-  <updated>2022-07-04T13:04:51.189Z</updated>
+  <updated>2022-07-09T08:27:43.926Z</updated>
   <id>https://codebells.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一些没啥用的脚本</title>
+    <link href="https://codebells.github.io/post/script.html"/>
+    <id>https://codebells.github.io/post/script.html</id>
+    <published>2022-07-09T08:03:04.000Z</published>
+    <updated>2022-07-09T08:27:43.926Z</updated>
+    
+    <content type="html"><![CDATA[<p>一些自己用的脚本，网易云日常及单曲听歌次数，微信步数，贴吧签到，B站日常等</p><p>没啥用，但是挂着玩玩</p><p>尽量使用真实QQ注册吧，当账号失效时会发送QQ邮件提醒</p><p><strong>仅自用，非盈利，勿分享</strong>，注册送3个月使用，到期可以给我发邮件，<strong>免费</strong>给续，<strong>1347103071@qq.com</strong></p><p>网站的支付功能没开，本来想收费的，但是需要易支付的API，要花钱，想想估计也没啥人买，就懒得搞了，有啥需求邮件联系</p><p>刚开始挂的时候，自己的网易云音乐会经常掉线，重新登陆一下即可，后面就不会了</p><h1 id="网易云日常"><a href="#网易云日常" class="headerlink" title="网易云日常"></a>网易云日常</h1><p><img src="script/image-20220709160606235.png" alt="网易云音乐日常任务"></p><h1 id="微信支付宝步数"><a href="#微信支付宝步数" class="headerlink" title="微信支付宝步数"></a>微信支付宝步数</h1><p>我主要是为了搞蚂蚁森林能量</p><p><img src="script/image-20220709161512706.png" alt="image-20220709161512706"></p><h1 id="网址"><a href="#网址" class="headerlink" title="网址"></a>网址</h1><p><a href="http://codebells.uvgg.com/">http://codebells.uvgg.com/</a></p><p>使用不收费，支持运行服务器可以随缘给个噢</p><p><img src="script/image-20220709161854783.png" alt="image-20220709161854783"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;一些自己用的脚本，网易云日常及单曲听歌次数，微信步数，贴吧签到，B站日常等&lt;/p&gt;
+&lt;p&gt;没啥用，但是挂着玩玩&lt;/p&gt;
+&lt;p&gt;尽量使用真实QQ注册吧，当账号失效时会发送QQ邮件提醒&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;仅自用，非盈利，勿分享&lt;/strong&gt;，注册送3个月使用，到</summary>
+      
+    
+    
+    
+    <category term="tech" scheme="https://codebells.github.io/categories/tech/"/>
+    
+    
+    <category term="日常" scheme="https://codebells.github.io/tags/%E6%97%A5%E5%B8%B8/"/>
+    
+  </entry>
   
   <entry>
     <title>分布式系统中的Data Consistency</title>
