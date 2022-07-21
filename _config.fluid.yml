@@ -793,7 +793,7 @@ valine:
   appId: WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz
   appKey: cPvJTOuCUdA2Hs8Nnkk2pxMA
   path: window.location.pathname
-  placeholder:
+  placeholder: '填写邮箱可以收到回复通知~'
   avatar: 'retro'
   meta: ['nick', 'mail', 'link']
   requiredFields: []
