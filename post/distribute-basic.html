@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://codebells.github.io/post/distribute-basic/image-20220703210216966.png">
 <meta property="article:published_time" content="2022-06-27T08:43:20.000Z">
-<meta property="article:modified_time" content="2022-07-04T13:04:51.189Z">
+<meta property="article:modified_time" content="2022-07-09T13:16:48.637Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="paper_read">
 <meta property="article:tag" content="database">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3k 字
+          3.3k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          26 分钟
+          28 分钟
         
       </span>
     
@@ -297,7 +297,7 @@
         aria-expanded="true"
       >
         database
-        <span class="list-group-count">(20)</span>
+        <span class="list-group-count">(23)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -486,6 +486,33 @@
            class="list-group-item list-group-item-action
            active">
           <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
         </a>
       
     
@@ -723,7 +750,7 @@
         aria-expanded="true"
       >
         transaction
-        <span class="list-group-count">(5)</span>
+        <span class="list-group-count">(7)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -777,6 +804,24 @@
            class="list-group-item list-group-item-action
            active">
           <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
         </a>
       
     
@@ -851,6 +896,7 @@
 <p>通过调整参数保证W+R&gt;N来达成一致性。保证读取到的一定是最新的值，类似抽屉原理，读取和写入的集合总是存在重叠。</p>
 <p>Quorum协议是可以容忍不超过半数节点故障的可调一致性。即N和W为N/2+1或N/2.</p>
 <p>为了降低存储成本，可以将副本分为见证者副本和拷贝副本，见证者副本仅存储部分记录，表示写操作发生过的关键源信息。</p>
+<h2 id="见证者副本"><a href="#见证者副本" class="headerlink" title="见证者副本"></a>见证者副本</h2><p>正常存储副本需要大量单调数据冗余，我们可以通过见证者副本来降低存储成本，我们不需要在每个副本上存储数据记录的拷贝，而是将副本划分成两种，一个是拷贝副本，一个是见证者副本，见证者副本仅存储一些关键记录，表示写操作曾经发生过，可调一致性的写入因子就必须小于等于拷贝副本数量，但是当拷贝副本宕机过多，导致拷贝副本小于写入因子时，那么此时可以将见证者副本临时代替拷贝副本存储数据，等到原来的拷贝副本恢复再将数据迁移并且恢复原来状态，或者其他操作。</p>
 <h1 id="强最终一致性和CRDT"><a href="#强最终一致性和CRDT" class="headerlink" title="强最终一致性和CRDT"></a>强最终一致性和CRDT</h1><p>在可线性化和最终一致性之间，还存在一个可能的中间地带，强最终一致性，提供了两种模式各自的好处。在这种一致性下，更新可能会延迟或者无序的传播到其他节点，但当所有更新都发送过去的时候，冲突可以被解决，他们最终将合并产生相同的有效状态，也就是conflict-free replicated data type(CRDT)，无冲突复制数据类型。</p>
 <p>可能存在网络分区，但是可以独立的在每个节点执行操作，当通信恢复时，所有节点的数据可以进行协调合并，网络分区期间执行的操作不会丢失。</p>
 <p>最简单的例子<strong>CmRDT</strong>(Commutative Replicated Data Type)，基于操作的可交换复制数据类型。需要满足三点</p>
@@ -993,9 +1039,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/post/script.html" title="一些没啥用的脚本">
+                      <a href="/post/distribute-transaction.html" title="浅谈分布式事务">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">一些没啥用的脚本</span>
+                        <span class="hidden-mobile">浅谈分布式事务</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     

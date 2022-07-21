@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://codebells.github.io/post/aurora/v2-6943e9714abb9fdd77bbff57180ce17b_720w.jpg">
 <meta property="og:image" content="https://codebells.github.io/post/aurora/image-20220112153636141.png">
 <meta property="article:published_time" content="2022-05-20T08:42:06.000Z">
-<meta property="article:modified_time" content="2022-05-31T02:14:19.384Z">
+<meta property="article:modified_time" content="2022-07-17T06:22:43.362Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="paper_read">
 <meta property="article:tag" content="database">
@@ -229,7 +229,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.4k 字
+          2.5k 字
         
       </span>
     
@@ -240,7 +240,7 @@
         
         
         
-          20 分钟
+          21 分钟
         
       </span>
     
@@ -298,7 +298,7 @@
         aria-expanded="true"
       >
         database
-        <span class="list-group-count">(20)</span>
+        <span class="list-group-count">(23)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -487,6 +487,33 @@
            class="list-group-item list-group-item-action
            ">
           <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
         </a>
       
     
@@ -703,7 +730,7 @@
 <hr>
 <h4 id="可扩展持久化"><a href="#可扩展持久化" class="headerlink" title="可扩展持久化"></a>可扩展持久化</h4><p><strong>Quorum模型</strong> </p>
 <ol>
-<li>V~r~+V~w~&gt;V, V~w~&gt;V/2</li>
+<li>$V~r~ +V~w~&gt;V, V~w~&gt;V/2$</li>
 <li>一般部署于3个AZ上，每个AZ两个replica</li>
 <li>模型保证任意两个replica故障时有读写能力，一个AZ+一个replica故障也就是3个节点故障可提供读能力，重新复制一个存储节点就可以有写功能</li>
 </ol>
@@ -754,6 +781,11 @@
 <li>VDL：Volume Durable LSN，已经持久化最大的LSN，也就是CPLs中最大的LSN</li>
 <li>SCL：Segment Complete LSN，由每个段维护，代表段中已经持久化的最大LSN</li>
 </ul>
+<blockquote>
+<p>写的很详细，挺好的文章</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/391235701">https://zhuanlan.zhihu.com/p/391235701</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/279262046">https://www.zhihu.com/question/279262046</a></p>
+</blockquote>
 
               
             </div>
