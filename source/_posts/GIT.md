@@ -37,7 +37,7 @@ git cherry-pick <branch>...  将branch复制到Head分支，并移动Head
 
 git add <files> 将文件添加到暂存区
 
-git push origin <branch> 将本地分支提交到git仓库
+git push origin <branch> 将本地分支提交到origin地址的仓库
 
 git restore <file> 表示将在工作空间更改但是不在暂存区的文件file撤销更改
 ```
@@ -102,5 +102,20 @@ git add .
 git commit -m "message"
 git pull origin SourceCode
 git push origin SourceCode
+```
+
+# 查看本地分支与远程分支关系
+
+```
+git remote show origin
+git branch -vv
+cat .git/config
+```
+
+# 关联远程分支
+
+```
+git remote add origin <resp address>
+git branch --set-upstream-to localBranch origin/branch
 ```
 
