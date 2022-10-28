@@ -57,7 +57,7 @@ git restore <file> 表示将在工作空间更改但是不在暂存区的文件f
 
 读取三个级别配置
 
-```
+```shell
 git config --global --list
 git config --system --list
 git config --local --list
@@ -65,19 +65,28 @@ git config --local --list
 
 打开终端，依次输入
 
-```
+```shell
 git config --global http.proxy http://127.0.0.1:41091
 git config --global https.proxy https://127.0.0.1:41091
 关闭
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
+配置ssh
+```shell
+git config --global user.name "Codebells"
+git config --global user.email 1347103071@qq.com
+#生成rsa密钥
+ssh-keygen -t rsa -C "1347103071@qq.com"
+#查看公钥
+cat ~/.ssh/id_rsa.pub
+```
 
 
 
 # Git不拉取代码新建远程分支上传本地代码
 
-```
+```shell
 git init
 git remote add origin https://github.com/Codebells/Codebells.github.io.git
 git remote -v

@@ -1,6 +1,6 @@
 ---
-title: nebula源码框架
-date: 2022-10-23 15:11:21
+title: tugraph
+date: 2022-10-27 16:20:38
 categories: 
   - [database]
   - [graphdb]
@@ -8,16 +8,20 @@ tags: [database,graphdb]
 category_bar: true
 ---
 
+---
+
+key-value pair可以存点数据，入边数据以及出边数据，用5byte的vid和1byte作为VERTEX_ONLY和PACKED_DATA数据的key，以及2个byte的空间作为数据对齐。
+
+一共有四种key，PACKED_DATA，VERTEX_ONLY，OUT_EDGE，IN_EDGE，当一个点刚加入的时候，是PACKED_DATA node，到后来这个PACKED_DATA对应的value值会因为边的插入而变大，当这个数据量超出限制时，这个数据就会拆分成三个数据，VERTEX_ONLY，OUT_EDGE，IN_EDGE。其中，OUT_EDGE，IN_EDGE还能再拆分。
+
+![image-20221027193933714](tugraph/image-20221027193933714.png)
+
 # 代码架构总览
 
-解析引擎查询引擎存储引擎的代码都在其中，当客户端来了一个Query时，首先进入解析引擎，开始语义分析语法分析，抽象成AST树，经过validator验证正确后，生成执行计划，再进行执行计划的优化，优化后的AST树，进入执行引擎执行，通过并发控制算法进行事务的并发处理，和下层存储进行交互。下层存储氛围meta service和data service，分别是源信息管理和数据管理。Storage Service 共有三层：最底层是 Store Engine；之上便是我们的 Consensus 层，实现了 Multi Group Raft；最上层，便是我们的 Storage interfaces，这一层定义了一系列和图相关的 API。
+解析引擎查询引擎存储引擎的代码都在src中，当客户端来了一个Query时，首先进入解析引擎，开始语义分析语法分析，抽象成AST树，经过validator验证正确后，生成执行计划，再进行执行计划的优化，优化后的AST树，进入执行引擎执行，通过并发控制算法进行事务的并发处理，和下层存储进行交互。下层存储氛围meta service和data service，分别是源信息管理和数据管理。Storage Service 共有三层：最底层是 Store Engine；之上便是我们的 Consensus 层，实现了 Multi Group Raft；最上层，便是我们的 Storage interfaces，这一层定义了一系列和图相关的 API。
 
 ---
 
-- conf/：查询引擎配置文件目录
-- package/：nebula打包脚本
-- resources/：资源文件
-- scripts/：启动脚本
 - src/：源码目录
   - src/client/: 内置客户端
   - src/codec/: 序列化反序列化工具
