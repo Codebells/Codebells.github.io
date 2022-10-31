@@ -41,5 +41,72 @@ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 docker-compose version
 ```
 
+# docker基础
 
+```shell
+#搜索ubuntu系统镜像
+docker search ubuntu
+#拉取最新的ubuntu镜像
+docker pull ubuntu
+#列出镜像
+docker images
+#列出当时运行的容器
+docker ps
+docker stop <ID/Name>
+docker start
+#docker run是新建容器并启动，docker start 是启动停止的容器
+docker run
+docker restart
+docker rm
+docker cp
+#例子以命令行模式进入ubuntu容器
+docker run -it ubuntu /bin/bash
+```
 
+- -d 后台运行
+- -P 选项（大写）：随机端口映射
+- -p 选项（小写）：指定端口映射,**前面是宿主机端口后面是容器端口**，如`docker run nginx -p 8080:80`，将容器的 80 端口映射到宿主机的 8080 端口，然后使用`localhost:8080`就可以查看容器中 nginx 的欢迎页了
+- -t: 在新容器内指定一个伪终端或终端。
+- -i: 允许你对容器内的标准输入 (STDIN) 进行交互。
+- -v 选项：挂载宿主机目录，**前面是宿主机目录，后面是容器目录**,如`docker run -d -p 80:80 -v /dockerData/nginx/conf/nginx.conf:/etc/nginx/nginx.conf nginx` 挂载宿主机的`/dockerData/nginx/conf/nginx.conf`的文件，这样就可以在宿主机对`nginx`进行参数配置了,注意目录需要用绝对路径，不要使用相对路径，如果宿主机目录不存在则会自动创建。
+- --rm : 停止容器后会直接删除容器，这个参数在测试是很有用，如`docker run -d -p 80:80 --rm nginx`
+- --name : 给容器起个名字，否则会出现一长串的自定义名称如 `docker run -name niginx -d -p 80:80 - nginx`
+
+### docker ps的各个输出的含义
+
+CONTAINER ID: 容器 ID。
+
+IMAGE: 使用的镜像。
+
+COMMAND: 启动容器时运行的命令。
+
+CREATED: 容器的创建时间。
+
+STATUS: 容器状态。
+
+状态有7种：
+
+created（已创建）
+restarting（重启中）
+running 或 Up（运行中）
+removing（迁移中）
+paused（暂停）
+exited（停止）
+dead（死亡）
+PORTS: 容器的端口信息和使用的连接类型（tcp\udp）。
+
+NAMES: 自动分配的容器名称。
+
+## docker -d后如何进入
+
+- **docker attach**：进入容器后exit，容器也会停止
+- **docker exec**：推荐大家使用 docker exec 命令，因为此命令在exit时只会退出容器终端，但不会导致容器的停止
+
+## docker 导入导出
+
+```
+#导出容器 1e560fca3906 快照到本地文件 ubuntu.tar
+docker export 1e560fca3906 > ubuntu.tar
+#将快照文件 ubuntu.tar 导入到镜像 test/ubuntu镜像tag为v1
+cat docker/ubuntu.tar | docker import - test/ubuntu:v1
+```
