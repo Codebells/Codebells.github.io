@@ -2,7 +2,7 @@
 title: 学习makefile
 date: 2022-10-31 13:09:17
 categories: tech
-tags: 日常
+tags: tools
 category_bar: true
 ---
 
@@ -335,3 +335,24 @@ $(filter %.elc,$(files)): %.elc: %.el
 ```
 
 $(filter %.o,$(files))表示调用Makefile的filter函数，过滤“$files”集，只要其中模式为“%.o”的内容。其它的内容，我就不用多说了吧。这个例子展示了Makefile中更大的弹性。
+
+## 命令
+
+当依赖目标新于目标时，也就是当规则的目标需要被更新时，make会一条一条的执行其后的命令。需要注意的是，如果你要让上一条命令的结果应用在下一条命令时，你应该使用分号分隔这两条命令。比如你的第一条命令是cd命令，你希望第二条命令得在cd之后的基础上运行，那么你就不能把这两条命令写在两行上，而应该把这两条命令写在一行上，用分号分隔。如：
+
+- 示例一：
+
+```
+exec:
+    cd /home/hchen
+    pwd
+```
+
+- 示例二：
+
+```
+exec:
+    cd /home/hchen; pwd
+```
+
+当我们执行 `make exec` 时，第一个例子中的cd没有作用，pwd会打印出当前的Makefile目录，而第二个例子中，cd就起作用了，pwd会打印出“/home/hchen”。

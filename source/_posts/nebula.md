@@ -10,7 +10,17 @@ category_bar: true
 
 # 代码架构总览
 
-解析引擎查询引擎存储引擎的代码都在其中，当客户端来了一个Query时，首先进入解析引擎，开始语义分析语法分析，抽象成AST树，经过validator验证正确后，生成执行计划，再进行执行计划的优化，优化后的AST树，进入执行引擎执行，通过并发控制算法进行事务的并发处理，和下层存储进行交互。下层存储氛围meta service和data service，分别是源信息管理和数据管理。Storage Service 共有三层：最底层是 Store Engine；之上便是我们的 Consensus 层，实现了 Multi Group Raft；最上层，便是我们的 Storage interfaces，这一层定义了一系列和图相关的 API。
+解析引擎查询引擎存储引擎的代码都在其中，当客户端来了一个Query时，首先进入解析引擎，开始语义分析语法分析，抽象成AST树，经过validator验证正确后，生成执行计划，再进行执行计划的优化，优化后的AST树，进入执行引擎执行，通过并发控制算法进行事务的并发处理，和下层存储进行交互。下层存储分为meta service和data service，分别是源信息管理和数据管理。
+
+![Nebula架构](nebula/nebula-graph-architecture-1.png)
+
+![查询引擎架构](nebula/nebula-reading-qe-architecture.png)
+
+Storage 包含两个部分， 一是 meta 相关的存储， 我们称之为 Meta Service ，另一个是 data 相关的存储， 我们称之为 Storage Service。
+
+Storage Service 共有三层：最底层是 Store Engine；之上便是我们的 Consensus 层，实现了 Multi Group Raft；最上层，便是我们的 Storage interfaces，这一层定义了一系列和图相关的 API。
+
+![存储引擎](nebula/nebula-reading-storage-architecture.png)
 
 ---
 
@@ -61,7 +71,7 @@ category_bar: true
 
 ---
 
-### Scheduler
+## Scheduler
 
 - src/graph/scheduler/：
   - AsyncMsgNotifyBasedScheduler.cpp
@@ -71,3 +81,9 @@ category_bar: true
   - Scheduler.h
 
 Scheduler 抽象类定义了调度器的公共接口，可以继承该类实现多种调度器。 目前实现了 AsyncMsgNotifyBasedScheduler 调度器，它基于异步消息通信与广度优先搜索避免栈溢出
+
+## Storage
+
+- src/storage/BaseProcessor
+
+BaseProcessor定义了Promise以及获取它相关联的Future(通过getFuture接口)，以及处理时的一些记录结果

@@ -1,7 +1,7 @@
 ---
 title: markdown数学符号
 date: 2022-05-28 10:42:06
-tags: 日常
+tags: tools
 mathjax: true
 excerpt: 使用markdown时常用的数学符号代码
 ---

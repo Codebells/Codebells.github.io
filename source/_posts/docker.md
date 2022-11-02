@@ -2,7 +2,7 @@
 title: docker常用指令基础
 date: 2022-10-28 20:14:59
 categories: tech
-tags: 日常
+tags: tools
 category_bar: true
 excerpt: 常用docker命令记录
 ---

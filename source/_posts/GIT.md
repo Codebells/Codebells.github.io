@@ -2,7 +2,7 @@
 title: Git常用指令
 date: 2022-05-28 12:42:06
 categories: tech
-tags: 日常
+tags: tools
 category_bar: true
 excerpt: 常用Git命令记录
 ---
