@@ -356,3 +356,15 @@ exec:
 ```
 
 当我们执行 `make exec` 时，第一个例子中的cd没有作用，pwd会打印出当前的Makefile目录，而第二个例子中，cd就起作用了，pwd会打印出“/home/hchen”。
+
+# 小知识
+
+make 会把其要执行的命令行在命令执行前输出到屏幕上。当我们用“@”字符在命令行前，那么，这个命令将不被 make 显示出来
+
+```makefile
+$(BUILD_DIR)/.prepared: Makefile
+	@mkdir -p $$(dirname $@)
+	@touch $@
+```
+
+$$ 代表需要使用真实的$字符，这也就不会打印mkdir命令及touch命令

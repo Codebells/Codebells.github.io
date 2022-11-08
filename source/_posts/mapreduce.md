@@ -1,10 +1,11 @@
 ---
-title: mapreduce
+title: mit6-824 lab1 mapreduce
 date: 2022-07-17 10:10:23
 categories: 
   - [database]
   - [mapreduce]
-tags: [paper_read,mapreduce]
+  - [lab]
+tags: [paper_read,mapreduce,lab]
 category_bar: true
 ---
 
@@ -27,3 +28,21 @@ category_bar: true
 当所有的map和reduce任务都完成后，主节点唤醒用户程序。此时，用户程序中的MapReduce调用返回到用户代码中。成功完成后，MapReduce执行的输出都在R个输出文件中（每个reduce任务产生一个，文件名由用户指定）。通常用户不需要合并这R个输出文件——他们经常会把这些文件当作另一个MapReduce调用的输入，或是用于另一个可以处理分成多个文件输入的分布式应用。
 
 看看论文中的例子就大概懂了。
+
+例举了一些有趣的程序，它们都可以很轻松的用MapReduce模型表达。
+
+**分布式Grep：**map函数在匹配到给定的pattern时输出一行。reduce函数只是将给定的中间数据复制到输出上。
+
+**URL访问频次统计：**map函数处理网页请求的日志，对每个URL输出〈URL, 1〉。reduce函数将相同URL的所有值相加并输出〈URL, 总次数〉对。
+
+**倒转Web链接图：**map函数在source页面中针对每个指向target的链接都输出一个〈target, source〉对。reduce函数将与某个给定的target相关联的所有source链接合并为一个列表，并输出〈target, list(source)〉对。
+
+**每个主机的关键词向量：**关键词向量是对出现在一个文档或一组文档中的最重要的单词的概要，其形式为〈单词, 频率〉对。map函数针对每个输入文档（其主机名可从文档URL中提取到）输出一个〈主机名, 关键词向量〉对。给定主机的所有文档的关键词向量都被传递给reduce函数。reduce函数将这些关键词向量相加，去掉其中频率最低的关键词，然后输出最终的〈主机名, 关键词向量〉对。
+
+**倒排索引：**map函数解析每个文档，并输出一系列〈单词, 文档ID〉对。reduce函数接受给定单词的所有中间对，将它们按文档ID排序，再输出〈单词, list(文档ID)〉对。所有输出对的集合组成了一个简单的倒排索引。用户可以很轻松的扩展这个过程来跟踪单词的位置。
+
+**分布式排序：**map函数从每条记录中提取出key，并输出〈key, 记录〉对。reduce函数不改变这些中间对，直接输出。这个过程依赖于4.1节介绍的划分机制和4.2节介绍的排序性质。
+
+[源码地址](https://github.com/Codebells/Raft/tree/go_imp/src/mr)
+
+可以看看[mrapps](https://github.com/Codebells/Raft/tree/go_imp/src/mrapps)文件夹的代码，里面有各种map和reduce的实现，很简单，帮助理解mapreduce

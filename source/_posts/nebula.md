@@ -84,6 +84,18 @@ Scheduler 抽象类定义了调度器的公共接口，可以继承该类实现�
 
 ## Storage
 
-- src/storage/BaseProcessor
+src/storage/BaseProcessor :
 
-BaseProcessor定义了Promise以及获取它相关联的Future(通过getFuture接口)，以及处理时的一些记录结果
+> BaseProcessor定义了Promise以及获取它相关联的Future(通过getFuture接口)，以及处理时的一些记录结果
+
+src/storage/transaction/TransactionManager: 
+
+> worker是处理工作的线程，一个事务的处理过程是prepareLocal，processRemote，processLocal，finish
+>
+> onFinished()记录latency之类的数据
+>
+> commit时，首先addChainTask，再通过future来异步执行事务处理流程
+
+src/storage/mutate:
+
+> 是transaction文件夹中的cpp文件使用的公共父类
