@@ -1,11 +1,17 @@
 ---
 title: mit6-824 lab1 mapreduce
 date: 2022-07-17 10:10:23
+<<<<<<< HEAD
+categories:
+  - [paper_read]
+tags: [paper_read,system]
+=======
 categories: 
   - [database]
   - [mapreduce]
   - [lab]
 tags: [paper_read,mapreduce,lab]
+>>>>>>> a829012a5cbcd9d1c6fae0a6e4e9f37f0c0a7abc
 category_bar: true
 ---
 
