@@ -3,7 +3,8 @@ title: mit6.824 raft实现 2D部分
 date: 2022-06-16 20:21:32
 categories:
   - [database]
-tags: [raft,database]
+  - [lab]
+tags: [raft,database,lab]
 category_bar: true 
 ---
 

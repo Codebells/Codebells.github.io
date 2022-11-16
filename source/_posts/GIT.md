@@ -2,7 +2,7 @@
 title: Git常用指令
 date: 2022-05-28 12:42:06
 categories: tech
-tags: 日常
+tags: tools
 category_bar: true
 excerpt: 常用Git命令记录
 ---
@@ -37,7 +37,7 @@ git cherry-pick <branch>...  将branch复制到Head分支，并移动Head
 
 git add <files> 将文件添加到暂存区
 
-git push origin <branch> 将本地分支提交到git仓库
+git push origin <branch> 将本地分支提交到origin地址的仓库
 
 git restore <file> 表示将在工作空间更改但是不在暂存区的文件file撤销更改
 ```
@@ -57,7 +57,7 @@ git restore <file> 表示将在工作空间更改但是不在暂存区的文件f
 
 读取三个级别配置
 
-```
+```shell
 git config --global --list
 git config --system --list
 git config --local --list
@@ -65,19 +65,28 @@ git config --local --list
 
 打开终端，依次输入
 
-```
+```shell
 git config --global http.proxy http://127.0.0.1:41091
 git config --global https.proxy https://127.0.0.1:41091
 关闭
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
+配置ssh
+```shell
+git config --global user.name "Codebells"
+git config --global user.email 1347103071@qq.com
+#生成rsa密钥
+ssh-keygen -t rsa -C "1347103071@qq.com"
+#查看公钥
+cat ~/.ssh/id_rsa.pub
+```
 
 
 
 # Git不拉取代码新建远程分支上传本地代码
 
-```
+```shell
 git init
 git remote add origin https://github.com/Codebells/Codebells.github.io.git
 git remote -v
@@ -102,5 +111,20 @@ git add .
 git commit -m "message"
 git pull origin SourceCode
 git push origin SourceCode
+```
+
+# 查看本地分支与远程分支关系
+
+```
+git remote show origin
+git branch -vv
+cat .git/config
+```
+
+# 关联远程分支
+
+```
+git remote add origin <resp address>
+git branch --set-upstream-to localBranch origin/branch
 ```
 
