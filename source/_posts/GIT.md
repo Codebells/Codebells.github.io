@@ -66,8 +66,8 @@ git config --local --list
 打开终端，依次输入
 
 ```shell
-git config --global http.proxy http://127.0.0.1:41091
-git config --global https.proxy https://127.0.0.1:41091
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy https://127.0.0.1:7890
 关闭
 git config --global --unset http.proxy
 git config --global --unset https.proxy
@@ -123,8 +123,9 @@ cat .git/config
 
 # 关联远程分支
 
-```
+```shell
 git remote add origin <resp address>
+# 记得不是git add remote！
 git branch --set-upstream-to localBranch origin/branch
 ```
 

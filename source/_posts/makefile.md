@@ -10,7 +10,11 @@ category_bar: true
 
 ---
 
+# 常用命令
 
+```shell
+make -j$(nproc) 
+```
 
 # 概述
 

@@ -27,6 +27,19 @@ sudo ln -s /root/cmake-3.22.1-linux-x86_64/bin/cmake /usr/bin/cmake
 cmake --version
 ```
 
+# 常用命令
+
+```shell
+cmake -B build 
+#在build目录建立makefile等文件
+cmake --build build
+#在build目录开始编译
+#或者直接并行执行makefile的编译
+make -j$(nproc)
+```
+
+
+
 # 基础
 
 最基本的是将源码构建成可执行文件，最简单的就是一个三行的`CMakelist.txt`分别定义了cmake的最低版本号，项目名，可执行文件
