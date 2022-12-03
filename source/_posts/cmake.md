@@ -8,7 +8,9 @@ tags: [tech,cpp]
 category_bar: true
 ---
 
-ubuntu20.04 cmake 升级，阿里云自带的是3.10的，
+# ubuntu20.04 cmake 升级
+
+阿里云自带的是3.16的，
 
 **有坑！**
 

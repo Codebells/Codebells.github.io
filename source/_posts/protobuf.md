@@ -16,9 +16,11 @@ category_bar: true
 我下载的是`protobuf-cpp-3.20.1.tar.gz`
 
 ```shell
+sudo apt-get install autoconf automake libtool curl make g++ unzip
 tar xvfz protobuf-cpp-3.20.1.tar.gz
 cd protobuf-3.20.1
 # $(nproc) ensures it uses all cores for compilation
+./configure
 make -j$(nproc) 
 make check
 sudo make install

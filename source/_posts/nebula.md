@@ -99,3 +99,13 @@ src/storage/transaction/TransactionManager:
 src/storage/mutate:
 
 > 是transaction文件夹中的cpp文件使用的公共父类
+
+
+
+# 系统架构总览
+
+![nebula-architecture](nebula/image-20221117165735392.png)
+
+上层计算层对下层存储层分片不感知，Meta Service管理分片状态，上层计算层无状态
+
+Partition是逻辑分区，每个Partition存在Raft组，读写数据是到分区raft组的leader节点读写。每个Storage Engine保存多个分区数据，可能有主分区也可能没有
