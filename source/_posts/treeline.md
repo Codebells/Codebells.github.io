@@ -53,7 +53,7 @@ RocksDB和LevelDB都是使用LSM树的，LSM树的基础概念就是writebatch�
 
 使用clock algorithm，周期性的降低优先级直到找到一个entry优先级为0，如果该entry被修改过，那么找下一个，因为如果被修改过，就需要先IO将其刷回到磁盘，我们希望减少IO操作，如果entry全是脏的，就把所有脏entry一起写入，到一个page
 
-## In-Memory Index
+## 2. In-Memory Index
 
 B+树索引，在换出脏页时会映射到合适的位置去写，以及查询时，映射到合适的位置去读
 
@@ -67,7 +67,7 @@ Page，沿用LeanStore的Page设计，该Page负责一个范围的key值，该�
 
 Segment是1个或多个page组成
 
-## Supproting a Growing Database(Key Idea B)
+## 3. Supproting a Growing Database(Key Idea B)
 
 ### Overflow Pages
 
@@ -113,7 +113,7 @@ PGM index’s piecewise linear regression algorithm，我的理解是用这个�
 
 当reorganization set为空时则更新in-memory index，表明reorganization结束了。之前的所有entries相关的数据全部删除，将SegmentID标为0，并加入到free list中，以后reorganization可能会将其覆盖
 
-## Insert Forecasting(Key Idea C)
+## 4. Insert Forecasting(Key Idea C)
 
 ### Tracking Insert
 
@@ -131,7 +131,7 @@ PGM index’s piecewise linear regression algorithm，我的理解是用这个�
 
 预测插入可能会影响Goal参数的设定，进而影响epsilon参数，再影响到线性模型的构建
 
-## Thread Synchronization
+## 5. Thread Synchronization
 
 两种锁，Segment lock和Page lock
 
