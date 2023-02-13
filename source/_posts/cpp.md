@@ -258,3 +258,39 @@ virtual void funtion1()=0
 纯虚函数的意义，让所有的类对象（主要是派生类对象）都可以执行纯虚函数的动作，但类无法为纯虚函数提供一个合理的默认实现。所以类纯虚函数的声明就是在告诉子类的设计者，"你必须提供一个纯虚函数的实现，但我不知道你会怎样实现它"。
 
 类中**至少有一个函数被声明为纯虚函数，则这个类就是抽象类**。纯虚函数是通过在声明中使用 "= 0" 来指定的
+
+# 读写IO流
+
+## 读文件
+
+```c++
+#include <fstream>
+#include <iostream>
+ifstream infile; 
+infile.open("/root/codetest/ip.txt"); 
+infile>>destIpAddress;
+infile>>selfIpAddress;
+infile.close();
+std::cout<<destIpAddress<<" "<<selfIpAddress<<endl;
+```
+
+## 写文件
+
+```c++
+fstream outfile;
+outfile.open("/root/codetest/out.txt",ios::out|ios::app);//追加
+for(auto it : kv){
+   outfile<<it.first<<"-----"<<it.second<<endl;
+}
+outfile<<"------------------------------------"<<endl;
+outfile.close();
+```
+
+# int  string转换
+
+```c++
+sstring s = "12";
+int a = atoi(s.c_str());
+s = std::to_string(a);
+```
+

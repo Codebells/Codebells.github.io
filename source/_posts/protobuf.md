@@ -110,3 +110,50 @@ protobuf中有string 和 bytes两种数据类型， 相对应于python中的 str
 （1）在C++中，protobuf的[string类](https://so.csdn.net/so/search?q=string类&spm=1001.2101.3001.7020)型和bytes类型都对应与C++的std::string类型
 
 （2）区别是，protobuf中string 对应的 std::string 类型需进行UTF8字符的检查，而bytes对应的std::string类型三不进行UTF8字符检查的
+
+## proto对象定义
+
+```protobuf
+package proto;
+message Message{
+  oneof type {
+    Transaction txn = 1;
+  }
+}
+message Transaction{
+  repeated Row row = 1;
+  uint64 start_epoch = 2;
+  TxnType txn_type = 3;
+}
+enum TxnType {
+  ClientTxn = 0;
+  RemoteServerTxn = 1;
+  EpochEndFlag = 2;
+  CommittedTxn = 3;
+}
+message Row{
+  string key = 1;
+  bytes data = 2;
+}
+```
+
+```c++
+auto msg =  std::make_unique<proto::Message>();// 定义一个Message对象 
+auto apply = msg->mutable_txn();//oneof使用mutable_name()调用，定义该对象是哪种类型
+apply->set_txn_type(proto::TxnType::ClientTxn);//添加一个enum值
+apply->set_start_epoch(1);//设置一个uint64值
+auto row = apply->add_row();//添加repeated对象
+row->set_table_name("table");
+row->set_key("key1");//bytes 和 string的区别在于序列化，string类型在序列化utf-8时会出现问题
+
+auto msg_ptr =  std::make_unique<proto::Message>();
+if (msg_ptr->type_case() == proto::Message::TypeCase::kTxn){//oneof前要加个k
+    txn_ptr = std::make_unique<proto::Transaction>(*(msg_ptr->release_txn()));
+    uint64_t epoch = txn_ptr->start_epoch();
+    for(auto i = 0; i < txn_ptr->row_size(); i ++){
+        const auto& row = txn_ptr->row(i);
+        printf("%s %s\n",row.key(),row.data());
+    }
+}
+```
+
