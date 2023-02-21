@@ -8,6 +8,89 @@ tags: [database,graphdb]
 category_bar: true
 ---
 
+# Nebula编译安装
+
+## 源码安装build
+
+apt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2
+
+git clone --branch release-3.3 https://gitee.com/Codebells/nebula.git
+
+cd nebula
+
+mkdir build && cd build
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/nebula -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
+
+make -j8
+
+make install
+
+## 源码安装的nebula卸载
+
+rm -rf /usr/local/nebula
+
+## Run Nebula
+
+/usr/local/nebula/scripts/nebula.service start all
+
+/usr/local/nebula/scripts/nebula.service status all
+
+## 安装nebula console
+
+chmod 111 nebula-console
+
+./nebula-console -addr 127.0.0.1 -port 9669 -u root -p wucaiyi
+
+ADD HOSTS 127.0.0.1:9779
+
+show hosts
+
+### nGQL语句
+
+```
+CREATE SPACE nebula (vid_type = FIXED_STRING(30));
+USE nebula;
+CREATE TAG IF NOT EXISTS person (name string, age int);
+INSERT VERTEX person(name,age) VALUES "vid1" :("wcy",23);
+INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25);
+CREATE EDGE IF NOT EXISTS relate(relation string);
+INSERT EDGE relate(relation) VALUES "vid1"->"vid2":("homate");
+INSERT EDGE relate(relation) VALUES "vid1"->"vid3":("homate2");
+FETCH PROP ON person "vid1" YIELD properties(VERTEX);
+CREATE TAG INDEX person_index on person(name(10));
+REBUILD TAG INDEX player_index
+MATCH (v:person{name:"wcy"})--(v2:person) WHERE id(v) =='vid1' RETURN v2 AS AllProp;
+MATCH (v:person{name:"wcy"})-->(v2:person) RETURN v2 AS AllProp;
+```
+
+
+
+
+
+## Docker nebula安装
+
+git clone -b release-3.1 https://github.com/vesoft-inc/nebula-docker-compose.git
+
+cd nebula-docker-compose/
+
+docker-compose up -d
+
+docker exec -it nebula-docker-compose-console-1 /bin/sh
+
+./usr/local/bin/nebula-console -u root -p wucaiyi --address=graphd --port=9669
+
+### Docker-compose安装
+
+sudo curl -L "[https://github.com/docker/compose/releases/download/v2.12.2/docker-compose-](https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-)$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+docker-compose version
+
 # 代码架构总览
 
 解析引擎查询引擎存储引擎的代码都在其中，当客户端来了一个Query时，首先进入解析引擎，开始语义分析语法分析，抽象成AST树，经过validator验证正确后，生成执行计划，再进行执行计划的优化，优化后的AST树，进入执行引擎执行，通过并发控制算法进行事务的并发处理，和下层存储进行交互。下层存储分为meta service和data service，分别是源信息管理和数据管理。
@@ -109,3 +192,93 @@ src/storage/mutate:
 上层计算层对下层存储层分片不感知，Meta Service管理分片状态，上层计算层无状态
 
 Partition是逻辑分区，每个Partition存在Raft组，读写数据是到分区raft组的leader节点读写。每个Storage Engine保存多个分区数据，可能有主分区也可能没有
+
+# 源码
+
+```c++
+/**
+   * @brief Write multiple key/values to kvstore asynchronously
+   *
+   * @param spaceId
+   * @param partId
+   * @param keyValues Key/values to put
+   * @param cb Callback when has a result
+   */
+  void asyncMultiPut(GraphSpaceID spaceId,
+                     PartitionID partId,
+                     std::vector<KV>&& keyValues,
+                     KVCallback cb) override;
+
+  /**
+   * @brief Remove a key from kvstore asynchronously
+   *
+   * @param spaceId
+   * @param partId
+   * @param key Key to remove
+   * @param cb Callback when has a result
+   */
+  void asyncRemove(GraphSpaceID spaceId,
+                   PartitionID partId,
+                   const std::string& key,
+                   KVCallback cb) override;
+
+  /**
+   * @brief Remove multible keys from kvstore asynchronously
+   *
+   * @param spaceId
+   * @param partId
+   * @param key Keys to remove
+   * @param cb Callback when has a result
+   */
+  void asyncMultiRemove(GraphSpaceID spaceId,
+                        PartitionID partId,
+                        std::vector<std::string>&& keys,
+                        KVCallback cb) override;
+
+  /**
+   * @brief Remove keys in range [start, end) asynchronously
+   *
+   * @param spaceId
+   * @param partId
+   * @param start Start key
+   * @param end End key
+   * @param cb Callback when has a result
+   */
+  void asyncRemoveRange(GraphSpaceID spaceId,
+                        PartitionID partId,
+                        const std::string& start,
+                        const std::string& end,
+                        KVCallback cb) override;
+
+  /**
+  update
+   * @brief Async commit multi operation, difference between asyncMultiPut or asyncMultiRemove
+   * is this method allow contains both put and remove together, difference between asyncAtomicOp is
+   * that asyncAtomicOp may have CAS
+   *
+   * @param spaceId
+   * @param partId
+   * @param batch Encoded write batch
+   * @param cb Callback when has a result
+   */
+  void asyncAppendBatch(GraphSpaceID spaceId,
+                        PartitionID partId,
+                        std::string&& batch,
+                        KVCallback cb) override;
+
+  /**
+  
+   * @brief Do some atomic operation on kvstore
+   *
+   * @param spaceId
+   * @param partId
+   * @param op Atomic operation
+   * @param cb Callback when has a result
+   */
+  void asyncAtomicOp(GraphSpaceID spaceId,
+                     PartitionID partId,
+                     MergeableAtomicOp op,
+                     KVCallback cb) override;
+
+```
+

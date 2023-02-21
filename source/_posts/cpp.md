@@ -259,6 +259,7 @@ virtual void funtion1()=0
 
 类中**至少有一个函数被声明为纯虚函数，则这个类就是抽象类**。纯虚函数是通过在声明中使用 "= 0" 来指定的
 
+<<<<<<< HEAD
 # 读写文件
 
 ```c++
@@ -279,5 +280,37 @@ void Send_ok(std::vector<KV> &kv){
 }
 ```
 
+# 读写IO流
 
+## 读文件
 
+```c++
+#include <fstream>
+#include <iostream>
+ifstream infile; 
+infile.open("/root/codetest/ip.txt"); 
+infile>>destIpAddress;
+infile>>selfIpAddress;
+infile.close();
+std::cout<<destIpAddress<<" "<<selfIpAddress<<endl;
+```
+
+## 写文件
+
+```c++
+fstream outfile;
+outfile.open("/root/codetest/out.txt",ios::out|ios::app);//追加
+for(auto it : kv){
+   outfile<<it.first<<"-----"<<it.second<<endl;
+}
+outfile<<"------------------------------------"<<endl;
+outfile.close();
+```
+
+# int  string转换
+
+```c++
+sstring s = "12";
+int a = atoi(s.c_str());
+s = std::to_string(a);
+```

@@ -12,6 +12,7 @@ excerpt: 常用Git命令记录
 ```
 
 git commit -m<message> 创建新版本快照到仓库，Head一同移动，并添加信息
+git commit --no-verify -m<message> 不进行代码风格验证
 
 git branch <-b> <branch> 创建分支 参数-b   创建后将头指针移动到该分支
 
