@@ -1,0 +1,1538 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​        Raft属于是分布式领域非常常见的一个共识算法了，上一篇也对其进行比较详细的介绍，其实就是对论文的思路进行理解，这次借着课程作业来对其实现一下，Raft的思路很简单，实现之前，我以为会很容易，但是上手写的时候，发现特别多的问题，尤其是并发，下面几篇记录一下我踩得坑，以及详细的思路解释。对于2A，因为跑的速度比较快，跑了5000次没有出错，应该还算是稳健。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mit6.824 raft实现 2A部分">
+<meta property="og:url" content="https://codebells.github.io/post/raft-mitlab6-824.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="​        Raft属于是分布式领域非常常见的一个共识算法了，上一篇也对其进行比较详细的介绍，其实就是对论文的思路进行理解，这次借着课程作业来对其实现一下，Raft的思路很简单，实现之前，我以为会很容易，但是上手写的时候，发现特别多的问题，尤其是并发，下面几篇记录一下我踩得坑，以及详细的思路解释。对于2A，因为跑的速度比较快，跑了5000次没有出错，应该还算是稳健。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615193215702.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615193243165.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615193304836.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615193321166.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615194837556.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220616095520067.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220616095604187.png">
+<meta property="article:published_time" content="2022-06-15T10:46:21.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.306Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="lab">
+<meta property="article:tag" content="raft">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/raft-mitlab6-824/image-20220615193215702.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>mit6.824 raft实现 2A部分 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="mit6.824 raft实现 2A部分"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-15 18:46" pubdate>
+          2022年6月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          85 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="lab"
+        id="heading-f9664ea1803311b35f81d07d8c9e072d" role="tab" data-toggle="collapse" href="#collapse-f9664ea1803311b35f81d07d8c9e072d"
+        aria-expanded="true"
+      >
+        lab
+        <span class="list-group-count">(6)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-f9664ea1803311b35f81d07d8c9e072d"
+           role="tabpanel" aria-labelledby="heading-f9664ea1803311b35f81d07d8c9e072d">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">mit6.824 raft实现 2A部分</h1>
+            
+            <div class="markdown-body">
+              
+              <p>​        Raft属于是分布式领域非常常见的一个共识算法了，上一篇也对其进行比较详细的介绍，其实就是对论文的思路进行理解，这次借着课程作业来对其实现一下，Raft的思路很简单，实现之前，我以为会很容易，但是上手写的时候，发现特别多的问题，尤其是并发，下面几篇记录一下我踩得坑，以及详细的思路解释。对于2A，因为跑的速度比较快，跑了5000次没有出错，应该还算是稳健。</p>
+<span id="more"></span>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>推荐几个有助于实现Raft的网站<br>先推荐一个<a target="_blank" rel="noopener" href="https://raft.github.io/">Raft动态展示</a>的网站，可以点击看每次发送的RPC数据是什么，相当清晰，对于实现Raft很有用<br>一个帮助<a target="_blank" rel="noopener" href="https://gobyexample.com/">Go入门</a>的学习网站，主要看Channel和Time还有Goroutine<br>Mit的<a target="_blank" rel="noopener" href="https://thesquareplanet.com/blog/students-guide-to-raft/">StudentGuide</a>可以看看，顺便<a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2021/labs/lab-raft.html">Lab2主页</a><br>这个<a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft/">Raft动态展示</a>也不错</p>
+<p>写之前强烈建议看一遍论文，论文已经提到很多细节的设计。之前的博客是基于论文写的。</p>
+<p>StudentGuide提到Channel传递消息和Locking两个代码组织方式，他更推荐 shared structure + lock，因为”Experience suggests that for Raft it is most straightforward to use shared data and locks“，但是我还是使用了Channel消息驱动的方式实现。</p>
+<h1 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h1><p>结构体，论文中已经设计好了，直接拿来用即可，中间加点自己实现时需要的成员变量</p>
+<p><img src="raft-mitlab6-824/image-20220615193215702.png" srcset="/img/loading.gif" lazyload alt="Raft节点状态"></p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">type Raft struct &#123;
+	mu        			sync.Mutex          &#x2F;&#x2F; Lock to protect shared access to this peer&#39;s state
+	peers     			[]*labrpc.ClientEnd &#x2F;&#x2F; RPC end points of all peers
+	persister 			*Persister          &#x2F;&#x2F; Object to hold this peer&#39;s persisted state
+	me        			int                 &#x2F;&#x2F; this peer&#39;s index into peers[]
+	dead      			int32               &#x2F;&#x2F; set by Kill()
+
+	&#x2F;&#x2F; Your data here (2A, 2B, 2C).
+	&#x2F;&#x2F; Look at the paper&#39;s Figure 2 for a description of what
+	&#x2F;&#x2F; state a Raft server must maintain.
+	currentTerm int
+	votedFor    int
+    voteCount   int
+    state       NodeState
+    &#x2F;&#x2F;对于2A下面的没有什么作用，是2B和2C使用的变量
+	logs        []LogEntry
+	commitIndex int
+	lastApplied int
+	nextIndex  []int
+	matchIndex []int
+    &#x2F;&#x2F;下列自定义，看个人实现方法
+	applyCh     chan ApplyMsg
+	winElectCh  chan bool
+	grantVoteCh chan bool
+	heartbeatCh chan bool
+	&#x2F;&#x2F;这是2D使用的变量
+	lastIncludedIndex	int
+	lastIncludedTerm 	int
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p><img src="raft-mitlab6-824/image-20220615193243165.png" srcset="/img/loading.gif" lazyload alt="心跳及日志RPC"></p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">type AppendEntriesArgs struct&#123;
+	Term 			int
+	LeaderId		int
+	&#x2F;&#x2F;2B 2C使用
+	PrevLogIndex	int
+	PrevLogTerm		int
+	Entries			[]LogEntry
+	LeaderCommit	int
+&#125;
+type AppendEntriesReply struct&#123;
+	Term 			int
+	Success			bool
+    &#x2F;&#x2F;2B 2C使用
+	RollBackIndex 	int
+	RollBackTerm  	int
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>RPC所传输数据记得大写字母开头，否则报错</p>
+<p><img src="raft-mitlab6-824/image-20220615193304836.png" srcset="/img/loading.gif" lazyload alt="投票RPC"></p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">type RequestVoteArgs struct &#123;
+	&#x2F;&#x2F; Your data here (2A, 2B).
+	Term			int
+	CandidateId		int
+	&#x2F;&#x2F;下列2B使用
+	LastLogIndex	int
+	LastLogTerm		int
+&#125;
+&#x2F;&#x2F; field names must start with capital letters!
+type RequestVoteReply struct &#123;
+	&#x2F;&#x2F; Your data here (2A).
+	Term 			int
+	VoteGranted		bool
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p><img src="raft-mitlab6-824/image-20220615193321166.png" srcset="/img/loading.gif" lazyload alt="节点规则"></p>
+<h1 id="领导者选举"><a href="#领导者选举" class="headerlink" title="领导者选举"></a>领导者选举</h1><p>首先对于各个节点的状态转换要了解，下面捋一遍节点选举流程。</p>
+<p><img src="raft-mitlab6-824/image-20220615194837556.png" srcset="/img/loading.gif" lazyload alt="节点之间状态转换图"></p>
+<p>当集群刚启动时，整个集群不存在Leader，在节点的各自等待时间超时后，那么这个节点成为Candidate开始选举，触发了选举条件后，该节点的Term需要加1，以此表明该轮投票是较新的，成为Candidate后会立刻广播请求其他节点投票的RPC，其他节点会根据Term的大小和日志的大小进行判断，如果接收节点的Term比Candidate大，那么拒绝投票，如果接受节点Term和Candidate一致，但是日志比Candidate的新，那么也拒绝投票，满足上述条件后，如果该节点没有对其他Candidate投票，那么对其进行投票。</p>
+<p>当Candidate节点收到的投票数超过一半时，立刻成为Leader，成为Leader后立刻对其他所有节点发送心跳包，表明Leader身份，选举成功。当有节点等待超时后，就会再次触发选举操作。</p>
+<p>要注意一些细节就是超时时间的重置问题，我因为使用了简单的阻塞Channel，导致后续代码的死锁，应该使用非阻塞Channel通信，超时时间在两个地方重置</p>
+<ol>
+<li>收到Leader的心跳包时</li>
+<li>成功投票时</li>
+</ol>
+<p>下面看看代码实现</p>
+<h1 id="源代码实现"><a href="#源代码实现" class="headerlink" title="源代码实现"></a>源代码实现</h1><h2 id="入口函数Make"><a href="#入口函数Make" class="headerlink" title="入口函数Make"></a>入口函数Make</h2><p>在lab6.824中，所有Raft节点初始化都需要通过入口函数，初始化后会建立主体的心跳ticker</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func Make(peers []*labrpc.ClientEnd, me int,
+	persister *Persister, applyCh chan ApplyMsg) *Raft &#123;
+	rf :&#x3D; &amp;Raft&#123;&#125;
+	rf.peers &#x3D; peers
+	rf.persister &#x3D; persister
+	rf.me &#x3D; me
+	&#x2F;&#x2F; log.Printf(&quot;&quot;)
+	&#x2F;&#x2F; Your initialization code here (2A, 2B, 2C).
+	rf.state &#x3D; Follower
+	rf.currentTerm &#x3D; 0
+	rf.votedFor &#x3D; -1
+	rf.voteCount &#x3D; 0
+	rf.commitIndex &#x3D; 0
+	rf.lastApplied &#x3D; 0
+	rf.applyCh &#x3D; applyCh
+	rf.lastIncludedIndex&#x3D;0
+	rf.lastIncludedTerm&#x3D;0
+	rf.resetChannels()
+	rf.logs &#x3D; append(rf.logs, LogEntry&#123;Term: 0&#125;) &#x2F;&#x2F; 日志第一个为空
+
+	&#x2F;&#x2F; initialize from state persisted before a crash
+	rf.readPersist(persister.ReadRaftState()) &#x2F;&#x2F;2C实现
+
+	&#x2F;&#x2F; start ticker goroutine to start elections
+	go rf.ticker()
+	return rf
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="主体循环函数ticker"><a href="#主体循环函数ticker" class="headerlink" title="主体循环函数ticker"></a>主体循环函数ticker</h2><p>建立心跳后，会接收节点运行中Goroutine发送的Channel消息，通过接收消息来达到触发某段代码的目的。</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">&#x2F;&#x2F; The ticker go routine starts a new election if this peer hasn&#39;t received
+&#x2F;&#x2F; heartsbeats recently.
+func (rf *Raft) ticker() &#123;
+	for rf.killed() &#x3D;&#x3D; false &#123;
+		rf.mu.Lock()
+		state :&#x3D; rf.state
+		rf.mu.Unlock()
+		switch state &#123;
+		case Leader:
+			select &#123;
+			case &lt;-rf.heartbeatCh:&#x2F;&#x2F;一般不会出现这种情况，因为心跳一般由Leader发送，Followers接收
+			&#x2F;&#x2F;这有可能是存在旧Leader的情况，收到新Leader的心跳包，正在变成Followers但是还没来得及变的情况
+			case &lt;-time.After(100 * time.Millisecond):&#x2F;&#x2F;每过一段时间，Leader给其他节点发送心跳包
+				rf.mu.Lock()
+				rf.broadcastAppendEntries()
+				rf.mu.Unlock()
+			&#125;
+		case Follower:
+			select &#123;
+			case &lt;-rf.grantVoteCh:&#x2F;&#x2F;之前在领导者选举中提及的Follower两种重置超时时间的情况
+			case &lt;-rf.heartbeatCh:
+			case &lt;-time.After(rf.getTimeout() * time.Millisecond):
+				rf.becomeCandidate()
+			&#125;
+		case Candidate:
+			select &#123;
+			case &lt;-rf.heartbeatCh:&#x2F;&#x2F;当成为Candidate时，需要重置超时时间
+			case &lt;-rf.winElectCh:&#x2F;&#x2F;赢得选举时，成为Leader
+				rf.becomeLeader()
+			case &lt;-time.After(rf.getTimeout() * time.Millisecond):
+				rf.becomeCandidate()
+			&#125;
+		&#125;
+		&#x2F;&#x2F; Your code here to check if a leader election should
+		&#x2F;&#x2F; be started and to randomize sleeping time using
+		&#x2F;&#x2F; time.Sleep().
+	&#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="RequestVoteRpc实现"><a href="#RequestVoteRpc实现" class="headerlink" title="RequestVoteRpc实现"></a>RequestVoteRpc实现</h2><p>这是领导者选举最主要的代码，Candidate发送RPC，Follower接收RPC，最终Candidate归拢投票，判断自己是否选举成功</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func (rf *Raft) isLogTheLatest(LastIndex int, LastTerm int) bool &#123;
+    &#x2F;&#x2F;判断rf日志是否比参数更新，如果更新返回False
+	if LastTerm &#x3D;&#x3D; rf.getLastTerm() &#123;
+		return LastIndex &gt;&#x3D; rf.getLastIndex()
+	&#125;
+	return LastTerm &gt; rf.getLastTerm()
+&#125;
+func (rf *Raft) VoteCheck(args *RequestVoteArgs) bool&#123;
+	if rf.votedFor &lt; 0 || rf.votedFor &#x3D;&#x3D; args.CandidateId&#123;
+        &#x2F;&#x2F;投票检查，判断是否投过票了，或给这个Candidate投过票了，防止存在RequestVote重复请求的问题
+		if rf.isLogTheLatest(args.LastLogIndex, args.LastLogTerm)&#123;
+            &#x2F;&#x2F;如果没投过票，或者给这个Candidate投了票，进行判断，如果Candidate的日志更新，那就可以投票
+			return true
+		&#125;
+	&#125;
+	return false 
+&#125;
+func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) &#123;
+	&#x2F;&#x2F; Your code here (2A, 2B).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	defer rf.persist()
+
+	if args.Term &lt; rf.currentTerm &#123;&#x2F;&#x2F;当前节点的Term比Candidate更大，不进行投票，更新reply的Term
+		reply.Term &#x3D; rf.currentTerm
+		reply.VoteGranted &#x3D; false
+		return
+	&#125;else if args.Term &gt; rf.currentTerm &#123;&#x2F;&#x2F;当前节点是旧Term节点，已经过时
+		rf.becomeFollower()&#x2F;&#x2F;不管当前什么状态，更新当前节点状态成为Follower
+		rf.currentTerm&#x3D;args.Term
+		reply.Term &#x3D; rf.currentTerm
+		reply.VoteGranted &#x3D; false
+		if rf.VoteCheck(args)&#123;&#x2F;&#x2F;投票检查，若可以投票，更新心跳及其他信息
+			reply.VoteGranted &#x3D; true
+			rf.votedFor &#x3D; args.CandidateId
+			rf.noBlockChan(rf.grantVoteCh, true)
+		&#125;
+	&#125;else&#123;&#x2F;&#x2F;当前节点Term和Candidate相同，一般情况下不会投票了，因为成为Candidate时Term会加1，
+        &#x2F;&#x2F;当前的节点Term和Candidate相同，有几种情况，
+        &#x2F;&#x2F;1.同为Candidate 2.已经给Candidate投过票了 3.选举成功的Leader
+        &#x2F;&#x2F;这个判断用于处理同一个Candidate重复发起投票请求
+		reply.Term &#x3D; rf.currentTerm
+		reply.VoteGranted &#x3D; false
+		if rf.VoteCheck(args)&#123;
+			reply.VoteGranted &#x3D; true
+			rf.votedFor &#x3D; args.CandidateId
+			rf.noBlockChan(rf.grantVoteCh, true)
+		&#125;
+	&#125;
+	
+&#125;
+
+func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) &#123;
+	ok :&#x3D; rf.peers[server].Call(&quot;Raft.RequestVote&quot;, args, reply)&#x2F;&#x2F;RPC调用
+	if !ok &#123;
+		return
+	&#125;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state &#x3D;&#x3D; Candidate &amp;&amp; args.Term &#x3D;&#x3D; rf.currentTerm&#123;
+        &#x2F;&#x2F;当节点状态没有改变才进行下列步骤，防止并发时，节点状态已经更改，当前args过时
+		if reply.Term &gt; rf.currentTerm &#123;&#x2F;&#x2F;Candidate不够新，没有Follower新，降级为Follower
+			rf.becomeFollower()
+			rf.currentTerm &#x3D; reply.Term
+			rf.persist()&#x2F;&#x2F;2C持久化状态
+			return
+		&#125;else if reply.Term &#x3D;&#x3D; rf.currentTerm&#123;
+			if reply.VoteGranted &#123;&#x2F;&#x2F;如果Server节点投票给Candidate，检查当前得票是否已经超过半数了
+				rf.voteCount++
+				if rf.voteCount &#x3D;&#x3D; len(rf.peers)&#x2F;2 +1 &#123;
+                    &#x2F;&#x2F;超过半数立刻赢得选举，&#x3D;&#x3D;因为只发送以此赢得选举Channel信息
+					rf.noBlockChan(rf.winElectCh, true)
+				&#125;
+			&#125;
+		&#125;
+	&#125;
+&#125;
+func (rf *Raft) broadcastRequestVote() &#123; 
+	if rf.state &#x3D;&#x3D; Candidate &#123;&#x2F;&#x2F;必须是Candidate才能广播投票
+		for server :&#x3D; range rf.peers &#123;
+			if server !&#x3D; rf.me &#123;
+				args :&#x3D; RequestVoteArgs&#123;&#x2F;&#x2F;初始化
+					Term:         	rf.currentTerm,
+					CandidateId:  	rf.me,
+					LastLogIndex: 	rf.getLastIndex(),
+					LastLogTerm:  	rf.getLastTerm(),
+				&#125;
+				reply :&#x3D; RequestVoteReply&#123;
+					Term:			rf.currentTerm,
+					VoteGranted:	false,
+				&#125;
+				go rf.sendRequestVote(server, &amp;args, &amp;reply)
+			&#125;
+		&#125;
+	&#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="心跳建立"><a href="#心跳建立" class="headerlink" title="心跳建立"></a>心跳建立</h2><p>其实对于2A而言，只需要Follower收到后进行重置超时时间即可，并不需要实现日志增量的过程比较简单</p>
+<p>下列是我的第一版代码，很多东西还是存在bug的，仅够通过2A，后续这个AppendEntries还会更改</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) &#123;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	reply.Success&#x3D;false
+	if rf.currentTerm&gt;args.Term&#123;&#x2F;&#x2F;判断Leader是否为最新的Term，即是否过时Leader
+		reply.Term &#x3D;rf.currentTerm
+		return
+	&#125;
+	if rf.currentTerm&lt;args.Term&#123;&#x2F;&#x2F;不是过时Leader，那么更新心跳
+		if rf.state!&#x3D;Follower&#123;&#x2F;&#x2F;如果不是Follower，收到Leader的广播后，成为Follower
+			rf.currentTerm&#x3D;args.Term
+			rf.becomeFollowerFlag&lt;-true&#x2F;&#x2F;成为Follower的Channel信息
+		&#125;
+		&#x2F;&#x2F;rf.Logcheck()
+        rf.heartbeat&lt;-true
+		reply.Success&#x3D;true
+	&#125;
+	
+&#125;
+func (rf *Raft) sendAppendEntries(server int,args *AppendEntriesArgs, reply *AppendEntriesReply) bool &#123;
+	ok :&#x3D; rf.peers[server].Call(&quot;Raft.AppendEntries&quot;, args, reply)
+	&#x2F;&#x2F;heartbeat
+	if reply.Term&gt;rf.currentTerm&#123;&#x2F;&#x2F;如果reply的Term大于当前节点Term，那么当前节点是过时节点，成为Follower
+		rf.currentTerm&#x3D;reply.Term
+		rf.becomeFollowerFlag&lt;-true
+		return ok
+	&#125;
+	if reply.Success&#123;
+		&#x2F;&#x2F;log
+	&#125;
+	return ok
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="状态变化代码"><a href="#状态变化代码" class="headerlink" title="状态变化代码"></a>状态变化代码</h2><div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func (rf *Raft) becomeLeader() &#123;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state &#x3D;&#x3D; Candidate &#123;&#x2F;&#x2F;Leader只能由Candidate转换
+		rf.state &#x3D; Leader
+		rf.resetChannels()
+		rf.nextIndex &#x3D; make([]int, len(rf.peers))
+		rf.matchIndex &#x3D; make([]int, len(rf.peers))
+		for server :&#x3D; range rf.peers &#123;
+			rf.nextIndex[server] &#x3D; rf.getLastIndex() + 1
+		&#125;
+		rf.broadcastAppendEntries()&#x2F;&#x2F;成为Leader后立刻广播一次心跳
+	&#125;
+&#125;
+func (rf *Raft) becomeCandidate() &#123;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	rf.resetChannels()
+	rf.state &#x3D; Candidate
+	rf.noBlockChan(rf.heartbeatCh, true)
+	rf.currentTerm++
+	rf.votedFor &#x3D; rf.me
+	rf.voteCount &#x3D; 1
+	rf.persist()
+	rf.broadcastRequestVote()
+	
+&#125;
+func (rf *Raft) becomeFollower() &#123;
+	rf.state &#x3D; Follower
+	rf.votedFor &#x3D; -1
+	&#x2F;&#x2F; rf.persist()
+	rf.noBlockChan(rf.heartbeatCh, true)
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="Debug及踩坑"><a href="#Debug及踩坑" class="headerlink" title="Debug及踩坑"></a>Debug及踩坑</h1><ol>
+<li>使用Channel时，我一开始使用的是阻塞方式Channel，当数据消息传输不频繁时，不会出现什么问题，但是当并发度提高后，问题就出现了，会导致无限等待的情况，因为当这边的Channel发送后，那边的Channel还没接收到，在运行别的地方的代码，mutex.Lock锁就会有死锁的可能，造成无限等待。后续改成非阻塞Channel，就能解决这个问题，猜测使用缓冲区应该也可，但是有可能出现传递旧消息的情况，有风险，不推荐使用缓冲区。</li>
+<li>领导者选举时，需要尽快选出新Leader，在后续Test中出现 failed to reach agreement，需要合理的重置ElectionTimeout的时间，否则很可能造成长时间等待，除此之外，设置心跳超时时间也是很重要的，不能太长，也不能太短。后续测试时，会将网络搞的很乱，一下这个宕机，一下那个宕机，写一堆日志，在这种测试下，10s内没选出Leader，就会导致Failed to reach agreement。(我的实现不完美，ABC能稳过，D会出现这个问题)</li>
+<li>各个参数的初始化的位置一定不能搞错，我因为将args初始化，放在了Broadcast中for循环外边导致错误，整整debug了一整个下午。因为当args初始化在for循环外边的时候，当发送了一个Rpc后，可能会将args更改。</li>
+</ol>
+<blockquote>
+<ul>
+<li>TestInitialElection2A：选举过程检查，3个节点，检查是否只有一个Leader，相同的Term，并且Term&gt;=1</li>
+<li>TestReElection2A：超时后重新选举过程，第一轮选举后，断开Leader，再看集群是否只存在一个Leader，再连接旧Leader，查看是否存在一个Leader，再断开两个，查看是否没有Leader</li>
+<li>TestManyElections2A：7个节点随机断开三个节点再连接，重复，期间检查选举是否正确</li>
+</ul>
+</blockquote>
+<p><img src="raft-mitlab6-824/image-20220616095520067.png" srcset="/img/loading.gif" lazyload alt="pass"></p>
+<p><img src="raft-mitlab6-824/image-20220616095604187.png" srcset="/img/loading.gif" lazyload alt="pass 5020A"></p>
+<p>附上我的<a target="_blank" rel="noopener" href="https://github.com/Codebells/Raft/tree/go_imp">Github实现代码</a>仅供参考</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/lab/" class="category-chain-item">lab</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/lab/">#lab</a>
+      
+        <a href="/tags/raft/">#raft</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>mit6.824 raft实现 2A部分</div>
+      <div>https://codebells.github.io/post/raft-mitlab6-824.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月15日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mit6.824 raft实现 2B部分</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读">
+                        <span class="hidden-mobile">USENIX ATC 2014 Raft论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

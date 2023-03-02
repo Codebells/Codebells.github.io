@@ -1,0 +1,1265 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用markdown时常用的数学符号代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="markdown数学符号">
+<meta property="og:url" content="https://codebells.github.io/post/md-shu-xue-fu-hao.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="使用markdown时常用的数学符号代码">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-28T02:42:06.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.264Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="tools">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>markdown数学符号 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="markdown数学符号"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-28 10:42" pubdate>
+          2022年5月28日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">markdown数学符号</h1>
+            
+            <div class="markdown-body">
+              
+              <div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center"></th>
+<th style="text-align:center"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">符号</td>
+<td style="text-align:center">代码</td>
+<td style="text-align:center">描述</td>
+</tr>
+<tr>
+<td style="text-align:center">$\sum$</td>
+<td style="text-align:center"><script type="math/tex">\sum</script></td>
+<td style="text-align:center">求和公式</td>
+</tr>
+<tr>
+<td style="text-align:center">$\sum_{i=0}^n$</td>
+<td style="text-align:center"><script type="math/tex">\sum_{i=0}^n</script></td>
+<td style="text-align:center">求和上下标</td>
+</tr>
+<tr>
+<td style="text-align:center">$\times$</td>
+<td style="text-align:center"><script type="math/tex">\times</script></td>
+<td style="text-align:center">乘号</td>
+</tr>
+<tr>
+<td style="text-align:center">$\pm$</td>
+<td style="text-align:center"><script type="math/tex">\pm</script></td>
+<td style="text-align:center">正负号</td>
+</tr>
+<tr>
+<td style="text-align:center">$\div$</td>
+<td style="text-align:center"><script type="math/tex">\div</script></td>
+<td style="text-align:center">除号</td>
+</tr>
+<tr>
+<td style="text-align:center">$\mid$</td>
+<td style="text-align:center"><script type="math/tex">\mid</script></td>
+<td style="text-align:center">竖线</td>
+</tr>
+<tr>
+<td style="text-align:center">$\cdot$</td>
+<td style="text-align:center"><script type="math/tex">\cdot</script></td>
+<td style="text-align:center">点</td>
+</tr>
+<tr>
+<td style="text-align:center">$\circ$</td>
+<td style="text-align:center"><script type="math/tex">\circ</script></td>
+<td style="text-align:center">圈</td>
+</tr>
+<tr>
+<td style="text-align:center">$\ast $</td>
+<td style="text-align:center"><script type="math/tex">\ast</script></td>
+<td style="text-align:center">星号</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigotimes$</td>
+<td style="text-align:center"><script type="math/tex">\bigotimes</script></td>
+<td style="text-align:center">克罗内克积</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigoplus$</td>
+<td style="text-align:center"><script type="math/tex">\bigoplus</script></td>
+<td style="text-align:center">异或</td>
+</tr>
+<tr>
+<td style="text-align:center">$\leq$</td>
+<td style="text-align:center"><script type="math/tex">\leq</script></td>
+<td style="text-align:center">小于等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\geq$</td>
+<td style="text-align:center"><script type="math/tex">\geq</script></td>
+<td style="text-align:center">大于等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\neq$</td>
+<td style="text-align:center"><script type="math/tex">\neq</script></td>
+<td style="text-align:center">不等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\approx$</td>
+<td style="text-align:center"><script type="math/tex">\approx</script></td>
+<td style="text-align:center">约等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\prod$</td>
+<td style="text-align:center"><script type="math/tex">\prod</script></td>
+<td style="text-align:center">N元乘积</td>
+</tr>
+<tr>
+<td style="text-align:center">$\coprod$</td>
+<td style="text-align:center"><script type="math/tex">\coprod</script></td>
+<td style="text-align:center">N元余积</td>
+</tr>
+<tr>
+<td style="text-align:center">$\cdots$</td>
+<td style="text-align:center"><script type="math/tex">\cdots</script></td>
+<td style="text-align:center">省略号</td>
+</tr>
+<tr>
+<td style="text-align:center">$\int$</td>
+<td style="text-align:center"><script type="math/tex">\int</script></td>
+<td style="text-align:center">积分</td>
+</tr>
+<tr>
+<td style="text-align:center">$\iint$</td>
+<td style="text-align:center"><script type="math/tex">\iint</script></td>
+<td style="text-align:center">双重积分</td>
+</tr>
+<tr>
+<td style="text-align:center">$\oint$</td>
+<td style="text-align:center"><script type="math/tex">\oint</script></td>
+<td style="text-align:center">曲线积分</td>
+</tr>
+<tr>
+<td style="text-align:center">$\infty$</td>
+<td style="text-align:center"><script type="math/tex">\infty</script></td>
+<td style="text-align:center">无穷</td>
+</tr>
+<tr>
+<td style="text-align:center">$\nabla$</td>
+<td style="text-align:center"><script type="math/tex">\nabla</script></td>
+<td style="text-align:center">梯度</td>
+</tr>
+<tr>
+<td style="text-align:center">$\because$</td>
+<td style="text-align:center"><script type="math/tex">\because</script></td>
+<td style="text-align:center">因为</td>
+</tr>
+<tr>
+<td style="text-align:center">$\therefore$</td>
+<td style="text-align:center"><script type="math/tex">\therefore</script></td>
+<td style="text-align:center">所以</td>
+</tr>
+<tr>
+<td style="text-align:center">$\forall$</td>
+<td style="text-align:center"><script type="math/tex">\forall</script></td>
+<td style="text-align:center">任意</td>
+</tr>
+<tr>
+<td style="text-align:center">$\exists$</td>
+<td style="text-align:center"><script type="math/tex">\exists</script></td>
+<td style="text-align:center">存在</td>
+</tr>
+<tr>
+<td style="text-align:center">$\not=$</td>
+<td style="text-align:center"><script type="math/tex">\not=</script></td>
+<td style="text-align:center">不等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\not&gt;$</td>
+<td style="text-align:center"><script type="math/tex">\not></script></td>
+<td style="text-align:center">不大于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\leq$</td>
+<td style="text-align:center"><script type="math/tex">\leq</script></td>
+<td style="text-align:center">小于等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\geq$</td>
+<td style="text-align:center"><script type="math/tex">\geq</script></td>
+<td style="text-align:center">大于等于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\not\subset$</td>
+<td style="text-align:center"><script type="math/tex">\not\subset</script></td>
+<td style="text-align:center">不属于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\emptyset$</td>
+<td style="text-align:center"><script type="math/tex">\emptyset</script></td>
+<td style="text-align:center">空集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\in$</td>
+<td style="text-align:center"><script type="math/tex">\in</script></td>
+<td style="text-align:center">属于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\notin$</td>
+<td style="text-align:center"><script type="math/tex">\notin</script></td>
+<td style="text-align:center">不属于</td>
+</tr>
+<tr>
+<td style="text-align:center">$\subset$</td>
+<td style="text-align:center"><script type="math/tex">\subset</script></td>
+<td style="text-align:center">子集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\subseteq$</td>
+<td style="text-align:center"><script type="math/tex">\subseteq</script></td>
+<td style="text-align:center">真子集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigcup$</td>
+<td style="text-align:center"><script type="math/tex">\bigcup</script></td>
+<td style="text-align:center">并集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigcap$</td>
+<td style="text-align:center"><script type="math/tex">\bigcap</script></td>
+<td style="text-align:center">交集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigvee$</td>
+<td style="text-align:center"><script type="math/tex">\bigvee</script></td>
+<td style="text-align:center">逻辑或</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigwedge$</td>
+<td style="text-align:center"><script type="math/tex">\bigwedge</script></td>
+<td style="text-align:center">逻辑与</td>
+</tr>
+<tr>
+<td style="text-align:center">$\biguplus$</td>
+<td style="text-align:center"><script type="math/tex">\biguplus</script></td>
+<td style="text-align:center">多重集</td>
+</tr>
+<tr>
+<td style="text-align:center">$\bigsqcup$</td>
+<td style="text-align:center"><script type="math/tex">\bigsqcup</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\hat{y}$</td>
+<td style="text-align:center"><script type="math/tex">\hat{y}</script></td>
+<td style="text-align:center">期望值</td>
+</tr>
+<tr>
+<td style="text-align:center">$\check{y}$</td>
+<td style="text-align:center"><script type="math/tex">\check{y}</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\breve{y}$</td>
+<td style="text-align:center"><script type="math/tex">\breve{y}</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\overline{a+b+c+d}$</td>
+<td style="text-align:center"><script type="math/tex">\overline{a+b+c+d}</script></td>
+<td style="text-align:center">平均值</td>
+</tr>
+<tr>
+<td style="text-align:center">$\underline{a+b+c+d}$</td>
+<td style="text-align:center"><script type="math/tex">\underline{a+b+c+d}</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\overbrace{a+\underbrace{b+c}_{1.0}+d}^{2.0}$</td>
+<td style="text-align:center"><script type="math/tex">\overbrace{a+\underbrace{b+c}_{1.0}+d}^{2.0}</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\uparrow$</td>
+<td style="text-align:center"><script type="math/tex">\uparrow</script></td>
+<td style="text-align:center">向上</td>
+</tr>
+<tr>
+<td style="text-align:center">$\downarrow$</td>
+<td style="text-align:center"><script type="math/tex">\downarrow</script></td>
+<td style="text-align:center">向下</td>
+</tr>
+<tr>
+<td style="text-align:center">$\Uparrow$</td>
+<td style="text-align:center"><script type="math/tex">\Uparrow</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Downarrow$</td>
+<td style="text-align:center"><script type="math/tex">\Downarrow</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\rightarrow$</td>
+<td style="text-align:center"><script type="math/tex">\rightarrow</script></td>
+<td style="text-align:center">向右</td>
+</tr>
+<tr>
+<td style="text-align:center">$\leftarrow$</td>
+<td style="text-align:center"><script type="math/tex">\leftarrow</script></td>
+<td style="text-align:center">向左</td>
+</tr>
+<tr>
+<td style="text-align:center">$\Rightarrow$</td>
+<td style="text-align:center"><script type="math/tex">\Rightarrow</script></td>
+<td style="text-align:center">向右箭头</td>
+</tr>
+<tr>
+<td style="text-align:center">$\Longleftarrow$</td>
+<td style="text-align:center"><script type="math/tex">\Longleftarrow</script></td>
+<td style="text-align:center">向左长箭头</td>
+</tr>
+<tr>
+<td style="text-align:center">$\longleftarrow$</td>
+<td style="text-align:center"><script type="math/tex">\longleftarrow</script></td>
+<td style="text-align:center">向左单箭头</td>
+</tr>
+<tr>
+<td style="text-align:center">$\longrightarrow$</td>
+<td style="text-align:center"><script type="math/tex">\longrightarrow</script></td>
+<td style="text-align:center">向右长箭头</td>
+</tr>
+<tr>
+<td style="text-align:center">$\Longrightarrow$</td>
+<td style="text-align:center"><script type="math/tex">\Longrightarrow</script></td>
+<td style="text-align:center">向右箭头</td>
+</tr>
+<tr>
+<td style="text-align:center">$\alpha$</td>
+<td style="text-align:center"><script type="math/tex">\alpha</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\beta$</td>
+<td style="text-align:center"><script type="math/tex">\beta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\gamma$</td>
+<td style="text-align:center"><script type="math/tex">\gamma</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Gamma$</td>
+<td style="text-align:center"><script type="math/tex">\Gamma</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\delta$</td>
+<td style="text-align:center"><script type="math/tex">\delta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Delta$</td>
+<td style="text-align:center"><script type="math/tex">\Delta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\epsilon$</td>
+<td style="text-align:center"><script type="math/tex">\epsilon</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\varepsilon$</td>
+<td style="text-align:center"><script type="math/tex">\varepsilon</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\zeta$</td>
+<td style="text-align:center"><script type="math/tex">\zeta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\eta$</td>
+<td style="text-align:center"><script type="math/tex">\eta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\theta$</td>
+<td style="text-align:center"><script type="math/tex">\theta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Theta$</td>
+<td style="text-align:center"><script type="math/tex">\Theta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\vartheta$</td>
+<td style="text-align:center"><script type="math/tex">\vartheta</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\iota$</td>
+<td style="text-align:center"><script type="math/tex">\iota</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\pi$</td>
+<td style="text-align:center"><script type="math/tex">\pi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\phi$</td>
+<td style="text-align:center"><script type="math/tex">\phi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Phi$</td>
+<td style="text-align:center"><script type="math/tex">\Phi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\psi$</td>
+<td style="text-align:center"><script type="math/tex">\psi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Psi$</td>
+<td style="text-align:center"><script type="math/tex">\Psi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\omega$</td>
+<td style="text-align:center"><script type="math/tex">\omega</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Omega$</td>
+<td style="text-align:center"><script type="math/tex">\Omega</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\chi$</td>
+<td style="text-align:center"><script type="math/tex">\chi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\rho$</td>
+<td style="text-align:center"><script type="math/tex">\rho</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\omicron$</td>
+<td style="text-align:center"><script type="math/tex">\omicron</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\sigma$</td>
+<td style="text-align:center"><script type="math/tex">\sigma</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Sigma$</td>
+<td style="text-align:center"><script type="math/tex">\Sigma</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\nu$</td>
+<td style="text-align:center"><script type="math/tex">\nu</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\xi$</td>
+<td style="text-align:center"><script type="math/tex">\xi</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\tau$</td>
+<td style="text-align:center"><script type="math/tex">\tau</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\lambda$</td>
+<td style="text-align:center"><script type="math/tex">\lambda</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\Lambda$</td>
+<td style="text-align:center"><script type="math/tex">\Lambda</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\mu$</td>
+<td style="text-align:center"><script type="math/tex">\mu</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\partial$</td>
+<td style="text-align:center"><script type="math/tex">\partial</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\lbrace \rbrace$</td>
+<td style="text-align:center"><script type="math/tex">\lbrace \rbrace</script></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">$\overline{a}$</td>
+<td style="text-align:center"><script type="math/tex">\overline{a}</script></td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/tools/">#tools</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>markdown数学符号</div>
+      <div>https://codebells.github.io/post/md-shu-xue-fu-hao.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月28日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/git.html" title="Git常用指令">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Git常用指令</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读">
+                        <span class="hidden-mobile">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

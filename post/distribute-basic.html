@@ -1,0 +1,1552 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。  容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。 数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。  CAP定理 通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式系统中的Data Consistency">
+<meta property="og:url" content="https://codebells.github.io/post/distribute-basic.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。  容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。 数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。  CAP定理 通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/distribute-basic/image-20220703210216966.png">
+<meta property="article:published_time" content="2022-06-27T08:43:20.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.240Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="paper_read">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="并发控制">
+<meta property="article:tag" content="OCC">
+<meta property="article:tag" content="txn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/distribute-basic/image-20220703210216966.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>分布式系统中的Data Consistency - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分布式系统中的Data Consistency"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-27 16:43" pubdate>
+          2022年6月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          28 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="paper_read"
+        id="heading-4f3c2c07e54678131796528d5ea1cf65" role="tab" data-toggle="collapse" href="#collapse-4f3c2c07e54678131796528d5ea1cf65"
+        aria-expanded="true"
+      >
+        paper_read
+        <span class="list-group-count">(16)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-4f3c2c07e54678131796528d5ea1cf65"
+           role="tabpanel" aria-labelledby="heading-4f3c2c07e54678131796528d5ea1cf65">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="transaction"
+        id="heading-f4d5b76a2418eba4baeabc1ed9142b54" role="tab" data-toggle="collapse" href="#collapse-f4d5b76a2418eba4baeabc1ed9142b54"
+        aria-expanded="true"
+      >
+        transaction
+        <span class="list-group-count">(8)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-f4d5b76a2418eba4baeabc1ed9142b54"
+           role="tabpanel" aria-labelledby="heading-f4d5b76a2418eba4baeabc1ed9142b54">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="concurrency_control"
+        id="heading-3fccfc744c0abeedd8574310bfb3ffb4" role="tab" data-toggle="collapse" href="#collapse-3fccfc744c0abeedd8574310bfb3ffb4"
+        aria-expanded="true"
+      >
+        concurrency_control
+        <span class="list-group-count">(4)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-3fccfc744c0abeedd8574310bfb3ffb4"
+           role="tabpanel" aria-labelledby="heading-3fccfc744c0abeedd8574310bfb3ffb4">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">分布式系统中的Data Consistency</h1>
+            
+            <div class="markdown-body">
+              
+              <p>一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。</p>
+<ul>
+<li>容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。</li>
+<li>数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。</li>
+</ul>
+<p><strong>CAP定理</strong></p>
+<p>通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系统的停机时间，我们需要容忍一台节点或者多台节点出现问题不可用的情况，这样就需要引入冗余，而一旦添加了冗余机制，那么就会涉及到多副本的同步问题以及节点恢复问题。</p>
+<p>而CAP定理就将实际问题抽象出3个概念，一致性(consistency)，可用性(Availability)，分区容忍性(Partition tolerance)。首先理解这三个概念</p>
+<ul>
+<li>一致性：各个数据副本数据的一致情况</li>
+<li>可用性：客户端的访问能得到回应</li>
+<li>分区容忍性：在一定时间内各个节点能够通信，达成数据一致</li>
+</ul>
+<p>CAP定理指出，无法同时满足上述三个特性，因为如果要满足高一致性，那么必须等待数据副本的数据同步，那么可用性即降低，如果保证高可用性，那么就无法花太多时间等待数据副本同步。而如果想要同时满足CA，那么，节点之间需要互相通信以同步数据，这样分区容忍性无法保证，但是实际情况下，网络分区无法控制，所以，只能于CA中选择一个，或者CP，或者AP。</p>
+<p>CAP中的C和ACID中的C是完全不一样的，ACID中的C是，事务将数据库从一个有效状态到另一个有效状态，这个有效状态即没有违反任何完整性约束条件。而在CAP中的C意味着事务的原子性和一致性，不让数据处于不一致的状态；CAP中的A和数据库的高可用性也是不一样的。CAP的A对延迟没有限制，而是需要客户端的访问都能得到响应。而系统中的高可用性并不要求每个非故障节点响应每个请求。</p>
+<h1 id="数据一致性"><a href="#数据一致性" class="headerlink" title="数据一致性"></a>数据一致性</h1><p>一致性。比较复杂，涉及理论一致性和并发模型，在这精简描述一下，一致性模型可以看成参与者之间的约定，及用户在发出读写请求时期望得到什么结果，描述了在存在多份并发访问的情况下可能出现的结果。这是从值传播的角度考虑一致性。</p>
+<h2 id="严格一致性"><a href="#严格一致性" class="headerlink" title="严格一致性"></a>严格一致性</h2><p>任何进程的任何写入都可以立即被任何进程的后续读操作读取。涉及全局时钟的概念，即在全局情况下，时间戳靠后的事务一定能够读取到时间戳靠前的事务的数据。不可能实现，理论模型。</p>
+<h2 id="可线性化"><a href="#可线性化" class="headerlink" title="可线性化"></a>可线性化</h2><p>是最强的单对象、单操作一致性模型。写操作的效果严格一次性的对所有读取者可见，可线性化可能存在不同的方式来确定事件的全序关系，在一个系统中，这个顺序应该一致的，也就是读取到的值必须是至少与之前读取的值是一样新的，也就是单调的读取。</p>
+<p>原子原语，例如原子写和原子比较-交换(CAS)操作。原子写无需考虑当前寄存器值，这和CAS仅在前一个值没有变化的时候才能从一个值变为另一个值，也就是交换值，因为需要避免ABA问题。ABA问题就是A被存入寄存器中的时候，可能会又两个并发写入操作，设置了值B并切换回值A，也就是A不变，并不能保证A从上次读取后就没有更改。</p>
+<p><strong>线性化点</strong>也就是，在线性化点之前，旧值可见，之后新值可见。</p>
+<p>目前大部分系统避免可线性化，因为开销过高，即使是CPU访问主存也不提供可线性化，因为同步指令开销太大了，严重影响速度，但是可以使用CAS来引入可线性化，可以先准备结果，准备好后，交换指针即可使结果可见。</p>
+<h2 id="顺序一致性"><a href="#顺序一致性" class="headerlink" title="顺序一致性"></a>顺序一致性</h2><p>可线性化的代价太高，可以放松模型的同时仍提供相当强的一致性保证。顺序一致性允许对事务进行排序，保证了同属一台进程的顺序不变，但是全局的顺序有可能不按照真实时间排序，但是要注意一点，其他节点观测到的顺序也必须是一致的。</p>
+<h2 id="因果一致性"><a href="#因果一致性" class="headerlink" title="因果一致性"></a>因果一致性</h2><p>存在因果关系的操作保证顺序，其他的可以不保证相同的顺序被读取者观测。</p>
+<p>因果一致性可以使用逻辑时钟实现，而且使用因果一致性可以在消息无序传递的情况下重新构建事务序列，填补消息空隙，直到收集所有的操作依赖项并恢复因果顺序。Dynamo和Riak使用向量时钟建立因果关系。</p>
+<p><strong>向量时钟</strong>是一种用于在事件中建立偏序关系，检测和解决事件链分歧的结构。向量时钟是更细粒度的在数据上追加，而逻辑时钟是在本地进行维护</p>
+<p>如图Dynamo</p>
+<p><img src="distribute-basic/image-20220703210216966.png" srcset="/img/loading.gif" lazyload alt="Dynamo Vector clock"></p>
+<ol>
+<li>client 端写入数据，该请求被 Sx 处理并创建相应的 vector ([Sx, 1])，记为数据 D1</li>
+<li>第 2 次请求也被 Sx 处理，数据修改为 D2，vector 修改为([Sx, 2])</li>
+<li>第 3、4 次请求分别被 Sy、Sz 处理，client 端先读取到 D2，然后 D3、D4 被写入 Sy、Sz</li>
+<li>第 5 次更新时 client 端读取到 D2、D3 和 D4 3个数据版本，通过类似向量时钟判断同时发生关系的方法可判断 D3、D4 是同时发生的事件，因此存在数据冲突，最终通过一定方法解决数据冲突并写入 D5</li>
+</ol>
+<p>版本向量借鉴了向量时钟中利用向量来判断事件的因果关系的思想，用于检测数据冲突，和向量时钟不是一个东西。</p>
+<h1 id="会话模型"><a href="#会话模型" class="headerlink" title="会话模型"></a>会话模型</h1><p>也成为以客户端为中心的一致性模型，从客户端的角度看分布式系统的状态，</p>
+<p><strong>读自己写</strong>(read own write)一致性模型，当写操作完成后，在相同或其他副本上的读操作必须可以观测到写入的值。</p>
+<p><strong>单调读</strong>模型读到的值一定不会是旧的。</p>
+<p><strong>单调写</strong>模型同一客户端写入操作的执行顺序和写入的值的顺序一致。</p>
+<p><strong>读后写</strong>确保写入被排在之前的读取操作返回结果之后。</p>
+<p>将单调读单调写读自己写结合，就可以提供流水线随机访问存储器(PRAM)一致性，保证来自一个进程的写操作将按照进程执行的顺序传播。顺序一致性来自不同进程的写入可以以不同的顺序被观测</p>
+<h1 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h1><p>更新被异步的传播，最终所有的访问都会返回最新的写入结果，没有时间限制多久必须达成一致，非常不可靠。</p>
+<h1 id="可调一致性"><a href="#可调一致性" class="headerlink" title="可调一致性"></a>可调一致性</h1><p>使用三个参数调节数据复制读取和写入。</p>
+<p>复制因子 N，存储数据副本的节点数</p>
+<p>写入一致性 W，需要确认成功写入的节点数</p>
+<p>读取一致性 R，需要确认成功读取的节点数。</p>
+<p>通过调整参数保证W+R&gt;N来达成一致性。保证读取到的一定是最新的值，类似抽屉原理，读取和写入的集合总是存在重叠。</p>
+<p>Quorum协议是可以容忍不超过半数节点故障的可调一致性。即N和W为N/2+1或N/2.</p>
+<p>为了降低存储成本，可以将副本分为见证者副本和拷贝副本，见证者副本仅存储部分记录，表示写操作发生过的关键源信息。</p>
+<h2 id="见证者副本"><a href="#见证者副本" class="headerlink" title="见证者副本"></a>见证者副本</h2><p>正常存储副本需要大量单调数据冗余，我们可以通过见证者副本来降低存储成本，我们不需要在每个副本上存储数据记录的拷贝，而是将副本划分成两种，一个是拷贝副本，一个是见证者副本，见证者副本仅存储一些关键记录，表示写操作曾经发生过，可调一致性的写入因子就必须小于等于拷贝副本数量，但是当拷贝副本宕机过多，导致拷贝副本小于写入因子时，那么此时可以将见证者副本临时代替拷贝副本存储数据，等到原来的拷贝副本恢复再将数据迁移并且恢复原来状态，或者其他操作。</p>
+<h1 id="强最终一致性和CRDT"><a href="#强最终一致性和CRDT" class="headerlink" title="强最终一致性和CRDT"></a>强最终一致性和CRDT</h1><p>在可线性化和最终一致性之间，还存在一个可能的中间地带，强最终一致性，提供了两种模式各自的好处。在这种一致性下，更新可能会延迟或者无序的传播到其他节点，但当所有更新都发送过去的时候，冲突可以被解决，他们最终将合并产生相同的有效状态，也就是conflict-free replicated data type(CRDT)，无冲突复制数据类型。</p>
+<p>可能存在网络分区，但是可以独立的在每个节点执行操作，当通信恢复时，所有节点的数据可以进行协调合并，网络分区期间执行的操作不会丢失。</p>
+<p>最简单的例子<strong>CmRDT</strong>(Commutative Replicated Data Type)，基于操作的可交换复制数据类型。需要满足三点</p>
+<ul>
+<li>无副作用，操作不会改变系统状态</li>
+<li>可交换，顺序无关紧要，即操作满足交换律</li>
+<li>按照因果关系排序，操作成功传递依赖的前提条件是，确保系统已经到达操作可以应用的状态</li>
+</ul>
+<p>CvRDT(Convergent Replicated Data Type)，基于状态的同步，需要满足</p>
+<ul>
+<li>幂等律，不管发送多少次，结果总是一样的</li>
+<li>单调的</li>
+</ul>
+<blockquote>
+<p>参考<a target="_blank" rel="noopener" href="https://highlyscalable.wordpress.com/2012/09/18/distributed-algorithms-in-nosql-databases/">DISTRIBUTED ALGORITHMS IN NOSQL DATABASES</a></p>
+<p>《数据库系统内幕》 Alex Petrov</p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/paper-read/" class="category-chain-item">paper_read</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/transaction/" class="category-chain-item">transaction</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/concurrency-control/" class="category-chain-item">concurrency_control</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/paper-read/">#paper_read</a>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">#并发控制</a>
+      
+        <a href="/tags/OCC/">#OCC</a>
+      
+        <a href="/tags/txn/">#txn</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式系统中的Data Consistency</div>
+      <div>https://codebells.github.io/post/distribute-basic.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月27日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/distribute-transaction.html" title="浅谈分布式事务">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">浅谈分布式事务</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读">
+                        <span class="hidden-mobile">SIGMOD2022 Natto论文阅读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

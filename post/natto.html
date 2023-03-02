@@ -1,0 +1,1400 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Natto: Providing Distributed Transaction Prioritization for High-Contention Workloads论文阅读记录 Natto，支持事务划分优先级的Geo-distributed database system。每个分片处理事务的顺序不是按照到达的顺序，而是用网络估计事务到最远分片的时刻，根据该时刻来为事务分配时间戳建立全局顺序，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SIGMOD2022 Natto论文阅读">
+<meta property="og:url" content="https://codebells.github.io/post/natto.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="Natto: Providing Distributed Transaction Prioritization for High-Contention Workloads论文阅读记录 Natto，支持事务划分优先级的Geo-distributed database system。每个分片处理事务的顺序不是按照到达的顺序，而是用网络估计事务到最远分片的时刻，根据该时刻来为事务分配时间戳建立全局顺序，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220624200654603.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625190319035.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625194012853.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625195631374.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625203410240.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220625205019501.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626153400907.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170106558.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170117211.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170143731.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170156954.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170215059.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170222730.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170257428.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220626170311588.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093814891.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093823986.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093909234.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093858698.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093932034.png">
+<meta property="og:image" content="https://codebells.github.io/post/natto/image-20220627093947242.png">
+<meta property="article:published_time" content="2022-06-24T10:56:37.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.265Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="paper_read">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="system">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/natto/image-20220624200654603.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>SIGMOD2022 Natto论文阅读 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SIGMOD2022 Natto论文阅读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-24 18:56" pubdate>
+          2022年6月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="paper_read"
+        id="heading-4f3c2c07e54678131796528d5ea1cf65" role="tab" data-toggle="collapse" href="#collapse-4f3c2c07e54678131796528d5ea1cf65"
+        aria-expanded="true"
+      >
+        paper_read
+        <span class="list-group-count">(16)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-4f3c2c07e54678131796528d5ea1cf65"
+           role="tabpanel" aria-labelledby="heading-4f3c2c07e54678131796528d5ea1cf65">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SIGMOD2022 Natto论文阅读</h1>
+            
+            <div class="markdown-body">
+              
+              <p>Natto: Providing Distributed Transaction Prioritization for High-Contention Workloads论文阅读记录</p>
+<p>Natto，支持事务划分优先级的Geo-distributed database system。<br>每个分片处理事务的顺序不是按照到达的顺序，而是用网络估计事务到最远分片的时刻，根据该时刻来为事务分配时间戳建立全局顺序，其中引入某些优化建立事务优先级。</p>
+<span id="more"></span>
+<p>Q：数据库如何自动给事务赋优先级？</p>
+<ul>
+<li>对某些时间敏感的事务分配高优先级，避免它与实时性要求不高的事务并发导致的影响</li>
+<li>初始低优先级但abort多次的事务，避免饥饿现象</li>
+</ul>
+<h1 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h1><p>Natto，基于Carousel数据库完成，通过实现对事务划分优先级来降低具有高优先级事务的延迟</p>
+<ul>
+<li>使用网络测量来估计事务到达最远分片的时间，根据这个物理时间去为每个事务分配一个物理时间戳，在分配该时间戳之前，不会在任何分片处理该事务</li>
+<li>引入conditional prepare以及priority abort和提前转发提交结果(减少事务延迟，降低事务完成时间)</li>
+</ul>
+<p>Natto和Carousel都是以2FI事务为前提的数据库</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>分片复制到多数据中心，分片的Leader可能不在同一个数据中心，事务Coordinator一般选事务发起的客户端所在的DataCenter，可能不是事务涉及的数据分区的Leader，但是必须是某个分区的Leader</p>
+<p>可能DC1：<strong>1shard</strong> 2shard，DC2：1shard <strong>3shard</strong>，DC3：<strong>2shard</strong> 3shard</p>
+<h1 id="2FI事务"><a href="#2FI事务" class="headerlink" title="2FI事务"></a>2FI事务</h1><p>即2-round Fixed-set interactive 事务，读写涉及的key必须提前知道</p>
+<p>一个特殊的读写事务，第一轮是读，读后跟着一轮写，在第一轮读完成后，读的值就都知道了，有些Read modified write可以直接借助于第一轮的结果实现</p>
+<p>所有的读操作可以在第一轮时并发执行</p>
+<p><em>为什么要2FI事务？</em></p>
+<ul>
+<li>直接在事务中实现read modified write，而非依赖于CPU架构</li>
+<li>事务的读操作在第一轮可以并行执行</li>
+</ul>
+<h1 id="Carousel的事务流程"><a href="#Carousel的事务流程" class="headerlink" title="Carousel的事务流程"></a>Carousel的事务流程</h1><p>Coordinator是replica的Leader，分区的Leader可能和Coordinator不同</p>
+<p>通过2PC和2FI事务的第二轮写重合来缩短事务完成时间</p>
+<p>如图是Carousel的2FI事务执行流程</p>
+<blockquote>
+<p>首先客户端有一个涉及两个分区的事务，客户端首先发送 ①read-and-prepare request给数据涉及分区的Leader来执行事务，这个request包含了事务读和写涉及的所有key，因为所有key都知道，所以这轮就可以知道事务是否存在冲突，进而进行并发控制，②将读取的结果返回给客户端，然后③各个分区将准备阶段的数据同步到副本，同时，当客户端收到读的结果后④客户端将写入的数据随着commit request一起发送给协调者，⑤当协调者将写入的数据同步给副本后，而事务涉及到的数据分区Leader也已经将准备阶段的数据同步完，并且无冲突，返回prepared，⑥Coordinator接收到所有涉及的分区Leader返回的信息后，⑦则确定是否可以提交，因为此时已经将要写的数据同步给了Coordinator的副本，所以已经具有容错能力，则可以返回给客户端提交信息。此时异步的将这些数据同步给涉及的数据分区，数据分区Leader将所有数据同步给副本后，则该写入可见。</p>
+</blockquote>
+<p><img src="natto/image-20220624200654603.png" srcset="/img/loading.gif" lazyload alt="Carousel&#39;s basic protocol"></p>
+<h1 id="估计请求到达时间"><a href="#估计请求到达时间" class="headerlink" title="估计请求到达时间"></a>估计请求到达时间</h1><p>复用Domino的技术，通过定期心跳探测服务器的本地时间，利用两次差值计算服务器的单向延迟，将一段时间内收集到的延迟信息中的95分位点作为估计值</p>
+<h1 id="Natto"><a href="#Natto" class="headerlink" title="Natto"></a>Natto</h1><p>基于Carousel实现Natto，类似于Carousel，Natto数据分区存储，数据分区可以分布在不同的数据中心。每个分区在不同的数据中心存放分区副本来实现容错，对于每个分区都会选择一个副本来作为分区的Leader。</p>
+<p>Participant Leader：分区Leader<br>Participant Follower：分区Raft的Follower</p>
+<p>只分两个优先级：低优先级，高优先级</p>
+<h2 id="基于时间戳的优先级排序"><a href="#基于时间戳的优先级排序" class="headerlink" title="基于时间戳的优先级排序"></a>基于时间戳的优先级排序</h2><p>收到事务的第一轮读取和准备请求后，分区Leader在到时间戳之前不会处理该请求，如下图，预估到最远的分区Leader需要25ms，那么将事务时间戳设置为当前时间戳$T_0$ +25ms，那么在这个时间戳之前，不会处理该事务。如果有多个事务具有相同时间戳，那么则按照事务ID先后顺序执行。 </p>
+<p><img src="natto/image-20220625190319035.png" srcset="/img/loading.gif" lazyload alt="ordered by furthest timestamp"></p>
+<p>对于不同优先级事务，使用不同的并发控制算法，对于低优先级事务，使用OCC，高优先级事务使用锁机制，避免不必要的中止高优先级事务。</p>
+<p>处理高优先级事务的时候，需要获取所有读写涉及到的key的锁，当没有任何涉及到该key的其他事务处于Prepared阶段时，才能获取该key的锁。</p>
+<p>如果事务晚于预期时间到达，如果和现在正在执行的事务有冲突，那么直接abort，因为可能造成死锁</p>
+<h2 id="基于优先级的准备和中止"><a href="#基于优先级的准备和中止" class="headerlink" title="基于优先级的准备和中止"></a>基于优先级的准备和中止</h2><h3 id="priority-abort"><a href="#priority-abort" class="headerlink" title="priority  abort"></a>priority  abort</h3><p>基于时间戳会存在一个abort window，在abort window中的低优先级事务如果和到来的高优先级事务有冲突，就不让它开始，或者abort，以此来减少高优先级事务的延迟。</p>
+<blockquote>
+<p>例，$Txn_1$和$Txn_2$在分区A上存在冲突，当$Txn_1$预计时间戳为$T_0$ +25ms，$Txn_2$预计时间戳为$T_0$+30ms，但是$Txn_1$在$T_0$+10ms就到达了分区A，需要等待到$T_0$+25ms才能执行，而$Txn_2$在$T_0$+20ms到达分区A，发现与$Txn_1$存在冲突，此时$Txn_1$还没开始执行，所以，直接预先将其abort掉，防止延长高优先级事务的完成时间。</p>
+</blockquote>
+<p><img src="natto/image-20220625194012853.png" srcset="/img/loading.gif" lazyload alt="Example of priority abort"></p>
+<p>但是存在一种情况，就是可能高优先级事务的预计开始执行时间很大，这时候无需中止低优先级事务，因为低优先级事务很可能在高优先级事务开始前就执行完成，而此时根据Natto，是会中止低优先级事务的，这样就有可能导致不断中止低优先级事务，造成饥饿现象，即一直无法执行低优先级事务，可以使用现有的方法解决饥饿问题，如中止多次则提高优先级。</p>
+<h3 id="conditional-prepare"><a href="#conditional-prepare" class="headerlink" title="conditional prepare"></a>conditional prepare</h3><p>如果在事务返回中止请求之前就能确定该事务就要被abort，那么和这个事务存在冲突的高优先级事务可以乐观的进行准备，以此来减少高优先级事务的延迟。</p>
+<p>由于事务到达每个分区Leader的时间不一样，所以有可能存在一种情况就是，分区A知道存在高优先级事务与其冲突，需要priority abort，交予高优先级事务先执行，但是在分区B中，高优先级事务还未到达，而低优先级事务已经开始执行了，那么此时，分区B无法对低优先级事务进行中止，只能等待2PC的abort命令才能让高优先级事务持有锁。这就导致高优先级事务的等待。为了解决这个问题，引入conditional prepare，根据事务预计到达每个分区Leader的时间来判断，其他分区Leader会abort该低优先级事务，如果会，那么就乐观的进行准备</p>
+<blockquote>
+<p>例，低优先级$Txn_1$和高优先级$Txn_2$在分区A和B上存在数据冲突，预计$Txn_1$最远到达时间为$T_0$+25ms，而预计$Txn_2$最远到达时间为$T_0$+30ms，分区A上$Txn_1$到达时间为$T_0$+10ms，$Txn_2$到达时间为$T_0$+20ms，发生priority abort。而分区B在$T_0$+20ms收到$Txn_1$时，一直到$T_0$+25ms还没有收到$Txn_2$，此时$Txn_1$到达执行时间，开始执行，当时间到达$T_0$+30ms时，$Txn_2$终于到达，此时$Txn_1$已经执行，根据Client传来的预计到达各分区Leader的信息，发现在分区A上已经发生Priority Abort，那么，无需等待，进行conditional prepare</p>
+</blockquote>
+<p><img src="natto/image-20220625195631374.png" srcset="/img/loading.gif" lazyload alt="Example of conditional prepare"></p>
+<h2 id="提前提交状态转发"><a href="#提前提交状态转发" class="headerlink" title="提前提交状态转发"></a>提前提交状态转发</h2><p>当无法priority abort低优先级事务的时候，高优先级事务必须等待，直到低优先级事务提交后并将数据同步至follower才能进行。为了解决这个问题，提出Early committed state forwarding(ECSF)，来允许提交的事务更新，尽早的对后续冲突事务可见。</p>
+<h3 id="Local-ECSF"><a href="#Local-ECSF" class="headerlink" title="Local ECSF"></a>Local ECSF</h3><p>一旦分区Leader收到一个从Coordinator的已提交事务的数据更新，他会将数据对下一个冲突的事务可见，以此来减少所有事务的延迟</p>
+<blockquote>
+<p>例，$T<em>0$时刻$Txn_1$开始写A，在$ T</em>{20} $开始执行$Txn_2$但是因为有数据冲突，必须等待$Txn_1$执行完，并且对$Txn_2$可见才能执行$Txn_2$，一旦分区Leader收到协调者发来的$Txn_1$提交请求，那么使用LECSF，使$Txn_2$提前拿到这个值，而不需要等待数据同步以维持容错的过程，这就减少了事务延迟。</p>
+</blockquote>
+<p><img src="natto/image-20220625203410240.png" srcset="/img/loading.gif" lazyload alt="Example of LECSF"></p>
+<h3 id="Remote-ECSF"><a href="#Remote-ECSF" class="headerlink" title="Remote ECSF"></a>Remote ECSF</h3><p>提交的事务更新首先要在Coordinator上同步，实现容错，然后再转发给分区Leader。分区Leader必须等待更新的commit信息，才能处理后续的高优先级事务。RECSF目的为了减少高优先级事务的等待时间。</p>
+<p>方法就是，当分区Leader处理事务的时候，它知道在等待的高优先级事务的前一个冲突事务，分区Leader将其读取请求转发给冲突事务的Coordinator，让Coordinator返回提交的结果即可。</p>
+<blockquote>
+<p>例，前段类似于LECSF，但是当处理$Txn_2$时，分区Leader不再等待Coordinator的提交更新数据传来，而是会将读取$Txn_1$的请求先转发给Coordinator，一旦Coordinator确定了要提交$Txn_1$，那么就会回应$Txn_2$的读取请求，这样就节省了时间。</p>
+</blockquote>
+<p><img src="natto/image-20220625205019501.png" srcset="/img/loading.gif" lazyload alt="Example of RECSF"></p>
+<p>LECSF和RECSF的区别在于，LECSF是被动的，Coordinator将commit命令发送给分区Leader时，其他事务再来这个Leader读数据就已经是可见的了，不需要其他操作，所以对于使用OCC的低优先级事务也可以适用；而RECSF是主动的，因为高优先级事务是2PL的，所以必须等待事务释放锁，才可以进行执行，但是在等待途中，就可以取Coordinator去取这个数据，一旦Coordinator上发出这个事务的commit命令，就可以直接将结果返回给客户端。</p>
+<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>和Carousel(2PC+OCC)，TAPIR(2PC+OCC)，类似Spanner(2PC+2PL)的系统对比，在本地集群模拟广域网延迟以及云服务器集群，使用三种不同负载，YCSB-T(KV事务测试)，Retwis(类似Twitter的工作负载)，SmallBank(模拟银行工作负载)</p>
+<p>5分区3副本，每个数据中心最多存放一个分区的一个副本</p>
+<p><img src="natto/image-20220626153400907.png" srcset="/img/loading.gif" lazyload alt="DataPlaced"></p>
+<p>10%的事务被标记为高优先级事务，每100ms获取一次各分区的延迟信息</p>
+<h2 id="YCSB-T"><a href="#YCSB-T" class="headerlink" title="YCSB-T"></a>YCSB-T</h2><p>当事务输入速率从50增加到350txn/s时，carousel和2PL+2PC及TAPIR的高优先级事务的延迟显著增加，Natto增加的就不明显</p>
+<p><img src="natto/image-20220626170106558.png" srcset="/img/loading.gif" lazyload alt="image-20220626170106558"></p>
+<p><img src="natto/image-20220626170117211.png" srcset="/img/loading.gif" lazyload alt="image-20220626170117211"></p>
+<p><img src="natto/image-20220626170143731.png" srcset="/img/loading.gif" lazyload alt="image-20220626170143731"></p>
+<p><img src="natto/image-20220626170156954.png" srcset="/img/loading.gif" lazyload alt="image-20220626170156954"></p>
+<p><img src="natto/image-20220626170215059.png" srcset="/img/loading.gif" lazyload alt="image-20220626170215059"></p>
+<p><img src="natto/image-20220626170222730.png" srcset="/img/loading.gif" lazyload alt="image-20220626170222730"></p>
+<p><img src="natto/image-20220626170257428.png" srcset="/img/loading.gif" lazyload alt="image-20220626170257428"></p>
+<p><img src="natto/image-20220626170311588.png" srcset="/img/loading.gif" lazyload alt="image-20220626170311588"></p>
+<p><img src="natto/image-20220627093814891.png" srcset="/img/loading.gif" lazyload alt="image-20220627093814891"></p>
+<p><img src="natto/image-20220627093823986.png" srcset="/img/loading.gif" lazyload alt="image-20220627093823986"></p>
+<p><img src="natto/image-20220627093909234.png" srcset="/img/loading.gif" lazyload alt="image-20220627093909234"></p>
+<p><img src="natto/image-20220627093858698.png" srcset="/img/loading.gif" lazyload alt="image-20220627093858698"></p>
+<p><img src="natto/image-20220627093932034.png" srcset="/img/loading.gif" lazyload alt="image-20220627093932034"></p>
+<p><img src="natto/image-20220627093947242.png" srcset="/img/loading.gif" lazyload alt="image-20220627093947242"></p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/paper-read/" class="category-chain-item">paper_read</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/paper-read/">#paper_read</a>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/system/">#system</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SIGMOD2022 Natto论文阅读</div>
+      <div>https://codebells.github.io/post/natto.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月24日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">分布式系统中的Data Consistency</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/etl-glue.html" title="ETL(Extract,Transform,Load)">
+                        <span class="hidden-mobile">ETL(Extract,Transform,Load)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

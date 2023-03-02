@@ -1,0 +1,1440 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="摘要LSM Tree将随机写变为顺序写，提高了写性能，但是它必须依赖于压缩以及布隆过滤器来维持读性能。但是NVMe SSD的出现，读写性能的Tradeoff就不需要再考虑了，在并发的情况下，在原地更新的方案也可以提供优异的读写性能，是一个可以替代LSM Tree的方案。 3个点  record caching for efficient point operation 将热数据记录尽可能缓存，并且">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VLDB 2023 treeline">
+<meta property="og:url" content="https://codebells.github.io/post/treeline.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="摘要LSM Tree将随机写变为顺序写，提高了写性能，但是它必须依赖于压缩以及布隆过滤器来维持读性能。但是NVMe SSD的出现，读写性能的Tradeoff就不需要再考虑了，在并发的情况下，在原地更新的方案也可以提供优异的读写性能，是一个可以替代LSM Tree的方案。 3个点  record caching for efficient point operation 将热数据记录尽可能缓存，并且">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205110529342.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205174251911.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205215339031.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205225018846.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205221201746.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205221217565.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205223031062.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205223446015.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205223933610.png">
+<meta property="og:image" content="https://codebells.github.io/post/treeline/image-20221205225140253.png">
+<meta property="article:published_time" content="2022-12-02T02:38:45.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.351Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="paper_read">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="storage">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/treeline/image-20221205110529342.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>VLDB 2023 treeline - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="VLDB 2023 treeline"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-02 10:38" pubdate>
+          2022年12月2日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="paper_read"
+        id="heading-4f3c2c07e54678131796528d5ea1cf65" role="tab" data-toggle="collapse" href="#collapse-4f3c2c07e54678131796528d5ea1cf65"
+        aria-expanded="true"
+      >
+        paper_read
+        <span class="list-group-count">(16)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-4f3c2c07e54678131796528d5ea1cf65"
+           role="tabpanel" aria-labelledby="heading-4f3c2c07e54678131796528d5ea1cf65">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="storage"
+        id="heading-ddecebdea58b5f264d27f1f7909bab74" role="tab" data-toggle="collapse" href="#collapse-ddecebdea58b5f264d27f1f7909bab74"
+        aria-expanded="true"
+      >
+        storage
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-ddecebdea58b5f264d27f1f7909bab74"
+           role="tabpanel" aria-labelledby="heading-ddecebdea58b5f264d27f1f7909bab74">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">VLDB 2023 treeline</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>LSM Tree将随机写变为顺序写，提高了写性能，但是它必须依赖于压缩以及布隆过滤器来维持读性能。但是NVMe SSD的出现，读写性能的Tradeoff就不需要再考虑了，在并发的情况下，在原地更新的方案也可以提供优异的读写性能，是一个可以替代LSM Tree的方案。</p>
+<p>3个点</p>
+<ol>
+<li>record caching for efficient point operation<ul>
+<li>将热数据记录尽可能缓存，并且存储到尽可能一个page上</li>
+</ul>
+</li>
+<li>page grouping for high-performance range scans<ul>
+<li>对page分组，将key值相邻的优先分到一起，让他们连续存储，对scan更友好。</li>
+<li>对于索引只需要存page group的索引，可以让内存中的索引表变得更小</li>
+</ul>
+</li>
+<li>insert forecasting to reduce the reorganization costs of accommodating new records<ul>
+<li>根据观察到的插入，预测在page需要预留出多大的空间</li>
+</ul>
+</li>
+</ol>
+<p><img src="treeline/image-20221205110529342.png" srcset="/img/loading.gif" lazyload alt="TreeLine design"></p>
+<hr>
+<p>RocksDB和LevelDB都是使用LSM树的，LSM树的基础概念就是writebatch，先在内存写，memtable到一定规模了再全部写入到存储，到存储就不可变了，并且存储会进行异步的压缩。核心思想就是将随机写变为顺序写，但是影响读性能，一条记录可能出现在多个块上。但是这种trade off在传统磁盘是个很好的选择，但是现在NVMe SSD，在并行度足够高时，随机写是可以达到顺序写入吞吐量峰值的。</p>
+<h1 id="TreeLine"><a href="#TreeLine" class="headerlink" title="TreeLine"></a>TreeLine</h1><p><strong>查询流程</strong>：先查内存的缓存，如果缓存未命中那么查内存index，映射到对应的数据段，把对应的page读到内存，如果还是没找到，就去OverFlow page找，如果还是没找到，就返回未找到。</p>
+<p><strong>数据更改流程</strong>：insert，update，delete先创建或者更新缓存中的record的entry，如果没在内存，那TreeLine先用index找对应的page，读入内存，然后执行操作</p>
+<p><strong>范围查询</strong>：和查询一样，但是缓存和磁盘都得查，然后以key的顺序来合并，如果有重复的，缓存数据将覆盖disk的数据</p>
+<h2 id="1-Record-Cache-Key-Idea-A"><a href="#1-Record-Cache-Key-Idea-A" class="headerlink" title="1. Record Cache(Key Idea A)"></a>1. Record Cache(Key Idea A)</h2><h3 id="Cache-Admittance"><a href="#Cache-Admittance" class="headerlink" title="Cache Admittance"></a>Cache Admittance</h3><p>当TreeLine同意记录进入缓存时，都会给一个优先级$0\rightarrow P_{max} $后续的每次访问都会增加优先级。</p>
+<p>数据记录在三种情况下可以进入缓存，</p>
+<blockquote>
+<ol>
+<li>用户的任意数据修改（insert，update，delete），赋予初始优先级$P<em>{mid}=P</em>{max}/2$，如果缓存未缓存这个entry，TreeLine会清理一些entry</li>
+<li>查询未缓存的记录，赋予初始优先级$P_{mid}$并缓存</li>
+<li>在查询或修改时，缓存同一个page的数据，赋予初始优先级$P_1$</li>
+</ol>
+</blockquote>
+<h3 id="Cache-Evivtion"><a href="#Cache-Evivtion" class="headerlink" title="Cache Evivtion"></a>Cache Evivtion</h3><p>使用clock algorithm，周期性的降低优先级直到找到一个entry优先级为0，如果该entry被修改过，那么找下一个，因为如果被修改过，就需要先IO将其刷回到磁盘，我们希望减少IO操作，如果entry全是脏的，就把所有脏entry一起写入，到一个page</p>
+<h2 id="2-In-Memory-Index"><a href="#2-In-Memory-Index" class="headerlink" title="2. In-Memory Index"></a>2. In-Memory Index</h2><p>B+树索引，在换出脏页时会映射到合适的位置去写，以及查询时，映射到合适的位置去读</p>
+<p>index存在$key \rightarrow segment$的映射segment到page直接用二分查，因为是线性模型，segment有序</p>
+<p>index的更新只在reorganization时发生</p>
+<h3 id="Pages-and-Segments"><a href="#Pages-and-Segments" class="headerlink" title="Pages and Segments"></a>Pages and Segments</h3><p>Page，沿用LeanStore的Page设计，该Page负责一个范围的key值，该范围在创建时定义</p>
+<p>Segment是1个或多个page组成</p>
+<h2 id="3-Supproting-a-Growing-Database-Key-Idea-B"><a href="#3-Supproting-a-Growing-Database-Key-Idea-B" class="headerlink" title="3. Supproting a Growing Database(Key Idea B)"></a>3. Supproting a Growing Database(Key Idea B)</h2><h3 id="Overflow-Pages"><a href="#Overflow-Pages" class="headerlink" title="Overflow Pages"></a>Overflow Pages</h3><p>当data page满了，TreeLine分配一个Overflow page，这个page不被index索引，这个Overflow page布局类似base page，继承负责相同的key range，当Overflow page满了，这个Segment就得reorganized</p>
+<h3 id="Page-Orderings"><a href="#Page-Orderings" class="headerlink" title="Page Orderings"></a>Page Orderings</h3><p>physical order，物理存储的顺序</p>
+<p>logical order ，ssd driver自己抽象出来的逻辑上的顺序</p>
+<p>key order，TreeLine中每个page负责一个key range，以这个key的下界排序</p>
+<h3 id="Reorganization"><a href="#Reorganization" class="headerlink" title="Reorganization"></a>Reorganization</h3><p>4个阶段，range detection后是一次或者多次model building和segment write-out，再是index update</p>
+<p><img src="treeline/image-20221205174251911.png" srcset="/img/loading.gif" lazyload alt="Reorganization"></p>
+<h4 id="Phase-1：Range-detection"><a href="#Phase-1：Range-detection" class="headerlink" title="Phase 1：Range detection"></a>Phase 1：Range detection</h4><p>在某个Segment的overflow page满了之后需要reorganization，会将相邻的r(默认为5)个Segment检查，如果存在overflow page就一起reorganize，也就是一次性最多reorganization 2r+1个segment</p>
+<h4 id="Phase-2：Model-building"><a href="#Phase-2：Model-building" class="headerlink" title="Phase 2：Model building"></a>Phase 2：Model building</h4><p>PGM index’s piecewise linear regression algorithm，我的理解是用这个可以将page更合理的放在尽可能少的Segment中。</p>
+<p>线性模型让空间效率提高，并且提供了可接受的准确率。我们可以通过配置错误阈值 epsilon来实现一个正确率和空间利用率的trade off</p>
+<p>一旦到错误阈值，Phase 2结束，已经处理过的数据records会发送到Phase 3作为write out set，并且在重复Phase 2之前移出reorganization set。</p>
+<p>第二阶段的迭代会在3个情况下停止</p>
+<ol>
+<li>reorganization set适合单个页面，无需任何模型，直接转发到Phase3</li>
+<li>已经超过为reorganization预留的内存空间了，在模型构建期间，保存处理过record的page都在内存里，此时直接转发records和模型到Phase3</li>
+<li>处理了足够的record来适应16 page segment</li>
+</ol>
+<h4 id="Phase-3：-Segment-Write-out"><a href="#Phase-3：-Segment-Write-out" class="headerlink" title="Phase 3： Segment Write-out"></a>Phase 3： Segment Write-out</h4><p>从Phase2接收到Write out set和model，一个linear model就是一个segment，在磁盘上找一个连续空间将其存储。page数量由write out set 和自定义参数goal来确定，goal的含义是，一个page的存储率，也就是刚重组时填多少个record。而且Treeline的Segment大小只能为1，2，4，8，16pages，所以如果发过来10个page，只会分配8page的segment，将剩下的两个page的record返回reorganization set。并且生成segmentID</p>
+<h4 id="Phase-4：Index-Update"><a href="#Phase-4：Index-Update" class="headerlink" title="Phase 4：Index Update"></a>Phase 4：Index Update</h4><p>当reorganization set为空时则更新in-memory index，表明reorganization结束了。之前的所有entries相关的数据全部删除，将SegmentID标为0，并加入到free list中，以后reorganization可能会将其覆盖</p>
+<h2 id="4-Insert-Forecasting-Key-Idea-C"><a href="#4-Insert-Forecasting-Key-Idea-C" class="headerlink" title="4. Insert Forecasting(Key Idea C)"></a>4. Insert Forecasting(Key Idea C)</h2><h3 id="Tracking-Insert"><a href="#Tracking-Insert" class="headerlink" title="Tracking Insert"></a>Tracking Insert</h3><p>把Workload分为Epochs，每x个insert(默认100000)为一个epoch，每个epoch建立b个partitions的直方图，每个epoch使用前一个epoch生成的直方图预测未来的可能插入，分区按照上一个epoch的数据来确定上下界。</p>
+<h3 id="Generating-Forecasts"><a href="#Generating-Forecasts" class="headerlink" title="Generating Forecasts"></a>Generating Forecasts</h3><p>通过这个直方图预测未来f个epoch的直方图</p>
+<h3 id="Utilizing-Forecast"><a href="#Utilizing-Forecast" class="headerlink" title="Utilizing Forecast"></a>Utilizing Forecast</h3><p>设置目标Goal，尽可能减少reorganization的同时减少空间浪费</p>
+<h3 id="Interaction-with-Page-Grouping"><a href="#Interaction-with-Page-Grouping" class="headerlink" title="Interaction with Page Grouping"></a>Interaction with Page Grouping</h3><p>预测插入可能会影响Goal参数的设定，进而影响epsilon参数，再影响到线性模型的构建</p>
+<h2 id="5-Thread-Synchronization"><a href="#5-Thread-Synchronization" class="headerlink" title="5. Thread Synchronization"></a>5. Thread Synchronization</h2><p>两种锁，Segment lock和Page lock</p>
+<p><img src="treeline/image-20221205215339031.png" srcset="/img/loading.gif" lazyload alt="相容性矩阵"></p>
+<p>Segment locks can be acquired in <strong>I</strong>ntention <strong>R</strong>ead, <strong>I</strong>ntention <strong>W</strong>rite, re<strong>O</strong>rganization or re<strong>O</strong>rganization e<strong>X</strong>clusive mode. Page locks can be acquired in <strong>S</strong>hared or e<strong>X</strong>clusive mode.</p>
+<p>reorganization在第一阶段结束加O锁，第四阶段开始加OX锁</p>
+<h1 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h1><p>和LSM-Based system及其他update in place system比较</p>
+<p><img src="treeline/image-20221205225018846.png" srcset="/img/loading.gif" lazyload alt="image-20221205225018846"></p>
+<p>数据集线性与否，累计分布函数，越是一条直线，越容易被linear model拟合</p>
+<h2 id="系统对比"><a href="#系统对比" class="headerlink" title="系统对比"></a>系统对比</h2><p>RocksDB：LSM-Based system<br>LeanStore：先进的 update-in-place KV system</p>
+<p><img src="treeline/image-20221205221201746.png" srcset="/img/loading.gif" lazyload alt="image-20221205221201746"></p>
+<p><img src="treeline/image-20221205221217565.png" srcset="/img/loading.gif" lazyload alt="image-20221205221217565"></p>
+<ol>
+<li>利用缓存record来减少写放大问题</li>
+<li>提供高效的读</li>
+</ol>
+<p>hot key不在同一个page，并且record 64B，page4KB，读写放大太严重，hot key的record不全在内存。</p>
+<p>RocksDB的LSM设计导致需要读放大</p>
+<p><img src="treeline/image-20221205223031062.png" srcset="/img/loading.gif" lazyload alt="image-20221205223031062"></p>
+<p><strong>三个真实数据集下跑YCSB E</strong></p>
+<p>当record是1024B，page是4KB的时候，LeanStore的性能就上来了，因为读写放大问题不再严重</p>
+<h2 id="Record-Cache和Page-Grouping的性能提升"><a href="#Record-Cache和Page-Grouping的性能提升" class="headerlink" title="Record Cache和Page Grouping的性能提升"></a>Record Cache和Page Grouping的性能提升</h2><p><img src="treeline/image-20221205223446015.png" srcset="/img/loading.gif" lazyload alt="image-20221205223446015"></p>
+<p>AMZON的数据集，Record大小为1024，16个线程</p>
+<p>结论</p>
+<ol>
+<li>Record Cache在读写负载中减少了读写放大</li>
+<li>Page grouping的开销不大，不会造成性能影响</li>
+<li>Page grouping可以加速Scan</li>
+</ol>
+<h2 id="Page-Grouping的两个参数对性能的影响"><a href="#Page-Grouping的两个参数对性能的影响" class="headerlink" title="Page Grouping的两个参数对性能的影响"></a>Page Grouping的两个参数对性能的影响</h2><p><img src="treeline/image-20221205223933610.png" srcset="/img/loading.gif" lazyload alt="image-20221205223933610"></p>
+<p>Epsilon越大，意味着错误阈值越高，可以有更多的record来拟合模型，并且可以一个Segment可以有更多的page</p>
+<p>Goal越大，意味着一个page预留的位置越小，后续reorganization次数越多</p>
+<h2 id="Insert-forecasting的影响"><a href="#Insert-forecasting的影响" class="headerlink" title="Insert forecasting的影响"></a>Insert forecasting的影响</h2><p><img src="treeline/image-20221205225140253.png" srcset="/img/loading.gif" lazyload alt="image-20221205225140253"></p>
+<p>50读50插入，Epoch为100000，直方图分区数b为20000，预测的为未来100个epoch。</p>
+<p>在record为64B时更有效，这意味着，reorganization次数会因为预测减少的效果更显著。</p>
+<p>epoch粒度越细，不仅预测不准而且影响性能</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/paper-read/" class="category-chain-item">paper_read</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/storage/" class="category-chain-item">storage</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/paper-read/">#paper_read</a>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/storage/">#storage</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>VLDB 2023 treeline</div>
+      <div>https://codebells.github.io/post/treeline.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月2日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/linux-command.html" title="linux-command">
+                        <span class="hidden-mobile">linux-command</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

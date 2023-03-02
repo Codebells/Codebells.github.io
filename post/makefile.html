@@ -1,0 +1,1154 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="先给个我的makefile学习链接  常用命令make -j$(nproc)  概述学习makefile是关于程序编译的必经之路，对于C++来说，编译的过程是这样的，先将C++的代码编译成object 中间文件，在windows是.obj，Linux是.o文件，这就是编译，有了中间文件后，把中间文件整合到一起，变成可执行文件，这个过程叫链接。这个过程涉及到程序的全局变量，函数声明，语言语法语义正确">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习makefile">
+<meta property="og:url" content="https://codebells.github.io/post/makefile.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="先给个我的makefile学习链接  常用命令make -j$(nproc)  概述学习makefile是关于程序编译的必经之路，对于C++来说，编译的过程是这样的，先将C++的代码编译成object 中间文件，在windows是.obj，Linux是.o文件，这就是编译，有了中间文件后，把中间文件整合到一起，变成可执行文件，这个过程叫链接。这个过程涉及到程序的全局变量，函数声明，语言语法语义正确">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-31T05:09:17.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.262Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="tools">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>学习makefile - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="学习makefile"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-31 13:09" pubdate>
+          2022年10月31日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="tech"
+        id="heading-d9f9133fb120cd6096870bc2b496805b" role="tab" data-toggle="collapse" href="#collapse-d9f9133fb120cd6096870bc2b496805b"
+        aria-expanded="true"
+      >
+        tech
+        <span class="list-group-count">(11)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-d9f9133fb120cd6096870bc2b496805b"
+           role="tabpanel" aria-labelledby="heading-d9f9133fb120cd6096870bc2b496805b">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/etl-glue.html" title="ETL(Extract,Transform,Load)"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ETL(Extract,Transform,Load)</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/git.html" title="Git常用指令"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Git常用指令</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cmake.html" title="cmake日常"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cmake日常</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cpp.html" title="cpp随笔"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cpp随笔</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/docker.html" title="docker常用指令基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">docker常用指令基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/linux-command.html" title="linux-command"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">linux-command</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/protobuf.html" title="protobuf"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">protobuf</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/yaml.html" title="yaml基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">yaml基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/zeromq.html" title="zeromq"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">zeromq</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/script.html" title="一些没啥用的脚本"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">一些没啥用的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/makefile.html" title="学习makefile"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">学习makefile</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">学习makefile</h1>
+            
+            <div class="markdown-body">
+              
+              <p>先给个我的<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/index.html">makefile学习链接</a></p>
+<hr>
+<h1 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h1><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">make -j$(nproc) <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>学习makefile是关于程序编译的必经之路，对于C++来说，编译的过程是这样的，先将C++的代码编译成object 中间文件，在windows是.obj，Linux是.o文件，这就是编译，有了中间文件后，把中间文件整合到一起，变成可执行文件，这个过程叫链接。这个过程涉及到程序的全局变量，函数声明，语言语法语义正确性检查之类的，在正常情况来说，每个cpp文件都会有对应的.o文件，对于这些来说，就需要链接去找寻这些变量是否定义，函数是否声明，语法语义是否正确。但是因为在大型项目文件太多，为了方便起见，就会给中间文件打个包，这就是库文件，在windows是.lib library 文件，Linux是.a archive 文件</p>
+<p>makefile就定义了项目如何编译，怎么链接程序，文件编译的先后顺序，是否需要重新编译等，简化了编译的过程，makefile写得好，一个make指令就可以编译完成。</p>
+<h1 id="makefile规则"><a href="#makefile规则" class="headerlink" title="makefile规则"></a>makefile规则</h1><p>粗略地看一看makefile的规则</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">target ... : prerequisites ...
+    command
+    ...
+    ...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div>
+<ul>
+<li><strong>target</strong>:可以是一个object file（目标文件），也可以是一个执行文件，还可以是一个标签（label）。</li>
+<li><strong>prerequisites:</strong>生成该target所依赖的文件和/或target</li>
+<li><strong>command</strong>:该target要执行的命令（任意的shell命令）</li>
+</ul>
+<p>这是一个文件的依赖关系，也就是说，target这一个或多个的目标文件依赖于prerequisites中的文件，其生成规则定义在command中。说白一点就是说:</p>
+<blockquote>
+<p>prerequisites中如果有一个以上的文件比target文件要新的话，command所定义的命令就会被执行。</p>
+</blockquote>
+<p>这就是makefile的规则，也就是makefile中最核心的内容。</p>
+<p>看个例子</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">edit : main.o kbd.o command.o display.o \
+        insert.o search.o files.o utils.o
+    cc -o edit main.o kbd.o command.o display.o \
+        insert.o search.o files.o utils.o
+
+main.o : main.c defs.h
+    cc -c main.c
+kbd.o : kbd.c defs.h command.h
+    cc -c kbd.c
+command.o : command.c defs.h command.h
+    cc -c command.c
+display.o : display.c defs.h buffer.h
+    cc -c display.c
+insert.o : insert.c defs.h buffer.h
+    cc -c insert.c
+search.o : search.c defs.h buffer.h
+    cc -c search.c
+files.o : files.c defs.h buffer.h command.h
+    cc -c files.c
+utils.o : utils.c defs.h
+    cc -c utils.c
+clean :
+    rm edit main.o kbd.o command.o display.o \
+        insert.o search.o files.o utils.o<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>‘\‘是换行的意思，在该项目目录下，就可以直接执<code>make</code>就可以生成可执行文件edit，执行<code>make clean</code>就可以删除中间目标文件及可执行文件edit。</p>
+<p>每一个 <code>.o</code> 文件都有一组依赖文件，而这些 <code>.o</code> 文件又是执行文件 <code>edit</code> 的依赖文件。依赖关系的实质就是说明了目标文件是由哪些文件生成的，换言之，目标文件是哪些文件更新的。</p>
+<p>在定义好依赖关系后，后续的那一行定义了如何生成目标文件的操作系统命令，一定要以一个 <code>Tab</code> 键作为开头。记住，make并不管命令是怎么工作的，他只管执行所定义的命令。make会比较targets文件和prerequisites文件的修改日期，如果prerequisites文件的日期要比targets文件的日期要新，或者target不存在的话，那么，make就会执行后续定义的命令。</p>
+<p><code>clean</code> 不是一个文件，它只不过是一个动作名字，其冒号后什么也没有，那么，make就不会自动去找它的依赖性，也就不会自动执行其后所定义的命令。要执行其后的命令，就要在make命令后明显得指出这个label的名字。</p>
+<h2 id="makefile过程"><a href="#makefile过程" class="headerlink" title="makefile过程"></a>makefile过程</h2><p>在默认的方式下，也就是我们只输入 <code>make</code> 命令。那么，</p>
+<ol>
+<li>make会在当前目录下找名字叫“Makefile”或“makefile”的文件。</li>
+<li>如果找到，它会找文件中的第一个目标文件（target），在上面的例子中，他会找到“edit”这个文件，并把这个文件作为最终的目标文件。</li>
+<li>如果edit文件不存在，或是edit所依赖的后面的 <code>.o</code> 文件的文件修改时间要比 <code>edit</code> 这个文件新，那么，他就会执行后面所定义的命令来生成 <code>edit</code> 这个文件。</li>
+<li>如果 <code>edit</code> 所依赖的 <code>.o</code> 文件也不存在，那么make会在当前文件中找目标为 <code>.o</code> 文件的依赖性，如果找到则再根据那一个规则生成 <code>.o</code> 文件。（这有点像一个堆栈的过程）</li>
+<li>当然，你的C文件和H文件是存在的啦，于是make会生成 <code>.o</code> 文件，然后再用 <code>.o</code> 文件生成make的终极任务，也就是执行文件 <code>edit</code> 了。</li>
+</ol>
+<h2 id="makefile变量"><a href="#makefile变量" class="headerlink" title="makefile变量"></a>makefile变量</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">edit : main.o kbd.o command.o display.o \
+        insert.o search.o files.o utils.o
+    cc -o edit main.o kbd.o command.o display.o \
+        insert.o search.o files.o utils.o<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>我们可以看到 <code>.o</code> 文件的字符串被重复了两次，如果我们的工程需要加入一个新的 <code>.o</code> 文件，就需要手动更改两个地方，如果涉及的地方一多，改起来就很麻烦，还容易出错。所以引入变量的概念。</p>
+<p><strong>变量定义</strong></p>
+<p>定义objects变量</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">objects &#x3D; main.o kbd.o command.o display.o \
+     insert.o search.o files.o utils.o<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div>
+<p>定义后，就可以如此使用$(Var)</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">objects &#x3D; main.o kbd.o command.o display.o \
+    insert.o search.o files.o utils.o
+
+edit : $(objects)
+    cc -o edit $(objects)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="makefile的自动推导"><a href="#makefile的自动推导" class="headerlink" title="makefile的自动推导"></a>makefile的自动推导</h2><p>其实makefile默认会将.o同名的.c文件进行链接，加入到依赖关系中，<code>cc -c *.c</code>也就自动添加进命令中执行编译.c文件了，所以也就不用每个都写<code>cc -c *.c</code>了</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">objects &#x3D; main.o kbd.o command.o display.o \
+    insert.o search.o files.o utils.o
+
+edit : $(objects)
+    cc -o edit $(objects)
+
+main.o : defs.h
+kbd.o : defs.h command.h
+command.o : defs.h command.h
+display.o : defs.h buffer.h
+insert.o : defs.h buffer.h
+search.o : defs.h buffer.h
+files.o : defs.h buffer.h command.h
+utils.o : defs.h
+
+.PHONY : clean
+clean :
+    rm edit $(objects)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>.PHONY意思是clean是伪目标文件</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">objects &#x3D; main.o kbd.o command.o display.o \
+    insert.o search.o files.o utils.o
+
+edit : $(objects)
+    cc -o edit $(objects)
+
+$(objects) : defs.h
+kbd.o command.o files.o : command.h
+display.o insert.o search.o files.o : buffer.h
+
+.PHONY : clean
+clean :
+    rm edit $(objects)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>这是新风格makefile，以.h文件为主，看每个.h文件被哪些.o文件依赖，传统风格是以.o文件为主，看每个.o文件依赖哪些.h文件，其实我也觉得传统风格比较清晰。</p>
+<p>每个Makefile中都应该写一个清空目标文件（ <code>.o</code> 和执行文件）的规则，这不仅便于重编译，也很利于保持文件的清洁。一般的风格都是：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">clean:
+    rm edit $(objects)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div>
+<p>更为稳健的做法是：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">.PHONY : clean
+clean :
+    -rm edit $(objects)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<p>前面说过， <code>.PHONY</code> 表示 <code>clean</code> 是一个“伪目标”。而在 <code>rm</code> 命令前面加了一个小减号的意思就是，也许某些文件出现问题，但不要管，继续做后面的事。当然， <code>clean</code> 的规则不要放在文件的开头，不然，这就会变成make的默认目标，相信谁也不愿意这样。不成文的规矩是——“clean从来都是放在文件的最后”。</p>
+<h3 id="伪目标"><a href="#伪目标" class="headerlink" title="伪目标"></a>伪目标</h3><p>“伪目标”的取名不能和文件名重名，不然其就失去了“伪目标”的意义了。</p>
+<p>当然，为了避免和文件重名的这种情况，我们可以使用一个特殊的标记“.PHONY”来显式地指明一个目标是“伪目标”，向make说明，不管是否有这个文件，这个目标就是“伪目标”。</p>
+<p>伪目标一般没有依赖的文件。但是，我们也可以为伪目标指定所依赖的文件。伪目标同样可以作为“默认目标”，只要将其放在第一个。</p>
+<p>一个示例就是，如果你的Makefile需要一口气生成若干个可执行文件，但你只想简单地敲一个make完事，并且，所有的目标文件都写在一个Makefile中，那么你可以使用“伪目标”这个特性：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">all : prog1 prog2 prog3
+.PHONY : all
+
+prog1 : prog1.o utils.o
+    cc -o prog1 prog1.o utils.o
+
+prog2 : prog2.o
+    cc -o prog2 prog2.o
+
+prog3 : prog3.o sort.o utils.o
+    cc -o prog3 prog3.o sort.o utils.o<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>我们知道，Makefile中的第一个目标会被作为其默认目标。我们声明了一个“all”的伪目标，其依赖于其它三个目标。由于默认目标的特性是，总是被执行的，但由于“all”又是一个伪目标，伪目标只是一个标签不会生成文件，所以不会有“all”文件产生。于是，其它三个目标的规则总是会被决议。也就达到了我们一口气生成多个目标的目的。 <code>.PHONY : all</code> 声明了“all”这个目标为“伪目标”。</p>
+<h2 id="makefile里有什么"><a href="#makefile里有什么" class="headerlink" title="makefile里有什么"></a>makefile里有什么</h2><p>Makefile里主要包含了五个东西：显式规则、隐晦规则、变量定义、文件指示和注释</p>
+<ol>
+<li>显式规则。显式规则说明了如何生成一个或多个目标文件。这是由Makefile的书写者明显指出要生成的文件、文件的依赖文件和生成的命令。</li>
+<li>隐晦规则。由于我们的make有自动推导的功能，所以隐晦的规则可以让我们比较简略地书写 Makefile，这是由make所支持的。</li>
+<li>变量的定义。在Makefile中我们要定义一系列的变量，变量一般都是字符串，这个有点像你C语言中的宏，当Makefile被执行时，其中的变量都会被扩展到相应的引用位置上。</li>
+<li>文件指示。其包括了三个部分，一个是在一个Makefile中引用另一个Makefile，就像C语言中的include一样；另一个是指根据某些情况指定Makefile中的有效部分，就像C语言中的预编译#if一样；还有就是定义一个多行的命令。有关这一部分的内容，我会在后续的部分中讲述。</li>
+<li>注释。Makefile中只有行注释，和UNIX的Shell脚本一样，其注释是用 <code>#</code> 字符，这个就像C/C++中的 <code>//</code> 一样。如果你要在你的Makefile中使用 <code>#</code> 字符，可以用反斜杠进行转义，如： <code>\#</code> 。</li>
+</ol>
+<p>最后，还值得一提的是，在Makefile中的<strong>命令，必须要以 <code>Tab</code> 键开始</strong>。</p>
+<h2 id="makefile的文件名"><a href="#makefile的文件名" class="headerlink" title="makefile的文件名"></a>makefile的文件名</h2><p>默认的情况下，make命令会在当前目录下按顺序找寻文件名为“GNUmakefile”、“makefile”、“Makefile”的文件，找到了解释这个文件。在这三个文件名中，最好使用“Makefile”这个文件名，因为，这个文件名第一个字符为大写，这样有一种显目的感觉。最好不要用“GNUmakefile”，这个文件是GNU的make识别的。有另外一些make只对全小写的“makefile”文件名敏感，但是基本上来说，大多数的make都支持“makefile”和“Makefile”这两种默认文件名。</p>
+<p>当然，你可以使用别的文件名来书写Makefile，比如：“Make.Linux”，“Make.Solaris”，“Make.AIX”等，如果要指定特定的Makefile，你可以使用make的 <code>-f</code> 和 <code>--file</code> 参数，如： <code>make -f Make.Linux</code> 或 <code>make --file Make.AIX</code> 。</p>
+<h2 id="makefile的引用"><a href="#makefile的引用" class="headerlink" title="makefile的引用"></a>makefile的引用</h2><p>在Makefile使用 <code>include</code> 关键字可以把别的Makefile包含进来，这很像C语言的 <code>#include</code> ，被包含的文件会原模原样的放在当前文件的包含位置。 <code>include</code> 的语法是：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">include &lt;filename&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<p><code>filename</code> 可以是当前操作系统Shell的文件模式（可以包含路径和通配符）。</p>
+<p>在 <code>include</code> 前面可以有一些空字符，但是绝不能是 <code>Tab</code> 键开始。 <code>include</code> 和 <code>&lt;filename&gt;</code> 可以用一个或多个空格隔开。举个例子，你有这样几个Makefile： <code>a.mk</code> 、 <code>b.mk</code> 、 <code>c.mk</code> ，还有一个文件叫 <code>foo.make</code> ，以及一个变量 <code>$(bar)</code> ，其包含了 <code>e.mk</code> 和 <code>f.mk</code> ，那么，下面的语句：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">include foo.make *.mk $(bar)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<p>等价于：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">include foo.make a.mk b.mk c.mk e.mk f.mk<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<p>make命令开始时，会找寻 <code>include</code> 所指出的其它Makefile，并把其内容安置在当前的位置。就好像C/C++的 <code>#include</code> 指令一样。如果文件都没有指定绝对路径或是相对路径的话，make会在当前目录下首先寻找，如果当前目录下没有找到，那么，make还会在下面的几个目录下找：</p>
+<ol>
+<li>如果make执行时，有 <code>-I</code> 或 <code>--include-dir</code> 参数，那么make就会在这个参数所指定的目录下去寻找。</li>
+<li>如果目录 <code>&lt;prefix&gt;/include</code> （一般是： <code>/usr/local/bin</code> 或 <code>/usr/include</code> ）存在的话，make也会去找。</li>
+</ol>
+<h2 id="makefile的工作流程"><a href="#makefile的工作流程" class="headerlink" title="makefile的工作流程"></a>makefile的工作流程</h2><p>GNU的make工作时的执行步骤如下：</p>
+<ol>
+<li>读入所有的Makefile。</li>
+<li>读入被include的其它Makefile。</li>
+<li>初始化文件中的变量。</li>
+<li>推导隐晦规则，并分析所有规则。</li>
+<li>为所有的目标文件创建依赖关系链。</li>
+<li>根据依赖关系，决定哪些目标要重新生成。</li>
+<li>执行生成命令。</li>
+</ol>
+<h2 id="makefile多目标及静态模式"><a href="#makefile多目标及静态模式" class="headerlink" title="makefile多目标及静态模式"></a>makefile多目标及静态模式</h2><h3 id="多目标"><a href="#多目标" class="headerlink" title="多目标"></a>多目标</h3><p>Makefile的规则中的目标可以不止一个，其支持多目标，有可能我们的多个目标同时依赖于一个文件，并且其生成的命令大体类似。于是我们就能把其合并起来。当然，多个目标的生成规则的执行命令不是同一个，这可能会给我们带来麻烦，不过好在我们可以使用一个自动化变量 <code>$@</code>表示目标的集合，就像一个数组， <code>$@</code> 依次取出目标，并置于命令。</p>
+<p>例子</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">bigoutput littleoutput : text.g
+    generate text.g -$(subst output,,$@) &gt; $@<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div>
+<p>上述规则等价于：</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">bigoutput : text.g
+    generate text.g -big &gt; bigoutput
+littleoutput : text.g
+    generate text.g -little &gt; littleoutput<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>其中， <code>-$(subst output,,$@)</code> 中的 <code>$</code> 表示执行一个Makefile的函数，函数名为subst，后面的为参数。这个函数是替换字符串的意思,将$@中的’output’替换为空</p>
+<h3 id="静态模式"><a href="#静态模式" class="headerlink" title="静态模式"></a>静态模式</h3><p>静态模式可以更加容易地定义多目标的规则，可以让我们的规则变得更加的有弹性和灵活。我们还是先来看一下语法：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">&lt;targets ...&gt; : &lt;target-pattern&gt; : &lt;prereq-patterns ...&gt;
+    &lt;commands&gt;
+    ...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<p>targets定义了一系列的目标文件，可以有通配符。是目标的一个集合。</p>
+<p>target-pattern是指明了targets的模式，也就是的目标集模式。</p>
+<p>prereq-patterns是目标的依赖模式，它对target-pattern形成的模式再进行一次依赖目标的定义。</p>
+<p>举个例子如果我们的<target-pattern>定义成 <code>%.o</code> ，意思是我们的<target>;集合中都是以 <code>.o</code> 结尾的，而如果我们的<div class="code-wrapper"><prereq-patterns>定义成 <code>%.c</code> ，意思是对<target-pattern>所形成的<strong>目标集</strong>进行二次定义，其计算方法是，取<target-pattern>模式中的 <code>%</code> （也就是去掉了 <code>.o</code> 这个结尾），并为其加上 <code>.c</code> 这个结尾，形成的新集合。</p>
+<p>例子：</p>
+<pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">objects &#x3D; foo.o bar.o
+
+all: $(objects)
+
+$(objects): %.o: %.c
+    $(CC) -c $(CFLAGS) $&lt; -o $@<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>上面的例子中，指明了我们的目标从$object中获取， <code>%.o</code> 表明要所有以 <code>.o</code> 结尾的目标，也就是 <code>foo.o bar.o</code> ，也就是变量 <code>$object</code> 集合的模式，而依赖模式 <code>%.c</code> 则取模式 <code>%.o</code> 的 <code>%</code> ，也就是 <code>foo bar</code> ，并为其加下 <code>.c</code> 的后缀，于是，我们的依赖目标就是 <code>foo.c bar.c</code> 。而命令中的 <code>$&lt;</code> 和 <code>$@</code> 则是自动化变量， <code>$&lt;</code> 表示第一个依赖文件， <code>$@</code> 表示目标集（也就是“foo.o bar.o”）。于是，上面的规则展开后等价于下面的规则：</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">foo.o : foo.c
+    $(CC) -c $(CFLAGS) foo.c -o foo.o
+bar.o : bar.c
+    $(CC) -c $(CFLAGS) bar.c -o bar.o<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>另一个例子</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">files &#x3D; foo.elc bar.o lose.o
+
+$(filter %.o,$(files)): %.o: %.c
+    $(CC) -c $(CFLAGS) $&lt; -o $@
+$(filter %.elc,$(files)): %.elc: %.el
+    emacs -f batch-byte-compile $&lt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>$(filter %.o,$(files))表示调用Makefile的filter函数，过滤“$files”集，只要其中模式为“%.o”的内容。其它的内容，我就不用多说了吧。这个例子展示了Makefile中更大的弹性。</p>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p>当依赖目标新于目标时，也就是当规则的目标需要被更新时，make会一条一条的执行其后的命令。需要注意的是，如果你要让上一条命令的结果应用在下一条命令时，你应该使用分号分隔这两条命令。比如你的第一条命令是cd命令，你希望第二条命令得在cd之后的基础上运行，那么你就不能把这两条命令写在两行上，而应该把这两条命令写在一行上，用分号分隔。如：</p>
+<ul>
+<li>示例一：</li>
+</ul>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">exec:
+    cd &#x2F;home&#x2F;hchen
+    pwd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<ul>
+<li>示例二：</li>
+</ul>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">exec:
+    cd &#x2F;home&#x2F;hchen; pwd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div>
+<p>当我们执行 <code>make exec</code> 时，第一个例子中的cd没有作用，pwd会打印出当前的Makefile目录，而第二个例子中，cd就起作用了，pwd会打印出“/home/hchen”。</p>
+<h1 id="小知识"><a href="#小知识" class="headerlink" title="小知识"></a>小知识</h1><p>make 会把其要执行的命令行在命令执行前输出到屏幕上。当我们用“@”字符在命令行前，那么，这个命令将不被 make 显示出来</p>
+<div class="code-wrapper"><pre class="line-numbers language-makefile" data-language="makefile"><code class="language-makefile">$(BUILD_DIR)&#x2F;.prepared: Makefile
+	@mkdir -p $$(dirname $@)
+	@touch $@<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<p>$$ 代表需要使用真实的$字符，这也就不会打印mkdir命令及touch命令</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/tech/" class="category-chain-item">tech</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/tools/">#tools</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>学习makefile</div>
+      <div>https://codebells.github.io/post/makefile.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月31日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/cpp.html" title="cpp随笔">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">cpp随笔</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/yaml.html" title="yaml基础">
+                        <span class="hidden-mobile">yaml基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1416 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="继续将Mit6.824的2b部分实现，以及踩的坑，对于2B，也是运行了上千次，都能pass，比较稳健，记录一下踩的坑以及思路解释">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mit6.824 raft实现 2B部分">
+<meta property="og:url" content="https://codebells.github.io/post/raft-mit6-824-2b.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="继续将Mit6.824的2b部分实现，以及踩的坑，对于2B，也是运行了上千次，都能pass，比较稳健，记录一下踩的坑以及思路解释">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mit6-824-2b/image-20220616101659461.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mit6-824-2b/image-20220616114020109.png">
+<meta property="og:image" content="https://codebells.github.io/post/raft-mit6-824-2b/image-20220616113955373.png">
+<meta property="article:published_time" content="2022-06-16T02:13:13.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.299Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="lab">
+<meta property="article:tag" content="raft">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/raft-mit6-824-2b/image-20220616101659461.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>mit6.824 raft实现 2B部分 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="mit6.824 raft实现 2B部分"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-16 10:13" pubdate>
+          2022年6月16日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="lab"
+        id="heading-f9664ea1803311b35f81d07d8c9e072d" role="tab" data-toggle="collapse" href="#collapse-f9664ea1803311b35f81d07d8c9e072d"
+        aria-expanded="true"
+      >
+        lab
+        <span class="list-group-count">(6)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-f9664ea1803311b35f81d07d8c9e072d"
+           role="tabpanel" aria-labelledby="heading-f9664ea1803311b35f81d07d8c9e072d">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">mit6.824 raft实现 2B部分</h1>
+            
+            <div class="markdown-body">
+              
+              <p>继续将Mit6.824的2b部分实现，以及踩的坑，对于2B，也是运行了上千次，都能pass，比较稳健，记录一下踩的坑以及思路解释</p>
+<span id="more"></span>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>对于日志增量的思路其实论文中也很多，大体上和前文讲到的<a href="https://codebells.github.io/post/raft-paper.html#%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6">日志增量</a>区别不大，但是对于很多细节需要好好把握，在其中，最重要的还是并发问题。首先当节点成为Leader时，需要立刻广播AppendEntries，在没有日志时，我们可以理解成心跳，在存在日志时，这个心跳包应当携带Follower需要的日志，将其Append到Follower节点的日志中。而如何对Follower所需要的日志进行判断，需要raft的Leader节点维护一个NextIndex[]数组，以及MatchIndex[]数组，分别代表各节点下一个插入的日志应该在哪个index以及各节点已经确定同步的日志index位置。这两个数据在新Leader出现时初始化值NextIndex为leader的log长度+1，MatchIndex为0，通过心跳包的试探，不断回退NextIndex值，直到匹配上日志。节点的日志都是相同顺序，在相同index上一定是相同日志，所以一旦从后往前匹配到相同日志，说明之前日志都是相同的，这时即可找到MatchIndex和NextIndex的值，再对后续的日志数据进行同步。</p>
+<p>同步的过程可以一条日志一条日志的同步，也可以多条日志放在同一个心跳包中一起同步，找匹配NextIndex时，也有一个小优化点，可以尽快达到同步点，放在后面代码说。</p>
+<p><img src="raft-mit6-824-2b/image-20220616101659461.png" srcset="/img/loading.gif" lazyload alt="AppendEntriesRpcStruct"></p>
+<h1 id="Start"><a href="#Start" class="headerlink" title="Start"></a>Start</h1><p>通过对test代码的查看，知道2B测试时，先是调用start函数，对leader的日志进行插入，然后检查日志是否成功写入是通过applyChan实现，通过查看applych这个Channel信息来检测是否成功同步日志，具体可以对测试源码进行查看，对于返回值，注释说的很清楚，第一个是该日志的index，第二个int是当前term，第三个返回当前Server是否为Leader。</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func (rf *Raft) Start(command interface&#123;&#125;) (int, int, bool) &#123;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state !&#x3D; Leader &#123;
+		return -1, rf.currentTerm, false
+	&#125;
+	term :&#x3D; rf.currentTerm
+	rf.logs &#x3D; append(rf.logs, LogEntry&#123;term, command&#125;)
+	rf.persist()
+	return rf.getLastIndex(), term, true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="日志增量RPC实现"><a href="#日志增量RPC实现" class="headerlink" title="日志增量RPC实现"></a>日志增量RPC实现</h1><p>该增量实现为2C之前的版本，到2D版本会有一些index的修改以及部分日志检查的修改。</p>
+<div class="code-wrapper"><pre class="line-numbers language-go" data-language="go"><code class="language-go">func (rf *Raft) applyLogs() &#123;&#x2F;&#x2F;将日志发送给applych，告知该日志已经apply
+	for i :&#x3D; rf.lastApplied + 1; i &lt;&#x3D; rf.commitIndex; i++ &#123;&#x2F;&#x2F;可以Apply到CommitIndex为止
+		rf.lastApplied &#x3D; i&#x2F;&#x2F;更新lastApplied值
+		rf.applyCh &lt;- ApplyMsg&#123;
+			CommandValid: true,
+			Command: rf.logs[rf.getLogIndex(i)].Command,
+			CommandIndex: i,
+		&#125;
+	&#125;
+&#125;
+func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) &#123;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	defer rf.persist()
+	if args.Term &lt; rf.currentTerm &#123;  &#x2F;&#x2F;当前节点Term大，Leader是旧Leader，废弃
+		reply.Term &#x3D; rf.currentTerm
+		reply.RollBackIndex &#x3D; -1
+		reply.RollBackTerm &#x3D; -1
+		reply.Success &#x3D; false
+		return
+	&#125;
+	if args.Term &gt; rf.currentTerm &#123;&#x2F;&#x2F;当前节点是旧节点，先变为Follower再说
+		rf.becomeFollower()  &#x2F;&#x2F; 顺序一定不能变，会因为这个出现并发问题，见Debug1
+		rf.currentTerm&#x3D;args.Term
+	&#125;
+    &#x2F;&#x2F;更新raft节点
+	lastIndex :&#x3D; rf.getLastIndex()
+	rf.noBlockChan(rf.heartbeatCh, true)
+	reply.Term &#x3D; rf.currentTerm
+	reply.Success &#x3D; false&#x2F;&#x2F;先全为false
+	reply.RollBackIndex &#x3D; -1&#x2F;&#x2F;冲突检查优化
+	reply.RollBackTerm &#x3D; -1
+
+	&#x2F;&#x2F;日志检查
+	if args.PrevLogIndex &gt; lastIndex &#123;&#x2F;&#x2F;Follower的日志比发过来的PrevLogIndex更短，这时RollBackTerm为-1，
+        &#x2F;&#x2F;可以借这个来判断是节点日志更短
+		reply.RollBackIndex &#x3D; lastIndex + 1 &#x2F;&#x2F;返回当前节点最后的日志再判断一下 
+		return
+	&#125;
+	if  rf.logs[args.PrevLogIndex].Term  !&#x3D; args.PrevLogTerm &#123;	
+        &#x2F;&#x2F; 再PrevLogIndex这个位置上和Leader的对应的日志term不同，说明有冲突
+		&#x2F;&#x2F; 开始检查这个节点的日志该Term的日志，如果有的话，因为Log是完全一致的，Leader一定是包含所有最新的日志条目
+        &#x2F;&#x2F; 所以，可以快速检查这个Term的日志是否Leader中存在，如果Leader存在，即可快速定位，
+        &#x2F;&#x2F; 如果不存在，就可以省去检查该Term日志的时间
+		&#x2F;&#x2F; 如果有这样的日志条目，那么RollBackIndex更新为这条条目的index，否则RollBackIndex为-1
+		reply.RollBackTerm &#x3D; rf.logs[args.PrevLogIndex].Term&#x2F;&#x2F;更新RollBackTerm为这个位置上的Term
+		for i :&#x3D; args.PrevLogIndex; i &gt;&#x3D; 0 &amp;&amp; rf.logs[i].Term &#x3D;&#x3D; rf.logs[args.PrevLogIndex].Term ; i-- &#123; 
+			reply.RollBackIndex &#x3D; i
+		&#125;
+		return
+	&#125;
+	&#x2F;&#x2F;如果通过了日志检查，Server在PrevLogIndex存在和Leader相同的日志
+    &#x2F;&#x2F;那么后面的日志全部清除，开始Append所有Leader的后续日志
+    &#x2F;&#x2F;这个地方是存在问题的，但是仍然能稳定过2b的case，我们需要在网络一团糟的时候，选出leader，并且同步
+    &#x2F;&#x2F;有可能会存在append的日志当前节点全部存在的情况，也就是只能清空出现冲突的日志之后的日志
+    &#x2F;&#x2F;如果没有冲突，是不能无脑清空的，在后续2D的时候发现该问题后改正
+	startClean :&#x3D; args.PrevLogIndex + 1
+	rf.logs &#x3D; rf.logs[:startClean] 
+	rf.logs &#x3D; append(rf.logs, args.Entries...)
+	reply.Success &#x3D; true&#x2F;&#x2F;只有匹配成功并且Append后返回true
+	rf.checkCommitIndex(args.LeaderCommit)&#x2F;&#x2F;更新server的CommitIndex
+&#125;
+
+func (rf *Raft) checkCommitIndex(commit int)&#123;&#x2F;&#x2F;更新Follower的CommitIndex变为LeaderCommitIndex
+	if  commit&gt; rf.commitIndex &#123;
+		if commit &lt; rf.getLastIndex() &#123;
+			rf.commitIndex &#x3D; commit
+		&#125; else &#123;
+			rf.commitIndex &#x3D; rf.getLastIndex()
+		&#125;
+		go rf.applyLogs()
+	&#125;
+&#125;
+func (rf *Raft) sendAppendEntries(server int,args *AppendEntriesArgs, reply *AppendEntriesReply) &#123;
+	ok :&#x3D; rf.peers[server].Call(&quot;Raft.AppendEntries&quot;, args, reply)
+	if !ok &#123;
+		return
+	&#125;
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	defer rf.persist()
+	if rf.state &#x3D;&#x3D; Leader &amp;&amp; args.Term &#x3D;&#x3D; rf.currentTerm&#123;
+        &#x2F;&#x2F;和前面的RequestVote一样，防止并发更改了当前节点状态，使其变为旧数据，旧节点
+		if reply.Term &gt; rf.currentTerm &#123;&#x2F;&#x2F;若Leader的Term比Followers的Term低，说明是旧Leader，降级成为Follower
+			rf.becomeFollower()
+			rf.currentTerm&#x3D;args.Term
+			return
+		&#125;else if reply.Term &#x3D;&#x3D; rf.currentTerm&#123;
+			if reply.Success &#123;&#x2F;&#x2F;如果Server匹配PrevLogIndex并且已经append了Args所携带的后续日志，返回的true
+				newMatchIndex :&#x3D; args.PrevLogIndex + len(args.Entries)&#x2F;&#x2F;更新matchIndex
+				if newMatchIndex &gt; rf.matchIndex[server] &#123;&#x2F;&#x2F;防止并发
+					rf.matchIndex[server] &#x3D; newMatchIndex
+				&#125;
+				rf.nextIndex[server] &#x3D; rf.matchIndex[server] + 1
+				rf.updateCommit()&#x2F;&#x2F;更新Leader的CommitIndex
+			&#125; else&#123;&#x2F;&#x2F;不匹配PrevLogIndex，有两种情况
+				if reply.RollBackTerm &lt; 0 &#123;&#x2F;&#x2F;1.Server日志太短
+					rf.nextIndex[server] &#x3D; reply.RollBackIndex&#x2F;&#x2F;快速定位
+					rf.matchIndex[server] &#x3D; rf.nextIndex[server] - 1
+				&#125; else &#123;&#x2F;&#x2F;2.该index日志不匹配
+					newNextIndex :&#x3D; rf.getLastIndex()&#x2F;&#x2F;从后往前找，找和RollBack
+					for ; newNextIndex &gt;&#x3D; 0; newNextIndex-- &#123;
+						if rf.logs[newNextIndex].Term &#x3D;&#x3D; reply.RollBackTerm &#123;
+                            &#x2F;&#x2F;找到和冲突term相同的index，找到了说明这个是应当同步的点立刻break
+							break
+						&#125;
+					&#125;
+					if newNextIndex &lt; 0 &#123;
+						rf.nextIndex[server] &#x3D; reply.RollBackIndex
+					&#125; else &#123;
+						rf.nextIndex[server] &#x3D; newNextIndex
+					&#125;
+					rf.matchIndex[server] &#x3D; rf.nextIndex[server] - 1
+				&#125;
+				rf.updateCommit()&#x2F;&#x2F;更新CommitIndex
+				&#x2F;&#x2F; args.PrevLogIndex&#x3D;rf.nextIndex[server]-1
+				&#x2F;&#x2F; args.PrevLogTerm&#x3D;rf.logs[args.PrevLogIndex].Term
+				&#x2F;&#x2F; args.LeaderCommit&#x3D;rf.commitIndex
+				&#x2F;&#x2F; go rf.sendAppendEntries(server,args,reply)
+			&#125;
+
+		&#125;
+	&#125;
+&#125;
+func (rf *Raft) broadcastAppendEntries() &#123; 
+	if rf.state &#x3D;&#x3D; Leader &#123;
+		for server :&#x3D; range rf.peers &#123;
+			if server !&#x3D; rf.me &#123;
+				args :&#x3D; AppendEntriesArgs&#123;
+					Term:			rf.currentTerm,
+					LeaderId:		rf.me,
+					PrevLogIndex:	rf.nextIndex[server]-1,
+					PrevLogTerm:	rf.logs[rf.nextIndex[server]-1].Term,
+					LeaderCommit:	rf.commitIndex,
+				&#125;
+				entries :&#x3D; rf.logs[rf.nextIndex[server]:]
+				args.Entries &#x3D; make([]LogEntry, len(entries))
+				copy(args.Entries, entries)&#x2F;&#x2F;深拷贝
+				reply :&#x3D;AppendEntriesReply&#123;
+					Term:			rf.currentTerm,
+					Success:		false,
+				&#125;
+				go rf.sendAppendEntries(server, &amp;args, &amp;reply)
+			&#125;
+		&#125;
+	&#125;
+&#125;
+func (rf *Raft) updateCommit()&#123;&#x2F;&#x2F;更新LeaderCommitIndex
+	for n :&#x3D; rf.getLastIndex(); n &gt;&#x3D; rf.commitIndex; n-- &#123;
+		count :&#x3D; 1
+		if rf.logs[n].Term &#x3D;&#x3D; rf.currentTerm &#123;&#x2F;&#x2F;只能提交当前Term的，否则会出现Figure8的问题
+			for i :&#x3D; 0; i &lt; len(rf.peers); i++ &#123;
+				if i !&#x3D; rf.me &amp;&amp; rf.matchIndex[i] &gt;&#x3D; n &#123;
+					count++
+				&#125;
+			&#125;
+		&#125;
+		if count &gt; len(rf.peers) &#x2F; 2 &#123;&#x2F;&#x2F;有一半以上节点提交，那么就可以提交
+			rf.commitIndex &#x3D; n
+			rf.applyLogs()
+			break
+		&#125;
+	&#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="Debug及踩坑"><a href="#Debug及踩坑" class="headerlink" title="Debug及踩坑"></a>Debug及踩坑</h1><p>在实现lab2时，最难的不是代码怎么写，而是并发错误如何Debug，如何找出并发错误，很多时候，你根本不知道这个错误到底是怎么出现的，这时候还是老老实实打日志，一条条耐心看。</p>
+<ol>
+<li><p>在旧Leader变成Follower的时候，Term的位置有很大的影响，如果存在两个并发线程，这边刚改完Term，那边Client又发送了一个Command，这时旧Leader又刚好发出了心跳包，这时的旧Leader的Term，已经是改完之后的Term了，这就会导致旧Leader突然变成了新Leader，而当前的Leader也依旧存在，有两个Leader的情况导致日志混乱。Term一定要和Follower一起改，或者在状态改完之后再改Term。</p>
+</li>
+<li><p>很多条件在第一遍写的时候可能会很乱，需要将其捋一遍，代码改的更加清晰些，对所有的情况都详细考虑，2b是lab2最难的一个。</p>
+</li>
+<li><p>apply error测试代码的工作原理: 如果某t个节点向applyCh发送了一条日志,那么在这个Index下,其他节点要么还没发送,要么发送了一条相同的日志.</p>
+<p>出现apply error表示节点s1先提交了日志A，另一个节点s2在相同index提交了不同的日志B。也就是乱序情况，对于加锁解锁需要排查。</p>
+</li>
+</ol>
+<p>测试</p>
+<blockquote>
+<ul>
+<li>TestBasicAgree2B：最基础的追加日志测试。先使用nCommitted()检查有多少的server认为日志已经提交（在执行Start()函数之前，所有的服务器都不应该提交日志），若满足条件则调用cfg.one()，其通过调用rf.Start(cmd)来追加日志。rf.Start(cmd)用于模拟Raft实例从Client接收实例的情况。</li>
+<li>TestRPCBytes2B：基于RPC的字节数检查保证每个cmd都只对每个peer发送一次。</li>
+<li>TestFailAgree2B：断连小部分，不影响整体Raft集群的情况检测追加日志。</li>
+<li>TestFailNoAgree2B：断连过半数节点，保证无日志可以正常追加。然后又重新恢复节点，检测追加日志情况。</li>
+<li>TestConcurrentStarts2B：模拟客户端并发发送多个命令</li>
+<li>TestRejoin2B：Leader 1断连，再让旧leader 1接受日志，再给新Leader 2发送日志，2断连，再重连旧Leader 1，提交日志，再让2重连，再提交日志。</li>
+<li>TestBackup2B：先给Leader 1发送日志，然后断连3个Follower（总共1Ledaer 4Follower），网络分区。提交大量命令给1。然后让leader 1和其Follower下线，之前的3个Follower上线，向它们发送日志。然后在对剩下的仅有3个节点的Raft集群重复上面网络分区的过程。</li>
+<li>TestCount2B：检查无效的RPC个数，不能过多。rpc间隔大概为100ms即可。</li>
+</ul>
+</blockquote>
+<p><img src="raft-mit6-824-2b/image-20220616114020109.png" srcset="/img/loading.gif" lazyload alt="Pass"></p>
+<p><img src="raft-mit6-824-2b/image-20220616113955373.png" srcset="/img/loading.gif" lazyload alt="pass500"></p>
+<p>附上我的<a target="_blank" rel="noopener" href="https://github.com/Codebells/Raft/tree/go_imp">Github实现代码</a>仅供参考</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/lab/" class="category-chain-item">lab</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/lab/">#lab</a>
+      
+        <a href="/tags/raft/">#raft</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>mit6.824 raft实现 2B部分</div>
+      <div>https://codebells.github.io/post/raft-mit6-824-2b.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月16日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mit6.824 raft实现 2C部分</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分">
+                        <span class="hidden-mobile">mit6.824 raft实现 2A部分</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

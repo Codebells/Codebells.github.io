@@ -1,0 +1,1307 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在基于 Percolator 提交协议的分布式数据库被提出的时期，学术研究上还出现了一种叫确定性数据库的技术。确定性数据库就是输入事务集合，数据库执行后会是固定的结果。 例如，$T_1,T_2$可能是并发执行的，没有偏序关系，这时如果$T_1$比$T_2$先执行，结果就是(x,2),(y,3)，而如果$T_2$比$T_1$先执行，那么结果就是就是(x,2),(y,2)，这就导致了不同的结果。为了达">
+<meta property="og:type" content="article">
+<meta property="og:title" content="确定性数据库">
+<meta property="og:url" content="https://codebells.github.io/post/deterministic-database.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="在基于 Percolator 提交协议的分布式数据库被提出的时期，学术研究上还出现了一种叫确定性数据库的技术。确定性数据库就是输入事务集合，数据库执行后会是固定的结果。 例如，$T_1,T_2$可能是并发执行的，没有偏序关系，这时如果$T_1$比$T_2$先执行，结果就是(x,2),(y,3)，而如果$T_2$比$T_1$先执行，那么结果就是就是(x,2),(y,2)，这就导致了不同的结果。为了达">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/1_00c8960ad9.png">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/2_e0d5568aa3.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/4_Calvin_2fc38b78ed.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/5_Calvin_21f4b68018.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/7_Calvin_f7848d184d.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/1_29eaf57092.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/10_abort_7c955f5383.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/11_piece_019c1d24c4.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/14_Aria_c83c19e758.png">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/15_Aria_608bccd0f2.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/15_Aria_608bccd0f2.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/16_Aria_d1c0225f5e.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/17_Aria_935f8d6b55.png">
+<meta property="og:image" content="https://codebells.github.io/post/deterministic-database/19_Aria_378f746fd5.png">
+<meta property="article:published_time" content="2022-07-13T02:43:13.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.233Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="txn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/deterministic-database/1_00c8960ad9.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>确定性数据库 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="确定性数据库"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-13 10:43" pubdate>
+          2022年7月13日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="database"
+        id="heading-11e0eed8d3696c0a632f822df385ab3c" role="tab" data-toggle="collapse" href="#collapse-11e0eed8d3696c0a632f822df385ab3c"
+        aria-expanded="true"
+      >
+        database
+        <span class="list-group-count">(30)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-11e0eed8d3696c0a632f822df385ab3c"
+           role="tabpanel" aria-labelledby="heading-11e0eed8d3696c0a632f822df385ab3c">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-compiled.html" title="CRDB源码编译"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CRDB源码编译</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/crdb-config.html" title="CockRoachDB配置跨域集群"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/vegito.html" title="OSDI 2021 VEGITO 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">OSDI 2021 VEGITO 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp.html" title="SIGMOD 2014 RAMP论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2014 RAMP论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/homeostasis.html" title="SIGMOD 2015 The Homeostasis Protocol论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2015 The Homeostasis Protocol论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/aurora.html" title="SIGMOD 2017&amp;2018 Aurora 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2017&amp;2018 Aurora 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cockroach.html" title="SIGMOD 2020 CockRoach 论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2020 CockRoach 论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/natto.html" title="SIGMOD2022 Natto论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD2022 Natto论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/syn-crdt.html" title="Synthesizing CRDT"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Synthesizing CRDT</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-paper.html" title="USENIX ATC 2014 Raft论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">USENIX ATC 2014 Raft论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2014 RAMP_TAO论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/treeline.html" title="VLDB 2023 treeline"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824 lab1 mapreduce</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6-824-lab3</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mitlab6-824.html" title="mit6.824 raft实现 2A部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2A部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2b.html" title="mit6.824 raft实现 2B部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2B部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2c.html" title="mit6.824 raft实现 2C部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2C部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/raft-mit6-824-2d.html" title="mit6.824 raft实现 2D部分"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">mit6.824 raft实现 2D部分</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/nebula.html" title="nebula源码框架"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tugraph.html" title="tugraph"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">tugraph</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/communicate.html" title="反熵和传播"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">反熵和传播</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/graphdb.html" title="图数据库存储及事务处理"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">图数据库存储及事务处理</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="transaction"
+        id="heading-f4d5b76a2418eba4baeabc1ed9142b54" role="tab" data-toggle="collapse" href="#collapse-f4d5b76a2418eba4baeabc1ed9142b54"
+        aria-expanded="true"
+      >
+        transaction
+        <span class="list-group-count">(8)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-f4d5b76a2418eba4baeabc1ed9142b54"
+           role="tabpanel" aria-labelledby="heading-f4d5b76a2418eba4baeabc1ed9142b54">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/semel.html" title="ASPLOS 2017 SEMEL&amp;MILANA"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ASPLOS 2017 SEMEL&amp;MILANA</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/qstore.html" title="EDBT 2020 qstore论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">EDBT 2020 qstore论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/tictoc.html" title="SIGMOD 2016 Tictoc"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">SIGMOD 2016 Tictoc</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/txn-reorder.html" title="VLDB 2019 通过事务重排序OCC优化"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2019 通过事务重排序OCC优化</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/coco.html" title="VLDB 2021 CoCo论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2021 CoCo论文阅读</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-basic.html" title="分布式系统中的Data Consistency"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">分布式系统中的Data Consistency</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/distribute-transaction.html" title="浅谈分布式事务"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">浅谈分布式事务</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/deterministic-database.html" title="确定性数据库"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">确定性数据库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">确定性数据库</h1>
+            
+            <div class="markdown-body">
+              
+              <p>在基于 Percolator 提交协议的分布式数据库被提出的时期，学术研究上还出现了一种叫确定性数据库的技术。确定性数据库就是输入事务集合，数据库执行后会是固定的结果。</p>
+<p>例如，$T_1,T_2$可能是并发执行的，没有偏序关系，这时如果$T_1$比$T_2$先执行，结果就是(x,2),(y,3)，而如果$T_2$比$T_1$先执行，那么结果就是就是(x,2),(y,2)，这就导致了不同的结果。为了达到确定性的结果，在事务执行前，我们就需要对其进行排序。</p>
+<p><img src="deterministic-database/1_00c8960ad9.png" srcset="/img/loading.gif" lazyload alt="不存在偏序关系时的不确定性.png"></p>
+<p>而如何确定偏序关系呢，一般来说需要一个管理者来管理这个先后顺序，如图，在事务执行之前，需要对其排序，向事务管理器申请ID，那么事务的执行顺序就可以按照ID的顺序机型，所以事务必须按照$T_1\rightarrow T_2 \rightarrow T_3$的顺序执行才能产生正确的结果。</p>
+<p><img src="https://img1.www.pingcap.com/prod/2_e0d5568aa3.png" srcset="/img/loading.gif" lazyload alt="使用事务管理器为排序输入事务排序.png"></p>
+<p>还有就是避免死锁的产生，死锁产生的原因就是交互式事务存在中间过程，$T_1,T_2$都尝试写入key，然后$T_1$ 尝试写入 $T_2$  的 Key，$T_2$  尝试写入 $T_1$  的 Key，这时就产生了死锁，需要abort其中之一。 而确定性数据库可以看作，数据库在事务开始的时候就知道事务会做什么操作，那么在上面的例子中就能知道$T_1，T_2$ 存在依赖关系。需要等待$T_1$ 后才能执行$T_2$ ，那么此时就不会有死锁。而且，死锁发生时对于abort的事务没有要求，因此这也可能产生不确定的结果。</p>
+<p>确定性是一个约束非常强的协议，一旦事务的先后顺序被确定，结果就被确定了，基于这一特点，确定性数据库能够<strong>优化副本复制协议所带来的开销</strong>。因为能保证写入成功，在有些实现中还能够预测读的结果。</p>
+<h1 id="Calvin"><a href="#Calvin" class="headerlink" title="Calvin"></a>Calvin</h1><p>Calvin 提出于 2012 年，和 Spanner 出现于同一时期，尝试利用确定性数据库的特点解决解决当时数据库的扩展性问题，在前一篇讲了个大致的事务执行流程。</p>
+<p>这次讲如何在这个架构下replica内保证确定性输入，replica间保证一致性结果的。</p>
+<p><img src="deterministic-database/4_Calvin_2fc38b78ed.png" srcset="/img/loading.gif" lazyload alt="Calvin 的架构图.png"></p>
+<p>如图的事务，假设3个sequencer，现在已经打包了两个batch，目前以上帝视角可以看出$T<em>1,T</em>{10}$存在冲突，根据确定性协议的要求，顺序必须是$T<em>1\rightarrow T</em>{10}$，因为ID号小的优先，这些事务 batch 会在被发送到 scheduler 之前通过 Paxos 进行复制，然后batch 被发送到对应的 scheduler 之上，在scheduler上进行锁分配。此时有两种情况，1. 如果$T<em>{10}$持有锁，那么$T</em>{1}$抢占该锁，并执行。2. 如果$T<em>{10}$不持有锁，那么$T</em>{1}$加锁并且开始执行。反正都是$T_{1}$先执行。</p>
+<p><img src="deterministic-database/5_Calvin_21f4b68018.png" srcset="/img/loading.gif" lazyload alt="Calvin事务例.png"></p>
+<p>但是可能存在另一种情况，就是$T<em>{10}$先发送过去，过了很久$T</em>{1}$才到，但是此时$T_{10}$已经执行完了，这时就发生了不确定性问题。Calvin解决这个问题的方法十分粗暴，使用全局的Coordinator协调，强制要求当scheduler没有收齐当前batch的事务之前不能进行执行，这样就解决了，但是这样在当前Calvin的架构会出现新的问题，就是你怎么确定事务应该发送到哪个分片？因为有些 predicate 语句的读写集合在被执行前是没有被确定的，这种情况下 Calvin 无法对事务进行分析，所以Calvin会在sequencer中有一个试探读取阶段，来确定读写集，如果这个试探读取的读取集被改变了，那么会将事务重启。</p>
+<p><img src="deterministic-database/7_Calvin_f7848d184d.png" srcset="/img/loading.gif" lazyload alt="Calvin 的不确定性问题.png"></p>
+<p>上述的问题可能出现在replica之间，这会造成replica的不一致，这是不合理的，所以为了解决这个问题，所有的副本同步都需要在一个 Paxos 组之内进行以保证<strong>全局的顺序性</strong>，这些都可能成为一个瓶颈。Coordinator可能还存在降低可用性的问题，即它崩了，有可能整个集群就不可靠了。</p>
+<h1 id="BOHM-amp-PWV"><a href="#BOHM-amp-PWV" class="headerlink" title="BOHM &amp; PWV"></a>BOHM &amp; PWV</h1><p>首先先解释什么是依赖分析，写后写，写后读，读后写，由此来定义事务之间的先后关系，通过依赖图是否出现环来判断事务执行是否破坏隔离性。只要执行过程中避免依赖图中的环，那么执行的过程就是满足事先给定的隔离级别要求的，从这个思路出发，就可以让原本无法并行执行的事务并发执行。</p>
+<p><img src="deterministic-database/1_29eaf57092.png" srcset="/img/loading.gif" lazyload alt="存在依赖关系的事务.png"></p>
+<p>如图，$T<em>{1}$和$T</em>{2}$具有写后读依赖，$T<em>{2}$和$T</em>{3}$具有读后写依赖，$T<em>{1}$和$T</em>{3}$具有写后写依赖，那么这三个事务无法并发执行，需要按照$T<em>{1}\rightarrow T</em>{2}\rightarrow T_{3}$这个顺序执行，并发度降低。</p>
+<p>BOHM就通过对MVCC的改进来解决这个问题，使得其可以并发执行，它记录每条数据的有效时间以及上一个版本的指针，如图所示，$T<em>{100}$数据的有效期是$100 \leq id \leq 200$，而$T</em>{200}$的数据有效期为$200 \leq id \leq \infty$，这就实现了写事务的并发。</p>
+<p>而PWV是基于BOHM的读可见的优化，让事务能更早的被读到。 为了实现这个目的，PWV对事务的可见性方式和abort原因进行分析。</p>
+<ul>
+<li>提交可见。BOHM，延迟高</li>
+<li>释放锁后可见。存在级联abort</li>
+</ul>
+<p><img src="deterministic-database/10_abort_7c955f5383.png" srcset="/img/loading.gif" lazyload alt="级联abort.png"></p>
+<p>$T<em>{1}$ 写入的 x 被 $T</em>{2}$读取到，$T<em>{2}$的写入进一步的被$T</em>{3}$ 读取到，之后$T<em>{1}$ 在 y 上的写入发现违反了约束（value &lt; 10），因此 $T</em>{1}$ 必须 abort。但是根据事务的原子性规则，$T<em>{1}$ 对 x 的写入也需要回滚，因此读取了 x 的 $T</em>{2}$需要跟着 abort，而读取到$T<em>{2}$ 的$T</em>{3}$ 也需要跟着 $T_{2}$被 abort。</p>
+<p>abort产生有几种因素</p>
+<ul>
+<li>逻辑原因，违反约束条件</li>
+<li>系统原因，产生死锁，系统问题，写冲突等</li>
+</ul>
+<p><strong>确定性数据库能够排除因系统原因产生的 abort</strong>，例如死锁和写冲突。那么只要确保逻辑原因的 abort 不发生，一个事务就一定能够在确定性数据库中成功提交。PWV基于这点，想到一个办法，先对事务分割成piece，然后寻找其中的Commit点，规定提交点含义为，在提交点后的就不可能发送逻辑原因的abort。</p>
+<p><img src="deterministic-database/11_piece_019c1d24c4.png" srcset="/img/loading.gif" lazyload alt="PWV提交点.png"></p>
+<p>图中 $T_2$ 需要读取$T_1$ 的写入结果，只需要等待 $T_1$ 执行到 Commit Point 之后在进行读取，而不需要等待$T_1$完全执行成功。通过对事务执行过程的进一步细分，PWV 降低了读操作的延迟，相比于 BOHM 进一步提升了并发度。BOHM 和 PWV 通过对事务间依赖的分析来获取冲突场景下的高性能，但是这一做法需要知道全局的事务信息，计算节点是一个无法扩展的单点。</p>
+<h1 id="ARIA"><a href="#ARIA" class="headerlink" title="ARIA"></a>ARIA</h1><p>Calvin 的实现具有扩展性，但是基于依赖分析的 BOHM 和 PWV 在这方面的表现不好；而得益于依赖分析，BOHM 和 PWV 在冲突场景下防止性能回退的表现较好，但 Calvin 在这一情况下的表现不理想。</p>
+<p>在分布式系统中为了并发执行而进行依赖分析是比较困难的，所以 Aria 使用了一个预约机制，完整的执行过程是：</p>
+<ul>
+<li>一个 sequence 层为事务分配全局递增的 id；</li>
+<li>将输入的事务持久化；</li>
+<li>执行事务，将 mutation 存在执行节点的内存中；</li>
+<li>对持有这个 key 的节点进行 reservation；</li>
+<li>在 commit 阶段进行冲突检测，是否允许 commit，没有发生冲突的事务则返回执行成功；</li>
+<li>异步的写入数据。</li>
+</ul>
+<p>输入事务在经过 sequencer 层之后被分配了全局递增的事务 id，此时执行结果就已经是确定性的了。经过 sequencer 层之后，事务被发送到 node 上，如图，$T<em>1$和 $T_2$在 node1 上，$T_3$ 和 $T_4$ 在 node2 上。先不管$T</em>{5-8}$，假设第一个batch只有这四个事务，在执行时，batch 中的事务执行结果会放在所属 node 的内存中，然后进行下一步。</p>
+<p><img src="deterministic-database/14_Aria_c83c19e758.png" srcset="/img/loading.gif" lazyload alt="Aria 执行过程一.png"></p>
+<p><img src="https://img1.www.pingcap.com/prod/15_Aria_608bccd0f2.png" srcset="/img/loading.gif" lazyload alt="图 15 - Aria 执行过程二.png"></p>
+<p><img src="deterministic-database/15_Aria_608bccd0f2.png" srcset="/img/loading.gif" lazyload alt="Aria 执行过程二.png"></p>
+<p><img src="deterministic-database/16_Aria_d1c0225f5e.png" srcset="/img/loading.gif" lazyload alt="Aria 执行过程三.png"></p>
+<p>上图是 batch1 中的事务进行 reservation 的结果，需要注意的是执行事务的 node 不一定是拥有这个事务数据，但 reservation 的请求会发送到拥有数据的 node 上，所以 node 一定能知道和自身所存储的 Key 相关的所有 reservation 信息。在 commit 阶段，会发现在 node1 上 $T_2$ 的读集合与$T_1$ 的写集合冲突了，因此$T_2$ 需要被 abort 并且放到下一个 batch 中进行执行。对于没有冲突的 $T_1$，$T_3$和 $T_4$，则会进入写入的阶段。因为在 sequencer 层已经持久化了输入结果，所以 Aria 会先向客户端返回事务执行成功并且异步进行写入。</p>
+<p><img src="deterministic-database/17_Aria_935f8d6b55.png" srcset="/img/loading.gif" lazyload alt="Aria 执行过程四.png"></p>
+<p>$T_2$ 加入到了 batch2 之中。但是在 batch2 中，$T_2$  享有最高的执行优先级（在 batch 中的 id 最小），不会无限的因为冲突而被推迟执行，而且这一策略是能够保证唯一结果的。</p>
+<p>和Calvin一样，也存在不确定性问题，如果$T_2$在$T_1$还没开始reservation之前就开始尝试提交，那么就无法发现冲突，$T_2$就比$T_1$先执行了，破坏了确定性的要求。为了解决这个问题，Aria也存在coordinator，利用coordinator保证所有节点处于同阶段。在$T_1$ 所在的 node1 完成 reservation 之前，node2 不能够进入 commit 阶段。</p>
+<p>确定性数据库的优势是只需要有一个确定的事务顺序即可，所以可以根据输入事务进行重排序，Aria认为可以安全的并行执行WAR(读后写)依赖，所以它在commit阶段时对reservation的结果进行冲突检测时将RAW转化为转化为WAR。如图，只要不形成依赖环，那么就不需要abort，提高并行度的。</p>
+<p>但是Aria存在barrier 限制，具体表现为，如果一个 batch 中存在一个事务的执行过程很慢，例如大事务，那么这个事务会拖慢整个 batch。</p>
+<p><img src="deterministic-database/19_Aria_378f746fd5.png" srcset="/img/loading.gif" lazyload alt="Aria 的重排序.png"></p>
+<p>基于依赖分析的 BOHM 和 PWV：</p>
+<ul>
+<li>充分利用 MVCC 的并发性能</li>
+<li>能够防止冲突带来的性能回退</li>
+<li>单节点扩展困难，不适合大规模数据库</li>
+</ul>
+<p>分布式设计的 Calvin 和 Aria：</p>
+<ul>
+<li>单版本，存储的数据简单</li>
+<li>长事务、大事务可能拖慢整个集群</li>
+<li>barrier 机制需要 coordinator 进行实现，存在 overhead</li>
+<li>如果一个节点出现故障，整个集群都将进入等待状态</li>
+</ul>
+<p>相比之下，基于 Percolator 提交协议的分布式数据库，只需要单调递增的时钟就能够实现分布式事务，对事务的解耦做的更加好。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://pingcap.com/zh/blog/transaction-frontiers-research-article-talk3">https://pingcap.com/zh/blog/transaction-frontiers-research-article-talk3</a></p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/transaction/" class="category-chain-item">transaction</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/database/">#database</a>
+      
+        <a href="/tags/txn/">#txn</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>确定性数据库</div>
+      <div>https://codebells.github.io/post/deterministic-database.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月13日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/mapreduce.html" title="mit6-824 lab1 mapreduce">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mit6-824 lab1 mapreduce</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/communicate.html" title="反熵和传播">
+                        <span class="hidden-mobile">反熵和传播</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

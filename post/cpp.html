@@ -1,0 +1,1167 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="智能指针C++98&#x2F;03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。 C++ 智能指针底层是采用引用计数的方式实现的。 简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cpp随笔">
+<meta property="og:url" content="https://codebells.github.io/post/cpp.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="智能指针C++98&#x2F;03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。 C++ 智能指针底层是采用引用计数的方式实现的。 简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://codebells.github.io/post/cpp/20190419114208815.png">
+<meta property="og:image" content="https://codebells.github.io/post/cpp/0ef3106510e2e1630eb49744362999f8_720w.png">
+<meta property="article:published_time" content="2022-11-01T08:06:00.000Z">
+<meta property="article:modified_time" content="2023-03-02T08:33:51.232Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="tech">
+<meta property="article:tag" content="cpp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://codebells.github.io/post/cpp/20190419114208815.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>cpp随笔 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="cpp随笔"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-01 16:06" pubdate>
+          2022年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="tech"
+        id="heading-d9f9133fb120cd6096870bc2b496805b" role="tab" data-toggle="collapse" href="#collapse-d9f9133fb120cd6096870bc2b496805b"
+        aria-expanded="true"
+      >
+        tech
+        <span class="list-group-count">(11)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-d9f9133fb120cd6096870bc2b496805b"
+           role="tabpanel" aria-labelledby="heading-d9f9133fb120cd6096870bc2b496805b">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/etl-glue.html" title="ETL(Extract,Transform,Load)"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ETL(Extract,Transform,Load)</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/git.html" title="Git常用指令"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Git常用指令</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cmake.html" title="cmake日常"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cmake日常</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cpp.html" title="cpp随笔"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">cpp随笔</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/docker.html" title="docker常用指令基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">docker常用指令基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/linux-command.html" title="linux-command"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">linux-command</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/protobuf.html" title="protobuf"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">protobuf</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/yaml.html" title="yaml基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">yaml基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/zeromq.html" title="zeromq"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">zeromq</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/script.html" title="一些没啥用的脚本"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">一些没啥用的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/makefile.html" title="学习makefile"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">学习makefile</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="cpp"
+        id="heading-2c5f2cba9af7f92986d3de1e753f3faa" role="tab" data-toggle="collapse" href="#collapse-2c5f2cba9af7f92986d3de1e753f3faa"
+        aria-expanded="true"
+      >
+        cpp
+        <span class="list-group-count">(2)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-2c5f2cba9af7f92986d3de1e753f3faa"
+           role="tabpanel" aria-labelledby="heading-2c5f2cba9af7f92986d3de1e753f3faa">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/cmake.html" title="cmake日常"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cmake日常</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cpp.html" title="cpp随笔"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">cpp随笔</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">cpp随笔</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h1><p>C++98/03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。</p>
+<p>C++ 智能指针底层是采用<strong>引用计数</strong>的方式实现的。</p>
+<p>简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每当有新对象使用此堆内存时，该整形值 +1；反之，每当使用此堆内存的对象被释放时，该整形值减 1。当堆空间对应的整形值为 0 时，即表明不再有对象使用它，该堆空间就会被释放掉。</p>
+<h2 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr\"></a>shared_ptr\<T></h2><p>shared_ptr\<T> 类模板中，提供了多种实用的构造函数</p>
+<div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">std::shared_ptr&lt;int&gt; p1;             &#x2F;&#x2F;不传入任何实参
+std::shared_ptr&lt;int&gt; p2(nullptr);    &#x2F;&#x2F;传入空指针 nullptr
+std::shared_ptr&lt;int&gt; p3(new int(10));&#x2F;&#x2F; 在构建 shared_ptr 智能指针，明确其指向。
+std::shared_ptr&lt;int&gt; p3 &#x3D; std::make_shared&lt;int&gt;(10);&#x2F;&#x2F;C++11 标准中还提供了 std::make_shared&lt;T&gt; 模板函数，可以用于初始化 shared_ptr 智能指针
+&#x2F;&#x2F;调用拷贝构造函数
+std::shared_ptr&lt;int&gt; p4(p3);&#x2F;&#x2F;或者 std::shared_ptr&lt;int&gt; p4 &#x3D; p3;
+&#x2F;&#x2F;调用移动构造函数
+std::shared_ptr&lt;int&gt; p5(std::move(p4)); &#x2F;&#x2F;或者 std::shared_ptr&lt;int&gt; p5 &#x3D; std::move(p4);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>&amp;(*xxx_ptr\<T>)将智能指针转换为普通指针，与xxx_ptr\<T>.get()相同</p>
+<h1 id="std标准库"><a href="#std标准库" class="headerlink" title="std标准库"></a>std标准库</h1><h2 id="左值右值"><a href="#左值右值" class="headerlink" title="左值右值"></a>左值右值</h2><p>简单意义上来说，左值就是等式左边的值，右值就是等式右边的值。</p>
+<p>一般意义上来说，</p>
+<p>左值是表达式结束后依然存在的持久对象(代表一个在内存中占有确定位置的对象)</p>
+<p>右值是表达式结束时不再存在的临时对象(不在内存中占有确定位置的表达式）</p>
+<p>便携方法：对表达式取地址，如果能，则为左值，否则为右值</p>
+<p><strong>无论左值引用类型的变量还是右值引用类型的变量，都是左值，因为它们有名字。</strong></p>
+<h3 id="左值引用"><a href="#左值引用" class="headerlink" title="左值引用"></a>左值引用</h3><div class="code-wrapper"><pre class="line-numbers language-text" data-language="text"><code class="language-text">int a = 10;
+int &amp;b = a;  // 定义一个左值引用变量
+b = 20;      // 通过左值引用修改引用内存的值
+// int &amp;b = 10;是无法编译的，因为10是右值
+const int &amp;var = 10;//可以通过编译，因为这属于是常引用来引用常量数字10
+//此刻内存上产生了临时变量保存了10，这个临时变量是可以进行取地址操作的，因此var引用的其实是这个临时变量<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>左值引用在汇编层面其实和普通的指针是一样的；定义引用变量必须初始化，因为引用其实就是一个别名，需要告诉编译器定义的是谁的引用。</p>
+<h3 id="右值引用"><a href="#右值引用" class="headerlink" title="右值引用"></a>右值引用</h3><div class="code-wrapper"><pre class="line-numbers language-text" data-language="text"><code class="language-text">int &amp;&amp;var = 10;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<p>右值引用用来绑定到右值，绑定到右值以后本来会被销毁的右值的生存期会延长至与绑定到它的右值引用的生存期。</p>
+<p>在汇编层面右值引用做的事情和常引用是相同的，即产生临时量来存储常量。但是，唯一 一点的区别是，右值引用可以进行读写操作，而常引用只能进行读操作。</p>
+<p>右值引用的存在并不是为了取代左值引用，而是充分利用右值(特别是临时对象)的构造来减少对象构造和析构操作以达到提高效率的目的。</p>
+<h2 id="std-move"><a href="#std-move" class="headerlink" title="std::move()"></a>std::move()</h2><p>通过调用std::move函数来<strong>获得绑定到左值上的右值引用</strong></p>
+<div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+int main()
+&#123;
+    std::string str &#x3D; &quot;Hello&quot;;
+    std::vector&lt;std::string&gt; v;
+ 
+    &#x2F;&#x2F; uses the push_back(const T&amp;) overload, which means 
+    &#x2F;&#x2F; we&#39;ll incur the cost of copying str
+    v.push_back(str);
+    std::cout &lt;&lt; &quot;After copy, str is \&quot;&quot; &lt;&lt; str &lt;&lt; &quot;\&quot;\n&quot;;
+ 
+    &#x2F;&#x2F; uses the rvalue reference push_back(T&amp;&amp;) overload, 
+    &#x2F;&#x2F; which means no strings will be copied; instead, the contents
+    &#x2F;&#x2F; of str will be moved into the vector.  This is less
+    &#x2F;&#x2F; expensive, but also means str might now be empty.
+    v.push_back(std::move(str));
+    std::cout &lt;&lt; &quot;After move, str is \&quot;&quot; &lt;&lt; str &lt;&lt; &quot;\&quot;\n&quot;;
+    std::cout &lt;&lt; &quot;The contents of the vector are \&quot;&quot; &lt;&lt; v[0]
+                                         &lt;&lt; &quot;\&quot;, \&quot;&quot; &lt;&lt; v[1] &lt;&lt; &quot;\&quot;\n&quot;;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>move告诉编译器：我们有一个左值，但我们希望像一个右值一样处理它。我们必须认识到，调用move就意味着：除了对 str 赋值或销毁外，我们再使用它。在调用move之后，我们不能对moved-from对象（即str）做任何假设。</p>
+<p>上述程序执行结果为</p>
+<p><img src="cpp/20190419114208815.png" srcset="/img/loading.gif" lazyload alt="move example"></p>
+<h2 id="std-forward"><a href="#std-forward" class="headerlink" title="std::forward"></a>std::forward</h2><p>完美转发</p>
+<p>std::forward会将输入的参数原封不动地传递到下一个函数中，这个“原封不动”指的是，如果输入的参数是左值，那么传递给下一个函数的参数的也是左值；如果输入的参数是右值，那么传递给下一个函数的参数的也是右值。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><code>std::forward</code>定义如下：</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">template&lt;class _Ty&gt;
+_NODISCARD constexpr _Ty&amp;&amp; forward(remove_reference_t&lt;_Ty&gt;&amp; _Arg) noexcept
+&#123;	&#x2F;&#x2F; forward an lvalue as either an lvalue or an rvalue
+	return (static_cast&lt;_Ty&amp;&amp;&gt;(_Arg));
+&#125;
+
+CData* Creator(T&amp;&amp; t)
+&#123;
+	return new CData(std::forward&lt;T&gt;(t));
+&#125;
+12345678910<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<ol>
+<li>如果T为<code>std::string&amp;</code>,那么<code>std::forward&lt;T&gt;(t)</code> 返回值为<code>std::string&amp;&amp;&amp;</code>, 折叠为<code>std::string&amp;</code>，左值引用特性不变。</li>
+<li>如果T为<code>std::string&amp;&amp;</code>,那么<code>std::forward&lt;T&gt;(t)</code> 返回值为<code>std::string&amp;&amp;&amp;&amp;</code>, 折叠为<code>std::string&amp;&amp;</code>，右值引用特性不变。</li>
+<li>如果调用者为<code>std::string</code>,调用将会转换成为<code>std::string&amp;</code>，为类型1.</li>
+</ol>
+<h1 id="folly库"><a href="#folly库" class="headerlink" title="folly库"></a>folly库</h1><p>Facebook开源的基于C++14的库，在facebook内部广泛使用。Folly的全称为Facebook Open-source Library，目的不是为了替代标准库，而是对标准库的一种补充，尤其是大规模下的性能。</p>
+<p>边记录接触到的组件</p>
+<h2 id="Futures"><a href="#Futures" class="headerlink" title="Futures"></a>Futures</h2><p><a target="_blank" rel="noopener" href="https://github.com/facebook/folly/blob/main/folly/docs/Futures.md">promise/future</a> 是一个非常重要的异步编程模型，它可以让我们摆脱传统的回调陷阱，从而使用更加优雅、清晰的方式进行异步编程。c++11中已经开始支持std::future/std::promise，但是提供的future过于简单，而folly的实现中最大的改进就是可以为future添加回调函数（比如then）</p>
+<h3 id="回调函数"><a href="#回调函数" class="headerlink" title="回调函数"></a>回调函数</h3><p>当程序跑起来时，一般情况下，应用程序（application program）会时常通过API调用库里所预先备好的函数。但是有些库函数（library function）却要求应用先传给它一个函数，好在合适的时候调用，以完成目标任务。这个被传入的、后又被调用的函数就称为<strong>回调函数</strong>（callback function）。</p>
+<p><img src="cpp/0ef3106510e2e1630eb49744362999f8_720w.png" srcset="/img/loading.gif" lazyload alt="回调函数示意图"></p>
+<p>回调函数通常和应用处于同一抽象层（因为传入什么样的回调函数是在应用级别决定的）。而回调就成了一个高层调用底层，底层再<strong>回</strong>过头来<strong>调</strong>用高层的过程。</p>
+<div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">#include &lt;folly&#x2F;futures&#x2F;Future.h&gt;
+using namespace folly;
+using namespace std;
+
+void foo(int x) &#123;
+  &#x2F;&#x2F; do something with x
+  cout &lt;&lt; &quot;foo(&quot; &lt;&lt; x &lt;&lt; &quot;)&quot; &lt;&lt; endl;
+&#125;
+
+&#x2F;&#x2F; ...
+
+  cout &lt;&lt; &quot;making Promise&quot; &lt;&lt; endl;
+  Promise&lt;int&gt; p;
+  Future&lt;int&gt; f &#x3D; p.getFuture();
+  f.then(foo);
+  cout &lt;&lt; &quot;Future chain made&quot; &lt;&lt; endl;
+
+&#x2F;&#x2F; ... now perhaps in another event callback
+
+  cout &lt;&lt; &quot;fulfilling Promise&quot; &lt;&lt; endl;
+  p.setValue(42);
+  cout &lt;&lt; &quot;Promise fulfilled&quot; &lt;&lt; endl;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>  代码非常简洁，首先定义一个Promise，然后从这个Promise获取它相关联的Future(通过getFuture接口)，之后通过then为这个Future设置了一个回调函数foo，最后当为Promise赋值填充时（setValue），相关的Future就会变为ready状态（或者是completed状态），那么它相关的回调（这里为foo）会被执行。这段代码的打印结果如下：</p>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">making Promise
+Future chain made
+fulfilling Promise
+foo(42)
+Promise fulfilled<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="虚函数和纯虚函数"><a href="#虚函数和纯虚函数" class="headerlink" title="虚函数和纯虚函数"></a>虚函数和纯虚函数</h1><p>定义一个函数为虚函数，不代表函数为不被实现的函数</p>
+<p>定义他为虚函数是为了允许用基类的指针来调用子类的这个函数。</p>
+<p>定义一个函数为纯虚函数，才代表函数没有被实现。</p>
+<p>定义纯虚函数是为了实现一个接口，起到一个规范的作用，规范继承这个类的程序员必须实现这个函数。</p>
+<p>我们想要的是在程序中任意点可以根据所调用的对象类型来选择调用的函数，这种操作被称为<strong>动态链接</strong>，或<strong>后期绑定</strong>。</p>
+<h2 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h2><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">class A
+&#123;
+public:
+    virtual void foo()
+    &#123;
+        cout&lt;&lt;&quot;A::foo() is called&quot;&lt;&lt;endl;
+    &#125;
+&#125;;
+class B:public A
+&#123;
+public:
+    void foo()
+    &#123;
+        cout&lt;&lt;&quot;B::foo() is called&quot;&lt;&lt;endl;
+    &#125;
+&#125;;
+int main(void)
+&#123;
+    A *a &#x3D; new B();
+    a-&gt;foo();   &#x2F;&#x2F; 在这里，a虽然是指向A的指针，但是被调用的函数(foo)却是B的!
+    return 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>虚函数它虚就虚在所谓”推迟联编”或者”动态联编”上，一个类函数的调用并不是在编译时刻被确定的，而是在运行时刻被确定的。由于编写代码的时候并不能确定被调用的是基类的函数还是哪个派生类的函数，所以被成为”虚”函数。</p>
+<p>那什么是纯虚函数呢</p>
+<h2 id="纯虚函数"><a href="#纯虚函数" class="headerlink" title="纯虚函数"></a>纯虚函数</h2><p>纯虚函数是在基类中声明的虚函数，它在基类中没有定义，但要求任何派生类都要定义自己的实现方法。在基类中实现纯虚函数的方法是在函数原型后加 <strong>=0</strong>:</p>
+<div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">virtual void funtion1()&#x3D;0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div>
+<p>纯虚函数存在的意义</p>
+<ol>
+<li>为了方便使用多态特性，我们常常需要在基类中定义虚拟函数。</li>
+<li>在很多情况下，基类本身生成对象是不合情理的。例如，动物作为一个基类可以派生出老虎、孔雀等子类，但动物本身生成对象明显不合常理</li>
+</ol>
+<p>为了解决上述问题，引入了纯虚函数的概念，将函数定义为纯虚函数（方法：<strong>virtual ReturnType Function()= 0;</strong>），则编译器要求在派生类中必须予以重写以实现多态性。同时含有纯虚拟函数的类称为抽象类，它不能生成对象。这样就很好地解决了上述两个问题。</p>
+<p>声明了纯虚函数的类是一个抽象类。所以，用户不能创建类的实例，只能创建它的派生类的实例。</p>
+<p><strong>纯虚函数最显著的特征是</strong>：它们必须在继承类中重新声明函数（不要后面的＝0，否则该派生类也不能实例化），而且它们在抽象类中往往没有定义。</p>
+<p>定义纯虚函数的目的在于，使派生类仅仅只是继承函数的接口。</p>
+<p>纯虚函数的意义，让所有的类对象（主要是派生类对象）都可以执行纯虚函数的动作，但类无法为纯虚函数提供一个合理的默认实现。所以类纯虚函数的声明就是在告诉子类的设计者，”你必须提供一个纯虚函数的实现，但我不知道你会怎样实现它”。</p>
+<p>类中<strong>至少有一个函数被声明为纯虚函数，则这个类就是抽象类</strong>。纯虚函数是通过在声明中使用 “= 0” 来指定的</p>
+<h1 id="读写IO流"><a href="#读写IO流" class="headerlink" title="读写IO流"></a>读写IO流</h1><h2 id="读文件"><a href="#读文件" class="headerlink" title="读文件"></a>读文件</h2><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+ifstream infile; 
+infile.open(&quot;&#x2F;root&#x2F;codetest&#x2F;ip.txt&quot;); 
+infile&gt;&gt;destIpAddress;
+infile&gt;&gt;selfIpAddress;
+infile.close();
+std::cout&lt;&lt;destIpAddress&lt;&lt;&quot; &quot;&lt;&lt;selfIpAddress&lt;&lt;endl;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="写文件"><a href="#写文件" class="headerlink" title="写文件"></a>写文件</h2><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">fstream outfile;
+outfile.open(&quot;&#x2F;root&#x2F;codetest&#x2F;out.txt&quot;,ios::out|ios::app);&#x2F;&#x2F;追加
+for(auto it : kv)&#123;
+   outfile&lt;&lt;it.first&lt;&lt;&quot;-----&quot;&lt;&lt;it.second&lt;&lt;endl;
+&#125;
+outfile&lt;&lt;&quot;------------------------------------&quot;&lt;&lt;endl;
+outfile.close();<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="int-string转换"><a href="#int-string转换" class="headerlink" title="int  string转换"></a>int  string转换</h1><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">sstring s &#x3D; &quot;12&quot;;
+int a &#x3D; atoi(s.c_str());
+s &#x3D; std::to_string(a);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/tech/" class="category-chain-item">tech</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/cpp/" class="category-chain-item">cpp</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/tech/">#tech</a>
+      
+        <a href="/tags/cpp/">#cpp</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>cpp随笔</div>
+      <div>https://codebells.github.io/post/cpp.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年11月1日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年3月2日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/mit6-824-lab3.html" title="mit6-824-lab3">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mit6-824-lab3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/makefile.html" title="学习makefile">
+                        <span class="hidden-mobile">学习makefile</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
