@@ -157,7 +157,7 @@ LECSF和RECSF的区别在于，LECSF是被动的，Coordinator将commit命令发
 
 ![image-20220626170215059](natto/image-20220626170215059.png)
 
-![image-20220626170222730](natto/image-20220626170222730.png)
+xxxxxxxxxx sstring s = "12";int a = atoi(s.c_str());s = std::to_string(a);c++
 
 
 

@@ -38,6 +38,8 @@ cmake --build build
 #在build目录开始编译
 #或者直接并行执行makefile的编译
 make -j$(nproc)
+#把标准输出重定向到文件中
+make -j 32 2>&1 | tee log.txt
 ```
 
 
