@@ -130,3 +130,12 @@ git remote add origin <resp address>
 git branch --set-upstream-to localBranch origin/branch
 ```
 
+# 重建博客
+
+```
+安装Hexo
+git clone -b SourceCode https://github.com/Codebells/Codebells.github.io.git
+npm install
+git pull origin SourceCode
+```
+
