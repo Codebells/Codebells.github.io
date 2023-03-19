@@ -30,6 +30,8 @@ rename "s/.default//g" /usr/local/nebula/etc/*.conf.default
 
 rm -rf /usr/local/nebula
 
+ps -aux|grep nebula
+
 rm -rf /usr/local/nebula/data
 
 ## Run Nebula
@@ -58,6 +60,7 @@ show hosts
 CREATE SPACE nebula (vid_type = FIXED_STRING(30));
 USE nebula;
 CREATE TAG IF NOT EXISTS person (name string, age int);
+CREATE TAG INDEX IF NOT EXISTS person_index on person(name(10));
 INSERT VERTEX person(name,age) VALUES "vid1" :("wcy",23);
 INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24);
 INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25);
@@ -66,9 +69,59 @@ INSERT EDGE relate(relation) VALUES "vid1"->"vid2":("homate");
 INSERT EDGE relate(relation) VALUES "vid1"->"vid3":("homate2");
 FETCH PROP ON person "vid1" YIELD properties(VERTEX);
 CREATE TAG INDEX person_index on person(name(10));
-REBUILD TAG INDEX player_index
+REBUILD TAG INDEX person_index;
 MATCH (v:person{name:"wcy"})--(v2:person) WHERE id(v) =='vid1' RETURN v2 AS AllProp;
 MATCH (v:person{name:"wcy"})-->(v2:person) RETURN v2 AS AllProp;
+SUBMIT JOB STATS;
+SHOW JOB $(jobId);
+SHOW STATS;
+
+INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25);
+INSERT VERTEX person(name,age) VALUES "vid21" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid31" :("ych",25);
+INSERT VERTEX person(name,age) VALUES "vid22" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid32" :("ych",25);
+```
+
+# k6 LDBC测试
+
+```shell
+sudo apt-get install -y \
+     git \
+     wget \
+     python3-pip \
+     python \
+     openjdk-8-jdk \
+     maven 
+
+export JAVA_HOME=/usr/lib/jvm/default-java/
+git clone https://github.com/vesoft-inc/nebula-bench.git 
+cd nebula-bench
+pip3 install --user -r requirements.txt
+python3 run.py --help
+wget https://dl.google.com/go/go1.17.8.linux-amd64.tar.gz
+tar -xf go1.17.8.linux-amd64.tar.gz -C /usr/local
+sudo vim /etc/profile
+
+export GOROOT=/usr/local/go
+export GOPATH=/home 
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOROOT/bin
+export PATH=$PATH:$GOPATH/bin
+
+source /etc/profile
+go version
+export GOPROXY=https://goproxy.cn
+/bin/bash scripts/setup.sh
+python3 run.py data  -s 1
+./scripts/nebula-importer --config  ./my_config.yaml
+python3 run.py stress run -scenario insert.InsertScenario --args='-u 10 -d 3s'
+
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 651933:("Mahqwinda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 912333:("Mah1inda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 912433:("Mahzxc1inda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 712473:("Mahfgh1inda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
 ```
 
 
