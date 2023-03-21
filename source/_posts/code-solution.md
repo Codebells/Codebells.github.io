@@ -651,3 +651,83 @@ public:
 想不到O(n)的做法，但是感觉可能存在，因为如果b是奇数那么字符串每个都可以为头，如果b是偶数，那么只有偶数位可以为头。可能可以根据序列差值处理出结果。
 
 暴力模拟，BFS最好写，还有个模拟方法就是纯暴力，很容易知道，a最多加10次就加到原来的值，b最多挪n次，也回到原来的位置，如果b是奇数就是$n*10*10$种情况，偶数就为$n*10$种情况，时间复杂度就是在这基础上乘个n，因为需要处理字符串
+
+# LeetCode 15
+
+```cpp
+class Solution {
+public:
+    int check(int a,int b,int c){
+        if(a+b+c==0) return 0;
+        else if(a+b+c>0) return 1;
+        else return -1;
+    }
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> res;
+        sort(nums.begin(),nums.end());
+        for(int i=0;i<nums.size();i++){
+            int left=i+1,right=nums.size()-1;
+            if(nums[i]>0) return res;
+            if(i>0&&nums[i]==nums[i-1]) continue;
+            while(left<right){
+                int flag = check(nums[left],nums[i],nums[right]);
+                if(flag>0)right--;
+                else if(flag<0)left++;
+                else {
+                    res.push_back({nums[i],nums[left],nums[right]});
+                    while(left<right&&nums[left]==nums[left+1]) left++;
+                    while(left<right&&nums[right]==nums[right-1]) right--;
+                    right--;
+                    left++;
+                }
+            }
+        }
+        return res;
+    }
+};
+```
+
+$O(n^3)$是纯暴力做法，下面双指针和哈希表都是$O(n^2)$的做法
+
+双指针或者哈希表，我写的是双指针，固定一个值，两个指针不停调整，如果三数和大于0，那么就把大的调小，小于0则小的调大，等于0 就是答案，期间去重就行
+
+哈希表写起来更简单，双重for循环，然后用哈希表判断-(nums[i]+nums[j])在表中有没有，有就是答案，没有就不是答案，当然，还得去重
+
+# LeetCode 18
+
+```cpp
+class Solution {
+public:
+    int check(long long a,long long b,long long c,long long d,long long target){
+        if(a+b+c+d-target==0) return 0;
+        else if(a+b+c+d-target>0) return 1;
+        else return -1;
+    }
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        vector<vector<int>> res;
+        sort(nums.begin(),nums.end());
+        for(int k=0;k<nums.size();k++){
+            if(k>0&&nums[k]==nums[k-1])continue;
+            for(int i=k+1;i<nums.size();i++){
+                int left=i+1,right=nums.size()-1;
+                if(i>k+1&&nums[i]==nums[i-1]) continue;
+                while(left<right){
+                    int flag = check(nums[left],nums[i],nums[right],nums[k],target);
+                    if(flag>0)right--;
+                    else if(flag<0)left++;
+                    else {
+                        res.push_back({nums[k],nums[i],nums[left],nums[right]});
+                        while(left<right&&nums[left]==nums[left+1]) left++;
+                        while(left<right&&nums[right]==nums[right-1]) right--;
+                        right--;
+                        left++;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+};
+```
+
+同一个做法，复杂度$O(n^3)$，但是有个细节，因为num范围是1e9所以会爆int，定义成longlong就可以了。固定两个值nums[k]和nums[i]，两个指针left和right，不停调整，因为遍历两个值需要两个for所以复杂度多个n
