@@ -23,7 +23,7 @@ category_bar: true
 1. 传统方法一个就是所有节点轮流进事务，round-robin
 2. 事务分配到负载最低的节点上执行
 
-![传统方法缺点](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319115242113.png)
+![传统方法缺点](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319115242113.png)
 
 ### 存在的缺点
 
@@ -40,7 +40,7 @@ AC由一个以上的Node组成，而一个Node可以属于多个AC。
 
 初始化时，AC必须被分配，Node可以空闲
 
-![一些定义](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120046897.png)
+![一些定义](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120046897.png)
 
 上面定义的我们主要记住几个东西
 
@@ -60,36 +60,36 @@ $\overline{L}(N)$代表集群负载均值
 
 ## AC Overload
 
-![AC Overload](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120253465.png)
+![AC Overload](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120253465.png)
 
-![解决方案](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120624833.png)
+![解决方案](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120624833.png)
 
 简而言之，就是在AC中加入最低工作负载节点，并将这个最低工作负载节点与原先关联的AC断联。
 
 看例子最好懂，原先N1-N4分别对应AC1-AC4，并且每个AC全为50个事务，现在AC1增加到150个事务，此时经过计算均值为75,AC1根据定义1，已经Overload，此时除了N1，其他节点都是50个事务，所以挑了N2进入AC1，并与之前的AC2断联,AC2将加入N3 N4选一个最小的加入。此时负载就变为下图
 
-![例1](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120722719.png)
+![例1](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120722719.png)
 
 ## Node Overload
 
-![Node Overload](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120329092.png)
+![Node Overload](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120329092.png)
 
-![解决方法](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319121317443.png)
+![解决方法](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319121317443.png)
 
 概括一下如果$N_p$过载，那么找他相关的AC，将最大的AC和它断联，然后找没分配AC，或者处于ac underload的node，将该node和$AC_{max}$关联，如果没有这样的节点，那就找个#T(N)最小的，将$AC_{min}$和该节点关联。
 
 继续上一个例子，将#T(AC2)从50加到84，此时的负载均值为83.5,设置此时的参数为1.6,根据定义2可得$134>83.5*1.6=133.6$ 。此时将AC3加入到N4,此时状态变为下图
 
-![例2](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319121559017.png)
+![例2](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319121559017.png)
 
 ## AC Underload
 
-![AC Underload](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319120345732.png)
+![AC Underload](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319120345732.png)
 
-![解决方案](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319121616794.png)
+![解决方案](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319121616794.png)
 
 如果$AC_q$负载太小了，并且由AC过载或者Node过载，此时会将一个节点与$AC_q$断联，通过Node expansion或者AC distribution方式加入一个AC。
 
 还是续上一个例子，将#T(AC1)减到50，此时的负载均值为 58.5，AC1根据定义3计算$50/(2-1)=50<58.5$已经underload,并且N4已经过载此时就会将AC1中断联一个,给N4的$AC_{max}$关联，此时变为下面的状态
 
-![例3](Dynamic-Affinity-Cluster-Allocation-in-a-Shared/image-20230319121822665.png)
+![例3](dynamic-affinity-cluster-allocation-in-a-shared/image-20230319121822665.png)

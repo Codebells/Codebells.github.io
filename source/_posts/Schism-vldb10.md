@@ -8,7 +8,7 @@ tags: [paper_read,database]
 category_bar: true
 ---
 
-阅读Schism: a Workload-Driven Approach to Database Replication and Partitioning笔记。这篇论文，总体来说是讲分区方法的，如何平衡的分区，尽可能的提高数据库负载，这篇论文通过将事务转化成图的角度，通过图切割算法来分区，尽可能减少跨分区事务来达到优化效果，下面开始介绍。
+阅读Schism: a Workload-Driven Approach to Database Replication and Partitioning笔记。这篇论文，总体来说是讲分区方法的，如何平衡分区的同时尽可能提高数据库负载，这篇论文通过将事务转化成图的角度，通过图切割算法来分区，尽可能减少跨分区事务来达到优化效果，下面开始介绍。
 
 # 背景
 
@@ -18,7 +18,7 @@ category_bar: true
 - Range分区
 - Hash分区
 
-![分区示意图](Schism-vldb10/image-20230321201539842.png)
+![分区示意图](schism-vldb10/image-20230321201539842.png)
 
 但是这些方式可能适用于一些工作负载，但是还有一些工作负载，通过这些分区方式很难得到高性能，比如社交网络这种涉及少量数据的小事务的负载用以上方法就不能获得很好的性能了。因为hash以及round-robin就可能涉及多个node了，而一旦跨分区，那么吞吐量就会下降很多，range分区就会好很多，但是手动设定range也是一个很麻烦的事情，所以论文想在平衡分区负载的同时最小化跨分区事务数量，这就是Schism的目的。
 
@@ -51,7 +51,7 @@ category_bar: true
   - 一个是所有事务的数据都在本地
   - 一个是所有事务的数据都涉及多节点
 
-![分布式事务实验](Schism-vldb10/image-20230321205309869.png)
+![分布式事务实验](schism-vldb10/image-20230321205309869.png)
 
 ## Graph Partitioning
 
@@ -63,7 +63,9 @@ category_bar: true
 
 边权：多少个事务涉及到某对tuple
 
-![The graph representation](Schism-vldb10/image-20230321205905854.png)
+![The graph representation](schism-vldb10/image-20230321205905854.png)
+
+右上角事务涉及tuple1和tuple2的数据，所以1节点和2节点之间存在边，右下角事务涉及到tuple145，则这三个节点之间都存在边，在图中，边权为多少个事务涉及到某对tuple，例如tuple1和tuple2，只有右上角的事务同时涉及到tuple1和tuple2，所以边权为1。
 
 ### GRAPH WITH REPLICATION
 
@@ -77,7 +79,7 @@ n：多少个事务需要这个数据
 
 Replication edge weights:在负载中多少个事务更新了这个tuple
 
-![GRAPH WITH REPLICATION](Schism-vldb10/image-20230321211001262.png)
+![GRAPH WITH REPLICATION](schism-vldb10/image-20230321211001262.png)
 
 划分图时的几个点
 
@@ -91,6 +93,8 @@ Replication edge weights:在负载中多少个事务更新了这个tuple
 ##### Fine-grained per tuple partitioning
 
 红色的表，是Look-up Tables 基于经常出现在where子句中的属性构建，用于路由到数据分区
+
+涉及到replication的时候，图变为Figure3所示，在图中某个tuple节点将出现n+1次，n是有多少个事务涉及到该tuple，而Replication edge weights是在负载中多少个事务更新了这个tuple。当图构建完成之后就需要进行图划分了，划分时需要尽量让切的边权和小以及尽量保证分区的权值平衡。划分后，一个partition的多个相同node不需要重复存储，例如2号节点tuple只存一份，一号节点tuple存两份；并且不复制经常更新的节点，例如，tuple1如果更新次数很多，那么就让tuple1只存在partition0，而不存两份，减少同步更新的开销。
 
 ## EXPLAINING THE PARTITION
 
@@ -108,3 +112,21 @@ Replication edge weights:在负载中多少个事务更新了这个tuple
 - Range predicate partition，也就是使用决策树模型生成range的方式分区
 - hash partition
 - full replication
+
+# 总结
+
+1.将工作负载抽象成图的形式，数据作为节点，事务涉及到的数据对作为边，边权为多少个事务涉及到某对tuple
+
+如Figure 2右上角事务涉及tuple1和tuple2的数据，所以1节点和2节点之间存在边，右下角事务涉及到tuple1 4 5，则这三个节点之间都存在边，而边权，如tuple1和tuple2，只有右上角的事务同时涉及到tuple1和tuple2，所以边权为1。
+
+涉及到replication的时候，图变为Figure3所示，在图中某个tuple节点将出现n+1次，n是有多少个事务涉及到该tuple，而Replication的边权是在负载中多少个事务更新了这个tuple。
+
+2.当图构建完成之后就需要进行图划分了，划分时需要尽量让切的边权和小以及尽量保证分区的权值平衡。
+
+划分后，一个partition的多个相同node不需要重复存储，例如2号节点tuple只存一份，一号节点tuple存两份；
+
+并且不复制经常更新的节点，例如，tuple1如果更新次数很多，那么就让tuple1只存在partition0，而不存两份，减少同步更新的开销。
+
+3.通过图切割的方式确定了数据的分区方式得到了lookup table，然后把lookup table中的(tuple,partition)作为决策树的输入，输出为按谓词划分range的分区方式。最后得到的这个分区方式是一种独立于抽象图后划分分区的分区方式，它可以给定一个没有确定分区的tuple，通过生成的决策树模型去找到对应的分区节点。
+
+系统最后通过比较这两种分区方式以及哈希分区输出最优方案作为最终分区方案。
