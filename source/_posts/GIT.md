@@ -81,9 +81,10 @@ git config --global user.email 1347103071@qq.com
 ssh-keygen -t rsa -C "1347103071@qq.com"
 #查看公钥
 cat ~/.ssh/id_rsa.pub
+git remote set-url origin https://<your_token>@github.com/<USERNAME>/<REPO>.git
 ```
 
-
+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
 
 # Git不拉取代码新建远程分支上传本地代码
 
