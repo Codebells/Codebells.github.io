@@ -12,29 +12,33 @@ category_bar: true
 
 ## 源码安装build
 
+```
 apt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2
-
 git clone --branch release-3.3 https://gitee.com/Codebells/nebula.git
-
 cd nebula
-
 mkdir build && cd build
-
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/nebula -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
-
 make -j8
-
 make install
+```
+
+
 
 ## 源码安装的nebula卸载
+
+/usr/local/nebula/scripts/nebula.service stop all
 
 rm -rf /usr/local/nebula
 
 ## Run Nebula
 
+```
+rename  's/\.default$//' *.conf.default
+
 /usr/local/nebula/scripts/nebula.service start all
 
 /usr/local/nebula/scripts/nebula.service status all
+```
 
 ## 安装nebula console
 
