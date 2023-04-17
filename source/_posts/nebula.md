@@ -18,44 +18,52 @@ git clone --branch release-3.3 https://gitee.com/Codebells/nebula.git
 cd nebula
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/nebula -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
-make -j8
+
+make -j 30 2>&1 | tee log.txt
 make install
+rename "s/.default//g" /usr/local/nebula/etc/*.conf.default 
 ```
-
-
 
 ## 源码安装的nebula卸载
 
+```
 /usr/local/nebula/scripts/nebula.service stop all
-
 rm -rf /usr/local/nebula
+ps -aux|grep nebula
+rm -rf /usr/local/nebula/data
 
+
+```
 ## Run Nebula
 
 ```
 rename  's/\.default$//' *.conf.default
-
 /usr/local/nebula/scripts/nebula.service start all
-
 /usr/local/nebula/scripts/nebula.service status all
+/usr/local/nebula/scripts/nebula.service stop all
 ```
 
 ## 安装nebula console
 
+```
+
 chmod 111 nebula-console
-
+pushd ~
 ./nebula-console -addr 127.0.0.1 -port 9669 -u root -p wucaiyi
-
 ADD HOSTS 127.0.0.1:9779
-
+ADD HOSTS 172.31.16.44:9779,172.31.16.45:9779,172.31.16.46:9779
 show hosts
+BALANCE LEADER;
+DROP HOSTS 127.0.0.1:9779
 
-### nGQL语句
+```
+## nGQL语句
 
 ```
 CREATE SPACE nebula (vid_type = FIXED_STRING(30));
 USE nebula;
 CREATE TAG IF NOT EXISTS person (name string, age int);
+CREATE TAG INDEX IF NOT EXISTS person_index on person(name(10));
 INSERT VERTEX person(name,age) VALUES "vid1" :("wcy",23);
 INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24);
 INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25);
@@ -63,10 +71,75 @@ CREATE EDGE IF NOT EXISTS relate(relation string);
 INSERT EDGE relate(relation) VALUES "vid1"->"vid2":("homate");
 INSERT EDGE relate(relation) VALUES "vid1"->"vid3":("homate2");
 FETCH PROP ON person "vid1" YIELD properties(VERTEX);
-CREATE TAG INDEX person_index on person(name(10));
-REBUILD TAG INDEX player_index
+REBUILD TAG INDEX person_index;
 MATCH (v:person{name:"wcy"})--(v2:person) WHERE id(v) =='vid1' RETURN v2 AS AllProp;
 MATCH (v:person{name:"wcy"})-->(v2:person) RETURN v2 AS AllProp;
+SUBMIT JOB STATS;
+SHOW STATS;
+SHOW JOB $(jobId);
+
+INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25);
+INSERT VERTEX person(name,age) VALUES "vid21" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid31" :("ych",25);
+INSERT VERTEX person(name,age) VALUES "vid22" :("hsj",24);
+INSERT VERTEX person(name,age) VALUES "vid32" :("ych",25);
+
+CREATE SPACE IF NOT EXISTS stress_test_0331(PARTITION_NUM = 24, REPLICA_FACTOR = 1, vid_type = int64);
+USE stress_test_0331;
+CREATE TAG IF NOT EXISTS `Person`(`firstName` string,`lastName` string,`gender` string,`birthday` string,`creationDate` datetime,`locationIP` string,`browserUsed` string);
+CREATE TAG INDEX IF NOT EXISTS `person_first_name_idx` on `Person`(firstName(10));
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 9333:("Mahinda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
+```
+
+
+
+# k6 LDBC测试
+
+```
+sudo apt-get install -y \
+     git \
+     wget \
+     python3-pip \
+     python \
+     openjdk-8-jdk \
+     maven 
+
+export JAVA_HOME=/usr/lib/jvm/default-java/
+git clone https://github.com/vesoft-inc/nebula-bench.git 
+cd nebula-bench
+pip3 install --user -r requirements.txt
+python3 run.py --help
+wget https://dl.google.com/go/go1.17.8.linux-amd64.tar.gz
+tar -xf go1.17.8.linux-amd64.tar.gz -C /usr/local
+sudo vim /etc/profile
+
+export GOROOT=/usr/local/go
+export GOPATH=/home 
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOROOT/bin
+export PATH=$PATH:$GOPATH/bin
+
+source /etc/profile
+go version
+export GOPROXY=https://goproxy.cn
+/bin/bash scripts/setup.sh
+
+python3 run.py data  -s 1
+
+python3 run.py nebula importer -a 172.31.16.44:9669,172.31.16.45:9669,172.31.16.46:9669
+
+./scripts/nebula-importer --config  ./importer_config.yaml
+python3 run.py stress scenarios -a 172.31.16.44:9669,172.31.16.45:9669,172.31.16.46:9669
+python3 run.py stress run -scenario  insert.InsertScenario --space='stress_test_0401' --args='-u 50 -d 3s'
+python3 run.py stress run -scenario fetch.FetchEdge --args='-u 50 -d 60s'
+CREATE SPACE IF NOT EXISTS stress_test_0331(PARTITION_NUM = 24, REPLICA_FACTOR = 1, vid_type = int64);
+USE stress_test_0331;
+CREATE TAG IF NOT EXISTS `Person`(`firstName` string,`lastName` string,`gender` string,`birthday` string,`creationDate` datetime,`locationIP` string,`browserUsed` string);
+CREATE TAG INDEX IF NOT EXISTS `person_first_name_idx` on `Person`(firstName(10));
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 9333:("Mahinda", "Perera", "male", "1989-12-03", datetime("2010-02-14T15:32:10.447"), "119.235.7.103", "Firefox");
+
+ INSERT VERTEX `Tagclass`(`name`,`url`) VALUES  155: ("Royalty","http://dbpedia.org/ontology/Royalty"), 141: ("NascarDriver","http://dbpedia.org/ontology/NascarDriver"), 233: ("EurovisionSongContestEntry","http://dbpedia.org/ontology/EurovisionSongContestEntry");
 ```
 
 
@@ -286,3 +359,4 @@ Partition是逻辑分区，每个Partition存在Raft组，读写数据是到分�
 
 ```
 
+实验服务器和压测机为同一台物理机配置为32 vCPU 64 GiB，测试数据采用 LDBC-SNB SF10数据集，SF10据集大小为 10G，共有 29,987,835 个点以及 176,623,382 条边。测试用的图空间分区数为 24，节点数为 3。vu表示的是 k6 使用的概念“virtual user”，即性能测试中的并发数；测试使用50_vu 表示 50 个并发用户，目前，以Nebula3.3版本性能作为基准，Taas测试为单taas节点连接三台nebula节点，即将nebula看成单机数据库连接同一台taas节点作为分布式事务处理模块，Nebula原始的 InsertVertex的吞吐量在59.1k，平均latency为2.2ms，FetchEdge的吞吐量在101k，latency为1.1ms，加入Taas后，InsertVertex性能为35.3k，平均latency为8.35ms平均性能下降40%，FetchEdge的吞吐量在96.1k，latency为1.03ms，平均性能下降6%左右。

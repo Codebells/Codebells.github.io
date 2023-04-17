@@ -104,7 +104,7 @@ int main()
 }
 ```
 
-move告诉编译器：我们有一个左值，但我们希望像一个右值一样处理它。我们必须认识到，调用move就意味着：除了对 str 赋值或销毁外，我们再使用它。在调用move之后，我们不能对moved-from对象（即str）做任何假设。
+move告诉编译器：我们有一个左值，但我们希望像一个右值一样处理它。我们必须认识到，调用move就意味着：除了对 str 赋值或销毁外，我们再使用它。**在调用move之后，我们不能对moved-from对象（即str）做任何假设。**
 
 上述程序执行结果为
 
@@ -259,6 +259,27 @@ virtual void funtion1()=0
 
 类中**至少有一个函数被声明为纯虚函数，则这个类就是抽象类**。纯虚函数是通过在声明中使用 "= 0" 来指定的
 
+<<<<<<< HEAD
+# 读写文件
+
+```c++
+std::string getIp(){
+    ifstream infile; //读文件流
+    infile.open("ip.txt"); 
+    infile>>ipAddress;//读一行数据
+    infile.close();
+}
+void Send_ok(std::vector<KV> &kv){
+    ofstream outfile;//写文件流
+    outfile.open("out.txt");
+    for(auto it : kv){
+        outfile<<it.first<<"-----"<<it.second<<endl;//写一行数据
+    }
+    outfile<<"------------------------------------"<<endl;
+    outfile.close();
+}
+```
+
 # 读写IO流
 
 ## 读文件
@@ -293,4 +314,3 @@ sstring s = "12";
 int a = atoi(s.c_str());
 s = std::to_string(a);
 ```
-
