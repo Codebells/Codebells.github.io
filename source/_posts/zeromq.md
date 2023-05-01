@@ -29,16 +29,16 @@ sudo ldconfig
 cd ..
 #install cppzmq
 unzip cppzmq-4.7.1.zip
-cd cppzmq.4.7.1/
+cd cppzmq-4.7.1/
 mkdir build
 cd build
 cmake ..
 make -j4 install
 #或者直接拷贝zmq.cpp
-#git clone https://github.com/zeromq/cppzmq.git
-#cd cppzmq
-#sudo cp zmq.hpp /usr/local/include/
-#cd ..
+git clone https://github.com/zeromq/cppzmq.git
+cd cppzmq
+sudo cp zmq.hpp /usr/local/include/
+cd ..
 ```
 
 测试demo server

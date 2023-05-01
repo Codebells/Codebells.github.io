@@ -29,6 +29,21 @@ sudo ln -s /root/cmake-3.22.1-linux-x86_64/bin/cmake /usr/bin/cmake
 cmake --version
 ```
 
+[richardchien/modern-cmake-by-example: IPADS 实验室新人培训第二讲：CMake（2021.11.3） (github.com)](https://github.com/richardchien/modern-cmake-by-example)
+
+## CentOS7.6 Cmake 升级
+
+```shell
+wget https://cmake.org/files/v3.22/cmake-3.22.0.tar.gz
+tar -zxvf cmake-3.22.0.tar.gz
+cd cmake-3.22.0
+yum install  -y openssl  openssl-devel
+./bootstrap && make && sudo make install
+cmake --version
+```
+
+
+
 # 常用命令
 
 ```shell
