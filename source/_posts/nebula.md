@@ -66,11 +66,11 @@ DROP HOSTS 127.0.0.1:9779
 ```
 CREATE SPACE nebula (vid_type = FIXED_STRING(30));
 USE nebula;
-CREATE TAG IF NOT EXISTS person (name string, age int , tid int);
+CREATE TAG IF NOT EXISTS person (name string, age int , tid string);
 CREATE TAG INDEX IF NOT EXISTS person_index on person(name(10));
-INSERT VERTEX person(name,age) VALUES "vid1" :("wcy",23,1);
-INSERT VERTEX person(name,age) VALUES "vid2" :("hsj",24,2);
-INSERT VERTEX person(name,age) VALUES "vid3" :("ych",25,3);
+INSERT VERTEX person(name,age,tid) VALUES "vid1" :("wcy",23,"vid1");
+INSERT VERTEX person(name,age,tid) VALUES "vid2" :("hsj",24,"vid2");
+INSERT VERTEX person(name,age,tid) VALUES "vid3" :("ych",25,"vid3");
 CREATE EDGE IF NOT EXISTS relate(relation string);
 INSERT EDGE relate(relation) VALUES "vid1"->"vid2":("homate");
 INSERT EDGE relate(relation) VALUES "vid1"->"vid3":("homate2");
