@@ -24,7 +24,7 @@
 <meta property="og:description" content="zmq安装 我安装的是cppzmq 4.7.1 libzmq 4.3.3 sudo apt-get install libtool pkg-config build-essential autoconf automake #install libsodium git clone https:&#x2F;&#x2F;gitee.com&#x2F;Codebells&#x2F;libsodium.gi">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-11-12T12:34:30.000Z">
-<meta property="article:modified_time" content="2023-03-02T08:33:51.368Z">
+<meta property="article:modified_time" content="2023-05-01T14:36:35.761Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="日常">
 <meta name="twitter:card" content="summary_large_image">
@@ -84,8 +84,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -222,7 +222,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          487 字
+          1.9k 字
         
       </span>
     
@@ -233,7 +233,7 @@
         
         
         
-          5 分钟
+          16 分钟
         
       </span>
     
@@ -291,7 +291,7 @@
         aria-expanded="true"
       >
         tech
-        <span class="list-group-count">(11)</span>
+        <span class="list-group-count">(13)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -368,6 +368,15 @@
     
       
       
+        <a href="/post/ubuntu20env.html" title="ubuntu20env"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ubuntu20env</span>
+        </a>
+      
+    
+      
+      
         <a href="/post/yaml.html" title="yaml基础"
            class="list-group-item list-group-item-action
            ">
@@ -390,6 +399,15 @@
            class="list-group-item list-group-item-action
            ">
           <span class="category-post">一些没啥用的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">刷题记录</span>
         </a>
       
     
@@ -445,11 +463,50 @@ sudo ldconfig
 cd ..
 #install cppzmq
 unzip cppzmq-4.7.1.zip
-cd cppzmq.4.7.1&#x2F;
+cd cppzmq-4.7.1&#x2F;
 mkdir build
 cd build
 cmake ..
-make -j4 install<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+make -j4 install
+#或者直接拷贝zmq.cpp
+git clone https:&#x2F;&#x2F;github.com&#x2F;zeromq&#x2F;cppzmq.git
+cd cppzmq
+sudo cp zmq.hpp &#x2F;usr&#x2F;local&#x2F;include&#x2F;
+cd ..<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>测试demo server</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;string.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;zmq.h&gt;
+int main (void)                                                         &#123;                                                                          &#x2F;&#x2F;  Socket to talk to clients
+    void *context &#x3D; zmq_ctx_new ();                                         void *responder &#x3D; zmq_socket (context, ZMQ_REP);                         int rc &#x3D; zmq_bind (responder, &quot;tcp:&#x2F;&#x2F;*:5555&quot;);                           assert (rc &#x3D;&#x3D; 0);                                                       while (1) &#123;                                                                 char buffer [10];                                                       zmq_recv (responder, buffer, 10, 0);                                     printf (&quot;Received Hello\n&quot;);                                             sleep (1);          &#x2F;&#x2F;  Do some &#39;work&#39;
+    	zmq_send (responder, &quot;World&quot;, 5, 0);                                 &#125;                                                                       return 0;                                                           &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>测试 client.cpp</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;zmq.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+int main (void)
+&#123;
+    printf (&quot;Connecting to hello world server…\n&quot;);
+    void *context &#x3D; zmq_ctx_new ();
+    void *requester &#x3D; zmq_socket (context, ZMQ_REQ);
+    zmq_connect (requester, &quot;tcp:&#x2F;&#x2F;localhost:5555&quot;);
+    int request_nbr;
+    for (request_nbr &#x3D; 0; request_nbr !&#x3D; 10; request_nbr++) &#123;
+        char buffer [10];
+        printf (&quot;Sending Hello %d…\n&quot;, request_nbr);
+        zmq_send (requester, &quot;Hello&quot;, 5, 0);
+        zmq_recv (requester, buffer, 10, 0);
+        printf (&quot;Received World %d\n&quot;, request_nbr);
+    &#125;
+    zmq_close (requester);
+    zmq_ctx_destroy (context);
+    return 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">g++ zserver.cpp -o server -lzmq 
+g++ zclient.cpp -o client -lzmq<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div>
 
               
             </div>
@@ -513,7 +570,7 @@ make -j4 install<span aria-hidden="true" class="line-numbers-rows"><span></span>
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2023年3月2日</div>
+          <div>2023年5月1日</div>
         </div>
       
       <div class="license-meta-item">

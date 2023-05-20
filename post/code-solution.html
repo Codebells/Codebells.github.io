@@ -1,0 +1,1682 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/post/git/codebells.png">
+  <link rel="icon" href="/post/git/codebells.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Codebells">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="记录从3.5号开始的刷题记录，正在连载 最近还要干nebula的活，只能抽小部分时间先找到做题的感觉，等nebula的事情忙完了，就专心找工作吧，加油。 Leetcode 1599class Solution &amp;#123; public:     int minOperationsMaxProfit(vector&lt;int&gt;&amp; customers, int boardingCos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="刷题记录">
+<meta property="og:url" content="https://codebells.github.io/post/code-solution.html">
+<meta property="og:site_name" content="Codebells">
+<meta property="og:description" content="记录从3.5号开始的刷题记录，正在连载 最近还要干nebula的活，只能抽小部分时间先找到做题的感觉，等nebula的事情忙完了，就专心找工作吧，加油。 Leetcode 1599class Solution &amp;#123; public:     int minOperationsMaxProfit(vector&lt;int&gt;&amp; customers, int boardingCos">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-05T05:55:20.000Z">
+<meta property="article:modified_time" content="2023-04-17T13:52:42.497Z">
+<meta property="article:author" content="Codebells">
+<meta property="article:tag" content="tech">
+<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="job">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>刷题记录 - Codebells</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"codebells.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Codebells</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/post/git/mountain.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="刷题记录"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-05 13:55" pubdate>
+          2023年3月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          127 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="tech"
+        id="heading-d9f9133fb120cd6096870bc2b496805b" role="tab" data-toggle="collapse" href="#collapse-d9f9133fb120cd6096870bc2b496805b"
+        aria-expanded="true"
+      >
+        tech
+        <span class="list-group-count">(13)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-d9f9133fb120cd6096870bc2b496805b"
+           role="tabpanel" aria-labelledby="heading-d9f9133fb120cd6096870bc2b496805b">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/etl-glue.html" title="ETL(Extract,Transform,Load)"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ETL(Extract,Transform,Load)</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/git.html" title="Git常用指令"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Git常用指令</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cmake.html" title="cmake日常"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cmake日常</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cpp.html" title="cpp随笔"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cpp随笔</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/docker.html" title="docker常用指令基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">docker常用指令基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/linux-command.html" title="linux-command"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">linux-command</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/protobuf.html" title="protobuf"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">protobuf</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/ubuntu20env.html" title="ubuntu20env"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ubuntu20env</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/yaml.html" title="yaml基础"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">yaml基础</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/zeromq.html" title="zeromq"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">zeromq</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/script.html" title="一些没啥用的脚本"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">一些没啥用的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">刷题记录</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/makefile.html" title="学习makefile"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">学习makefile</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="cpp"
+        id="heading-2c5f2cba9af7f92986d3de1e753f3faa" role="tab" data-toggle="collapse" href="#collapse-2c5f2cba9af7f92986d3de1e753f3faa"
+        aria-expanded="true"
+      >
+        cpp
+        <span class="list-group-count">(3)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-2c5f2cba9af7f92986d3de1e753f3faa"
+           role="tabpanel" aria-labelledby="heading-2c5f2cba9af7f92986d3de1e753f3faa">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/cmake.html" title="cmake日常"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cmake日常</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/cpp.html" title="cpp随笔"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">cpp随笔</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">刷题记录</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="job"
+        id="heading-9dddd5ce1b1375bc497feeb871842d4b" role="tab" data-toggle="collapse" href="#collapse-9dddd5ce1b1375bc497feeb871842d4b"
+        aria-expanded="true"
+      >
+        job
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-9dddd5ce1b1375bc497feeb871842d4b"
+           role="tabpanel" aria-labelledby="heading-9dddd5ce1b1375bc497feeb871842d4b">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">刷题记录</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">刷题记录</h1>
+            
+            <div class="markdown-body">
+              
+              <p>记录从3.5号开始的刷题记录，正在连载</p>
+<p>最近还要干nebula的活，只能抽小部分时间先找到做题的感觉，等nebula的事情忙完了，就专心找工作吧，加油。</p>
+<h1 id="Leetcode-1599"><a href="#Leetcode-1599" class="headerlink" title="Leetcode 1599"></a>Leetcode 1599</h1><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">class Solution &#123;
+public:
+    int minOperationsMaxProfit(vector&lt;int&gt;&amp; customers, int boardingCost, int runningCost) &#123;
+        int maxProfit&#x3D;-1;
+        int res&#x3D;0;
+        int profitSum&#x3D;0;
+        for(int i&#x3D;0;i&lt;customers.size();i++)&#123;
+            int tmp&#x3D;0;
+            if(customers[i]&gt;4&amp;&amp;i!&#x3D;(customers.size()-1))&#123;
+                
+                customers[i+1] +&#x3D;(customers[i]-4);
+                tmp&#x3D;4;
+            &#125;else&#123;
+                tmp&#x3D;customers[i];
+            &#125;
+            int round &#x3D;0;
+            if(tmp&lt;4||i+1&#x3D;&#x3D;customers.size())&#123;
+                round &#x3D; tmp&#x2F;4;
+                profitSum+&#x3D;((boardingCost*(tmp-tmp%4))-(round)*runningCost);
+                &#x2F;&#x2F; printf(&quot;stop round %d tmp &#x3D; %d ceil &#x3D; %d profit &#x3D; %d\n&quot;,i,tmp,round,profitSum);
+                if(maxProfit&lt;profitSum)&#123;
+                    maxProfit&#x3D;profitSum;
+                    res&#x3D;i+round;
+                &#125;
+                profitSum-&#x3D;((boardingCost*(tmp-tmp%4))-(round)*runningCost);
+            &#125;
+            round &#x3D; (int)ceil(tmp&#x2F;4.0);
+            if(round&#x3D;&#x3D;0 ) round&#x3D;1;
+            profitSum+&#x3D;((boardingCost*tmp)-(round)*runningCost);
+            &#x2F;&#x2F; printf(&quot;continue round %d tmp &#x3D; %d ceil &#x3D; %d profit &#x3D; %d\n&quot;,i,tmp,round,profitSum);
+            if(maxProfit&lt;profitSum)&#123;
+                maxProfit&#x3D;profitSum;
+                res&#x3D;i+round;
+            &#125;
+        &#125;
+        if(maxProfit&lt;&#x3D;0) return -1;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>简单的模拟，每轮最多4个人，能坐满就继续运行，大于4个人就把剩下的人放在后一个轮次直到最后一轮，不能坐满就有两种情况，一种停止，一种继续，中间记录最大收益以及所在轮次即可。</p>
+<p><strong>优化空间</strong>：本身题目数据量较小，如果数据大，那么可以使用bool数组标记每个轮次的人是否到达，不再累加，因为可能溢出。一个剪枝，坐满了也不能盈利就直接返回-1。时间复杂度都为O(n)</p>
+<h1 id="LeetCode-1653"><a href="#LeetCode-1653" class="headerlink" title="LeetCode 1653"></a>LeetCode 1653</h1><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">class Solution &#123;
+public:
+    int minimumDeletions(string s) &#123;
+        int len &#x3D; s.length();
+        printf(&quot;len &#x3D; %d\n&quot;,len);
+        int a[len+1],b[len+1];&#x2F;&#x2F;i前面的b和i后面的A
+        int Afront&#x3D;0,behindB&#x3D;0;
+        for(int i&#x3D;0 ;i&lt;len ;i++)&#123;
+             a[i]&#x3D;Afront;
+            if(s[i]&#x3D;&#x3D;&#39;b&#39;)&#123;
+                Afront++;
+            &#125;
+        &#125;
+        for(int i&#x3D;len-1 ;i&gt;&#x3D;0 ;i--)&#123;
+            b[i]&#x3D;behindB;
+            if(s[i]&#x3D;&#x3D;&#39;a&#39;)&#123;
+                behindB++;
+            &#125;
+        &#125;
+        int minn &#x3D; len;
+        for(int i&#x3D;0 ;i&lt;len ;i++)&#123;
+            minn &#x3D; min(a[i]+b[i],minn);
+        &#125;
+        return minn;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>平衡的条件是a前面没b，b后面没a。那么思路很简单，删除该位置前面的b和后面的a就可以让字符串平衡。先跑两遍数组，得到位置i前面的b和i后面的A，然后找两个之和最小的就行。</p>
+<p><strong>优化思路</strong> 就是个最长上升子序列问题，用两个变量维护就行，O(n)复杂度，维护一个前面的b数量，再维护一个目前的操作数量就行，因为每一步只有保留和删除两个选择，即当是a时，op = min(op+ 1, countB)，是b时countB+1</p>
+<h1 id="剑指offer-09"><a href="#剑指offer-09" class="headerlink" title="剑指offer 09"></a>剑指offer 09</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class CQueue &#123;
+public:
+    std::stack&lt;int&gt; stIn,stOut;
+    CQueue() &#123;
+    &#125;
+    void appendTail(int value) &#123;
+        stIn.push(value);
+    &#125;
+    int deleteHead() &#123;
+        if(stOut.empty())&#123;
+            while(!stIn.empty())&#123;
+                int val &#x3D; stIn.top();
+                stIn.pop();
+                stOut.push(val);
+            &#125;
+        &#125;
+        if(stOut.empty())&#123;
+            return -1;
+        &#125;
+        int res &#x3D; stOut.top();
+        stOut.pop();
+        return res;
+
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>两个栈实现队列，利用栈的特性，后进先出，制造一个输入栈一个输出栈即可，当输出栈为空时，将输入栈全部倒入输出栈，这样就可以有一个先进先出的效果，从而实现队列。</p>
+<h1 id="剑指offer-30"><a href="#剑指offer-30" class="headerlink" title="剑指offer 30"></a>剑指offer 30</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class MinStack &#123;
+public:
+    &#x2F;** initialize your data structure here. *&#x2F;
+    stack&lt;int&gt; stk;
+    stack&lt;int&gt; minNum;
+    int minn;
+    MinStack() &#123;
+        minn&#x3D;0x7fffffff;
+    &#125;
+    
+    void push(int x) &#123;
+        stk.push(x);
+        minn &#x3D; minNum.empty()?x:std::min(x,minNum.top());
+        minNum.push(minn);
+    &#125;
+    
+    void pop() &#123;
+        stk.pop();
+        minNum.pop();
+    &#125;
+    
+    int top() &#123;
+        return stk.top();
+    &#125;
+    
+    int min() &#123;
+        return minNum.top();
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>多加个最小值，那么就直接维护一个最小栈就行，每次进栈时，加入一个当前值和最小栈栈顶元素更小的元素。想要查看栈最小值时直接输出最小栈的栈顶。还有一个思路就是每次push两个值进栈，用一个minn变量保存当前栈的最小值，pop时pop两次即可。</p>
+<h1 id="LeetCode-1096"><a href="#LeetCode-1096" class="headerlink" title="LeetCode 1096"></a>LeetCode 1096</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution
+&#123;
+public:
+    map&lt;int, int&gt; mp; &#x2F;&#x2F;&#123;&#125; pos
+    bool isLetter(char s)
+    &#123;
+        if (&#39;a&#39; &lt;&#x3D; s &amp;&amp; s &lt;&#x3D; &#39;z&#39;)
+            return true;
+        return false;
+    &#125;
+    vector&lt;string&gt; multiString(vector&lt;string&gt; const &amp;first, vector&lt;string&gt; const &amp;second)
+    &#123;
+        vector&lt;string&gt; res;
+        for (int i &#x3D; 0; i &lt; first.size(); i++)
+        &#123;
+            for (int j &#x3D; 0; j &lt; second.size(); j++)
+            &#123;
+                res.push_back(first[i] + second[j]);
+            &#125;
+        &#125;
+        return res;
+    &#125;
+    vector&lt;string&gt; Process(string expression, int st)
+    &#123;
+
+        vector&lt;string&gt; res;
+        string tmp;
+        bool flag &#x3D; false;
+        vector&lt;string&gt; strTmp;
+        for (int i &#x3D; 0; i &lt; expression.length(); i++)
+        &#123;
+            if (isLetter(expression[i]))
+            &#123;
+                tmp +&#x3D; expression[i];
+                if (strTmp.size() !&#x3D; 0)
+                &#123;
+                    if (tmp !&#x3D; &quot;&quot;)
+                    &#123;
+                        for (int j &#x3D; 0; j &lt; strTmp.size(); j++)
+                        &#123;
+                            strTmp[j] &#x3D; strTmp[j] + tmp;
+                        &#125;
+                        tmp &#x3D; &quot;&quot;;
+                    &#125;
+                &#125;
+            &#125;
+            else
+            &#123;
+                if (expression[i] &#x3D;&#x3D; &#39;,&#39;)
+                &#123;
+                    if (strTmp.size() &#x3D;&#x3D; 0)
+                    &#123;
+                        if (tmp !&#x3D; &quot;&quot;)
+                        &#123;
+                            res.push_back(tmp);
+                            tmp &#x3D; &quot;&quot;;
+                        &#125;
+                    &#125;
+                    else
+                    &#123;
+                        for (int j &#x3D; 0; j &lt; strTmp.size(); j++)
+                        &#123;
+                            strTmp[j] &#x3D; strTmp[j] + tmp;
+                            res.push_back(strTmp[j]);
+                        &#125;
+                        tmp &#x3D; &quot;&quot;;
+                        strTmp.clear();
+                    &#125;
+                &#125;
+                else if (expression[i] &#x3D;&#x3D; &#39;&#123;&#39;)
+                &#123;
+                    if (strTmp.size() !&#x3D; 0)
+                    &#123;
+                        if (tmp !&#x3D; &quot;&quot;)
+                        &#123;
+                            for (int j &#x3D; 0; j &lt; strTmp.size(); j++)
+                            &#123;
+                                strTmp[j] &#x3D; strTmp[j] + tmp;
+                            &#125;
+                            tmp &#x3D; &quot;&quot;;
+                        &#125;
+
+                        strTmp &#x3D; multiString(strTmp, Process(expression.substr(i + 1, mp[st + i] - st - i - 1), st + i + 1));
+                    &#125;
+                    else
+                    &#123;
+                        strTmp &#x3D; Process(expression.substr(i + 1, mp[st + i] - st - i - 1), st + i + 1);
+                    &#125;
+                    i &#x3D; mp[st + i] - st;
+                    if (tmp !&#x3D; &quot;&quot;)
+                    &#123;
+                        for (int j &#x3D; 0; j &lt; strTmp.size(); j++)
+                        &#123;
+                            strTmp[j] &#x3D; tmp + strTmp[j];
+                        &#125;
+                        tmp &#x3D; &quot;&quot;;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+        if (strTmp.size() !&#x3D; 0)
+        &#123;
+            for (int j &#x3D; 0; j &lt; strTmp.size(); j++)
+            &#123;
+                strTmp[j] &#x3D; tmp + strTmp[j];
+                res.push_back(strTmp[j]);
+            &#125;
+            strTmp.clear();
+            tmp &#x3D; &quot;&quot;;
+        &#125;
+        if (tmp !&#x3D; &quot;&quot;)
+        &#123;
+            res.push_back(tmp);
+            tmp &#x3D; &quot;&quot;;
+        &#125;
+        return res;
+    &#125;
+    vector&lt;string&gt; braceExpansionII(string expression)
+    &#123;
+        stack&lt;int&gt; st;
+        for (int i &#x3D; 0; i &lt; expression.length(); i++)
+        &#123;
+            if (expression[i] &#x3D;&#x3D; &#39;&#123;&#39;)
+            &#123;
+                st.push(i);
+            &#125;
+            if (expression[i] &#x3D;&#x3D; &#39;&#125;&#39;)
+            &#123;
+                int left &#x3D; st.top();
+                st.pop();
+                mp[left] &#x3D; i;
+            &#125;
+        &#125;
+        vector&lt;string&gt; res &#x3D; Process(expression, 0), ans;
+        set&lt;string&gt; myset;
+        for (int i &#x3D; 0; i &lt; res.size(); i++)
+        &#123;
+            myset.insert(res[i]);
+        &#125;
+        for (auto iter &#x3D; myset.begin(); iter !&#x3D; myset.end(); iter++)
+        &#123;
+            ans.push_back(*iter);
+        &#125;
+        return ans;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>大体思路很好想，就是递归展开括号内容进行处理，我首先用map保存了每对括号的位置，然后在递归处理，写的时候思路没理清楚，写的比较乱。后续代码其实可以优化的更清晰，就是找到第一个’}’位置j，如果没找到那就把其中所有字符串输出即可。如果找到了，那么找左边第一个’{‘位置i，那么此时字符被分成三部分，第一部分是exp[0,i-1]，第二部分是该大括号内容exp[i+1,j-1]，第三部分是exp[j+1,n-1]。那么此时再按照逗号分隔第二部分，再进行重新组合内容，进行递归Process(expA,expB[i],expC)即可得到结果。</p>
+<h1 id="剑指Offer-47"><a href="#剑指Offer-47" class="headerlink" title="剑指Offer 47"></a>剑指Offer 47</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int maxValue(vector&lt;vector&lt;int&gt;&gt;&amp; grid) &#123;
+        int dp[grid.size()+1][grid[0].size()+1];
+        memset(dp,0,sizeof(dp));
+        dp[0][0]&#x3D;grid[0][0];
+        for(int i&#x3D;0;i&lt;grid.size();i++)&#123;
+            for(int j&#x3D;0;j&lt;grid[0].size();j++)&#123;
+                if(i&gt;0&amp;&amp;j&gt;0)&#123;
+                    dp[i][j]&#x3D;std::max(dp[i-1][j],dp[i][j-1])+grid[i][j];
+                    
+                &#125;else if(i&gt;0)&#123;
+                    dp[i][j]&#x3D;dp[i-1][j]+grid[i][j];
+                &#125;else if(j&gt;0)&#123;
+                     dp[i][j]&#x3D;dp[i][j-1]+grid[i][j];
+                &#125;
+                &#x2F;&#x2F;printf(&quot;dp[%d][%d] &#x3D; %d\n&quot;,i,j,dp[i][j]);
+            &#125;
+        &#125;
+        return dp[grid.size()-1][grid[0].size()-1];
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>简单dp,$dp[i][j]$代表的含义为在坐标(i,j)下，所能拿到的最大值，由题目可知，这个状态只能从$dp[i-1][j],dp[i][j-1]$得到，那么很容易推出dp公式$dp[i][j]=max(dp[i-1][j],dp[i][j-1])+grid[i][j]$</p>
+<h1 id="LeetCode-2379"><a href="#LeetCode-2379" class="headerlink" title="LeetCode 2379"></a>LeetCode 2379</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int minimumRecolors(string blocks, int k) &#123;
+        int white[blocks.length()+5];
+        int num &#x3D; 0;
+        memset(white,0,sizeof(white));
+        for(int i&#x3D;0;i&lt;blocks.length();i++)&#123;
+            if(blocks[i]&#x3D;&#x3D;&#39;W&#39;) num++;
+            white[i]&#x3D;num;
+        &#125;
+        int minn &#x3D; k;
+        for(int i&#x3D;k-1;i&lt;blocks.length();i++)&#123;
+            int now &#x3D;0;
+            if(i&#x3D;&#x3D;k-1) now &#x3D; white[i];
+            else now &#x3D; white[i]-white[i-k];
+            minn &#x3D; std::min(minn,now);
+        &#125;
+        return minn;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>滑动窗口，或者前缀和，简单思路就是滑动窗口。我写的空间复杂度是O(n)，可以<strong>优化</strong>成O(1)的空间复杂度，把white数组变成两个cnt即可，记录最左边位置之前的白色数量和最右边位置之前的白色数量，每次滑动都维护一下就行。</p>
+<h1 id="LeetCode-704"><a href="#LeetCode-704" class="headerlink" title="LeetCode 704"></a>LeetCode 704</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int search(vector&lt;int&gt;&amp; nums, int target) &#123;
+        int mid &#x3D; nums.size()&#x2F;2;
+        int l&#x3D;0,r&#x3D;nums.size()-1;
+        while(nums[mid]!&#x3D;target)&#123;
+            if(l&#x3D;&#x3D;r) return -1;
+            if(nums[mid]&lt;target) l &#x3D; mid+1;
+            else if(nums[mid]&gt;target) r &#x3D; mid-1;
+            mid &#x3D; (l+r)&#x2F;2;
+        &#125;
+        return mid;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>简单有序数组二分查找，记得lr每次需要收缩即可</p>
+<h1 id="LeetCode-203"><a href="#LeetCode-203" class="headerlink" title="LeetCode 203"></a>LeetCode 203</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    ListNode* removeElements(ListNode* head, int val) &#123;
+        ListNode *now &#x3D; head;
+        ListNode *pre &#x3D; NULL,*next &#x3D; NULL;
+        while(now!&#x3D;NULL)&#123;
+            next &#x3D; now-&gt;next;
+            if(now-&gt;val &#x3D;&#x3D; val)&#123;
+                if(pre!&#x3D;NULL) pre-&gt;next &#x3D; next;
+                else head &#x3D; next;
+            &#125;else&#123;
+                pre &#x3D; now;
+            &#125;
+            now &#x3D; next;
+        &#125;
+        return head;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>简单链表删除</p>
+<h1 id="LeetCode-27"><a href="#LeetCode-27" class="headerlink" title="LeetCode 27"></a>LeetCode 27</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int removeElement(vector&lt;int&gt;&amp; nums, int val) &#123;
+        int slow&#x3D;0;
+        for(int i&#x3D;0;i&lt;nums.size();i++)&#123;
+            if(nums[i]&#x3D;&#x3D;val)&#123;
+                continue;
+            &#125;else &#123;
+                nums[slow]&#x3D;nums[i];
+                slow++;
+            &#125;
+        &#125;
+        return slow;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>快慢指针简单题，慢指针为新数组的下标值</p>
+<h1 id="LeetCode-977"><a href="#LeetCode-977" class="headerlink" title="LeetCode 977"></a>LeetCode 977</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int squares(int num)&#123;
+        return num*num;
+    &#125;
+    vector&lt;int&gt; sortedSquares(vector&lt;int&gt;&amp; nums) &#123;
+        vector&lt;int&gt;res;
+        int negPos&#x3D;0;
+        int pre&#x3D;0,next&#x3D;0;
+        for(int i &#x3D;0;i&lt;nums.size();i++)&#123;
+            negPos&#x3D;i;
+            if(nums[i]&gt;&#x3D;0)&#123;
+                break;
+            &#125;
+        &#125;
+        pre &#x3D; negPos-1;
+        next &#x3D; negPos;
+        while(pre&gt;&#x3D;0&amp;&amp;next&lt;nums.size())&#123;
+            if(squares(nums[pre])&gt;squares(nums[next]))&#123;
+                res.push_back(squares(nums[next]));
+                next++;
+            &#125;else&#123;
+                res.push_back(squares(nums[pre]));
+                pre--;
+            &#125;
+        &#125;
+        if(pre&gt;&#x3D;0)&#123;
+            for(;pre&gt;&#x3D;0;pre--)&#123;
+                res.push_back(squares(nums[pre]));
+            &#125;
+        &#125;
+        if(next&lt;nums.size())&#123;
+            for(;next&lt;nums.size();next++)&#123;
+                res.push_back(squares(nums[next]));
+            &#125;
+        &#125;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>简单题，暴力做法O($n^2$)，先全平方后排序。还有个比较好想的做法，还是双指针，找到第一个大于0的数的位置，然后两个指针从中间往两边扫，每次把平方数小的放入数组即可。</p>
+<p>都想到双指针了，怎么没从两边往中间扫。。。。尬住了。代码还更简单</p>
+<h1 id="LeetCode-1605"><a href="#LeetCode-1605" class="headerlink" title="LeetCode 1605"></a>LeetCode 1605</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    vector&lt;vector&lt;int&gt;&gt; restoreMatrix(vector&lt;int&gt;&amp; rowSum, vector&lt;int&gt;&amp; colSum) &#123;
+        int row_len &#x3D; rowSum.size(),col_len &#x3D; colSum.size();
+        vector&lt;vector&lt;int&gt;&gt; res(row_len,vector&lt;int&gt;(col_len,0));
+        for(int row &#x3D; 0;row&lt;row_len;row++)&#123;
+            for(int col &#x3D; 0;col&lt;col_len;col++)&#123;
+                if(rowSum[row]&lt;colSum[col])&#123;
+                    res[row][col] &#x3D; rowSum[row];
+                    rowSum[row]&#x3D;0;
+                    colSum[col]-&#x3D;res[row][col];
+                &#125;
+                else&#123;
+                    res[row][col] &#x3D; colSum[col];
+                    colSum[col]&#x3D;0;
+                    rowSum[row]-&#x3D;res[row][col];
+                &#125;
+            &#125;
+        &#125;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>就是个贪心，我直接选该行该列更小的那个就行了，每次更新一下rowsum和colsum即可。能填就填</p>
+<p>有个小优化思路，即当rowsum[row]=0的时候，直接break就行，因为后面的全是0</p>
+<h1 id="LeetCode-059"><a href="#LeetCode-059" class="headerlink" title="LeetCode 059"></a>LeetCode 059</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    bool check(int p,int n)&#123;
+        if(p&#x3D;&#x3D;n||p&#x3D;&#x3D;-1) return true;
+        return false;
+    &#125;
+    vector&lt;vector&lt;int&gt;&gt; generateMatrix(int n) &#123;
+        vector&lt;vector&lt;int&gt;&gt; res(n,vector&lt;int&gt;(n,0));
+        int dir[4][2]&#x3D;&#123;&#123;0,1&#125;,&#123;1,0&#125;,&#123;0,-1&#125;,&#123;-1,0&#125;&#125;;
+        int x&#x3D;0,y&#x3D;-1;
+        int cnt&#x3D;0;
+        int flag&#x3D;0;
+        while(cnt&lt;n*n)&#123;
+            cnt++;
+            x+&#x3D;dir[flag][0];
+            y+&#x3D;dir[flag][1];
+            res[x][y]&#x3D;cnt;
+            if((check(x+dir[flag][0],n)||check(y+dir[flag][1],n))||res[x+dir[flag][0]][y+dir[flag][1]]!&#x3D;0)&#123;
+                flag++;
+                flag%&#x3D;4;
+            &#125;
+            
+        &#125;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>每次撞到边界或已经存在数的位置就换方向，简单模拟题。注意越界问题即可</p>
+<h1 id="LeetCode-1616"><a href="#LeetCode-1616" class="headerlink" title="LeetCode 1616"></a>LeetCode 1616</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    bool checkPalindromeFormation(string a, string b) &#123;
+        bool front&#x3D;true,end&#x3D;true;
+        bool resafront&#x3D;true,resbend&#x3D;true;
+        bool resaend&#x3D;true,resbfront&#x3D;true;
+        int mid &#x3D; a.length()&#x2F;2;
+        for(int i&#x3D;0;i&lt;mid;i++)&#123;
+            if(front)&#123;
+                if(a[i]!&#x3D;b[a.length()-1-i])&#123;
+                    front&#x3D;false;
+                    if(b[i]!&#x3D;b[a.length()-1-i])
+                        resafront&#x3D;false;
+                    if(a[i]!&#x3D;a[a.length()-1-i])
+                        resaend&#x3D;false;
+                &#125;
+            &#125;else&#123;
+                if(b[i]!&#x3D;b[a.length()-1-i])
+                    resafront&#x3D;false;
+                if(a[i]!&#x3D;a[a.length()-1-i])
+                    resaend&#x3D;false;
+            &#125;
+            if(end)&#123;
+                if(b[i]!&#x3D;a[a.length()-1-i])&#123;
+                    end&#x3D;false;
+                    if(a[i]!&#x3D;a[a.length()-1-i])
+                        resbend&#x3D;false;
+                    if(b[i]!&#x3D;b[a.length()-1-i])
+                        resbfront&#x3D;false;
+                &#125;
+            &#125;else&#123;
+                if(a[i]!&#x3D;a[a.length()-1-i])
+                    resbend&#x3D;false;
+                if(b[i]!&#x3D;b[a.length()-1-i])
+                    resbfront&#x3D;false;
+            &#125;
+        &#125;
+        return resafront||resbend||resbfront||resaend;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>思路简单，题目要求aprefix + bsuffix或者bprefix + asuffix为回文串，那么可以确定的就是a的前面部分和b的后面部分或者b的前部分和a的后部分一定是相同的，然后中间那块可能是a的也可能是b的，分类讨论，共4种情况，apre+amid+bsuf,apre+bmid+bsuf,bpre+amid+asuf,bpre+bmid+asuf，都判断下就好了</p>
+<p>代码优化，其实代码重复部分过多，可以写成函数</p>
+<h1 id="LeetCode-1625"><a href="#LeetCode-1625" class="headerlink" title="LeetCode 1625"></a>LeetCode 1625</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    string addSum(string now,int a)&#123;
+        for(int i&#x3D;0;i&lt;now.length();i++)&#123;
+            if(i&amp;1) &#123;
+                now[i]&#x3D;((now[i]-&#39;0&#39;+a)%10) + &#39;0&#39;;
+            &#125;   
+        &#125;
+        return now;
+    &#125;
+    string shuffledString(string now,int b)&#123;
+        string res&#x3D;&quot;&quot;;
+        for(int i&#x3D;now.length()-b;i&lt;2*now.length()-b;i++)&#123;
+            res+&#x3D;now[i%now.length()];
+        &#125;
+        return res;
+    &#125;
+    string findLexSmallestString(string s, int a, int b) &#123;
+        queue&lt;string&gt; q;
+        set&lt;string&gt; res;
+        unordered_map&lt;string,bool&gt; mp;
+        q.push(s);
+        mp[s]&#x3D;true;
+        while(!q.empty())&#123;
+            string now &#x3D; q.front();
+            res.insert(now);
+            q.pop();
+            string tmp &#x3D; addSum(now,a);
+            if(mp.find(tmp)&#x3D;&#x3D;mp.end())&#123;
+                mp[tmp]&#x3D;true;
+                q.push(tmp);
+            &#125;
+            tmp &#x3D; shuffledString(now,b);
+            if(mp.find(tmp)&#x3D;&#x3D;mp.end())&#123;
+                mp[tmp]&#x3D;true;
+                q.push(tmp);
+            &#125;
+        &#125;
+        return *res.begin();
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>想不到O(n)的做法，但是感觉可能存在，因为如果b是奇数那么字符串每个都可以为头，如果b是偶数，那么只有偶数位可以为头。可能可以根据序列差值处理出结果。</p>
+<p>暴力模拟，BFS最好写，还有个模拟方法就是纯暴力，很容易知道，a最多加10次就加到原来的值，b最多挪n次，也回到原来的位置，如果b是奇数就是$n<em>10</em>10$种情况，偶数就为$n*10$种情况，时间复杂度就是在这基础上乘个n，因为需要处理字符串</p>
+<h1 id="LeetCode-15"><a href="#LeetCode-15" class="headerlink" title="LeetCode 15"></a>LeetCode 15</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int check(int a,int b,int c)&#123;
+        if(a+b+c&#x3D;&#x3D;0) return 0;
+        else if(a+b+c&gt;0) return 1;
+        else return -1;
+    &#125;
+    vector&lt;vector&lt;int&gt;&gt; threeSum(vector&lt;int&gt;&amp; nums) &#123;
+        vector&lt;vector&lt;int&gt;&gt; res;
+        sort(nums.begin(),nums.end());
+        for(int i&#x3D;0;i&lt;nums.size();i++)&#123;
+            int left&#x3D;i+1,right&#x3D;nums.size()-1;
+            if(nums[i]&gt;0) return res;
+            if(i&gt;0&amp;&amp;nums[i]&#x3D;&#x3D;nums[i-1]) continue;
+            while(left&lt;right)&#123;
+                int flag &#x3D; check(nums[left],nums[i],nums[right]);
+                if(flag&gt;0)right--;
+                else if(flag&lt;0)left++;
+                else &#123;
+                    res.push_back(&#123;nums[i],nums[left],nums[right]&#125;);
+                    while(left&lt;right&amp;&amp;nums[left]&#x3D;&#x3D;nums[left+1]) left++;
+                    while(left&lt;right&amp;&amp;nums[right]&#x3D;&#x3D;nums[right-1]) right--;
+                    right--;
+                    left++;
+                &#125;
+            &#125;
+        &#125;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>$O(n^3)$是纯暴力做法，下面双指针和哈希表都是$O(n^2)$的做法</p>
+<p>双指针或者哈希表，我写的是双指针，固定一个值，两个指针不停调整，如果三数和大于0，那么就把大的调小，小于0则小的调大，等于0 就是答案，期间去重就行</p>
+<p>哈希表写起来更简单，双重for循环，然后用哈希表判断-(nums[i]+nums[j])在表中有没有，有就是答案，没有就不是答案，当然，还得去重</p>
+<h1 id="LeetCode-18"><a href="#LeetCode-18" class="headerlink" title="LeetCode 18"></a>LeetCode 18</h1><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">class Solution &#123;
+public:
+    int check(long long a,long long b,long long c,long long d,long long target)&#123;
+        if(a+b+c+d-target&#x3D;&#x3D;0) return 0;
+        else if(a+b+c+d-target&gt;0) return 1;
+        else return -1;
+    &#125;
+    vector&lt;vector&lt;int&gt;&gt; fourSum(vector&lt;int&gt;&amp; nums, int target) &#123;
+        vector&lt;vector&lt;int&gt;&gt; res;
+        sort(nums.begin(),nums.end());
+        for(int k&#x3D;0;k&lt;nums.size();k++)&#123;
+            if(k&gt;0&amp;&amp;nums[k]&#x3D;&#x3D;nums[k-1])continue;
+            for(int i&#x3D;k+1;i&lt;nums.size();i++)&#123;
+                int left&#x3D;i+1,right&#x3D;nums.size()-1;
+                if(i&gt;k+1&amp;&amp;nums[i]&#x3D;&#x3D;nums[i-1]) continue;
+                while(left&lt;right)&#123;
+                    int flag &#x3D; check(nums[left],nums[i],nums[right],nums[k],target);
+                    if(flag&gt;0)right--;
+                    else if(flag&lt;0)left++;
+                    else &#123;
+                        res.push_back(&#123;nums[k],nums[i],nums[left],nums[right]&#125;);
+                        while(left&lt;right&amp;&amp;nums[left]&#x3D;&#x3D;nums[left+1]) left++;
+                        while(left&lt;right&amp;&amp;nums[right]&#x3D;&#x3D;nums[right-1]) right--;
+                        right--;
+                        left++;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+        return res;
+    &#125;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>同一个做法，复杂度$O(n^3)$，但是有个细节，因为num范围是1e9所以会爆int，定义成longlong就可以了。固定两个值nums[k]和nums[i]，两个指针left和right，不停调整，因为遍历两个值需要两个for所以复杂度多个n</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/tech/" class="category-chain-item">tech</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/cpp/" class="category-chain-item">cpp</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/job/" class="category-chain-item">job</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/tech/">#tech</a>
+      
+        <a href="/tags/cpp/">#cpp</a>
+      
+        <a href="/tags/job/">#job</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>刷题记录</div>
+      <div>https://codebells.github.io/post/code-solution.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Codebells</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月5日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2023年4月17日</div>
+        </div>
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/dynamic-affinity-cluster-allocation-in-a-shared.html" title="Dynamic Affinity Cluster Allocation in a Shared Disks Cluster论文阅读">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Dynamic Affinity Cluster Allocation in a Shared Disks Cluster论文阅读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/treeline.html" title="VLDB 2023 treeline">
+                        <span class="hidden-mobile">VLDB 2023 treeline</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"WL4mlkezGkw84CE0J1oJKN0R-gzGzoHsz","appKey":"cPvJTOuCUdA2Hs8Nnkk2pxMA","path":"window.location.pathname","placeholder":"填写邮箱可以收到回复通知~","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Codebells" target="_blank" rel="nofollow noopener"><span>Codebells</span></a> <i class="iconfont icon-love"></i><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>hexo</span></a> <span>&</span><a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a><br/> <span>I wish you to become your own sun,no need to rely on who&#39;s light!</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            load: ['ui/lazy']
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.0/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

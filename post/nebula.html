@@ -16,19 +16,19 @@
   <meta name="author" content="Codebells">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Nebula编译安装源码安装buildapt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2 git clone —branch release-3.3 https:&#x2F;&#x2F;gitee.com&#x2F;Codebells&#x2F;nebula.git c">
+    <meta name="description" content="Nebula编译安装源码安装buildapt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2 git clone --branch release-3.3 https:&#x2F;&#x2F;gitee.com&#x2F;Codebe">
 <meta property="og:type" content="article">
 <meta property="og:title" content="nebula源码框架">
 <meta property="og:url" content="https://codebells.github.io/post/nebula.html">
 <meta property="og:site_name" content="Codebells">
-<meta property="og:description" content="Nebula编译安装源码安装buildapt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2 git clone —branch release-3.3 https:&#x2F;&#x2F;gitee.com&#x2F;Codebells&#x2F;nebula.git c">
+<meta property="og:description" content="Nebula编译安装源码安装buildapt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2 git clone --branch release-3.3 https:&#x2F;&#x2F;gitee.com&#x2F;Codebe">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://codebells.github.io/post/nebula/nebula-graph-architecture-1.png">
 <meta property="og:image" content="https://codebells.github.io/post/nebula/nebula-reading-qe-architecture.png">
 <meta property="og:image" content="https://codebells.github.io/post/nebula/nebula-reading-storage-architecture.png">
 <meta property="og:image" content="https://codebells.github.io/post/nebula/image-20221117165735392.png">
 <meta property="article:published_time" content="2022-10-23T07:11:21.000Z">
-<meta property="article:modified_time" content="2023-03-02T08:33:51.280Z">
+<meta property="article:modified_time" content="2023-05-20T02:53:44.482Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="database">
 <meta property="article:tag" content="graphdb">
@@ -90,8 +90,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.1k 字
+          11k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          51 分钟
+          89 分钟
         
       </span>
     
@@ -297,7 +297,7 @@
         aria-expanded="true"
       >
         database
-        <span class="list-group-count">(30)</span>
+        <span class="list-group-count">(34)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -333,6 +333,15 @@
            class="list-group-item list-group-item-action
            ">
           <span class="category-post">CockRoachDB配置跨域集群</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/dynamic-affinity-cluster-allocation-in-a-shared.html" title="Dynamic Affinity Cluster Allocation in a Shared Disks Cluster论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">Dynamic Affinity Cluster Allocation in a Shared Disks Cluster论文阅读</span>
         </a>
       
     
@@ -428,6 +437,15 @@
     
       
       
+        <a href="/post/schism-vldb10.html" title="VLDB 2010 Schism论文阅读"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">VLDB 2010 Schism论文阅读</span>
+        </a>
+      
+    
+      
+      
         <a href="/post/ramp-tao.html" title="VLDB 2014 RAMP_TAO论文阅读"
            class="list-group-item list-group-item-action
            ">
@@ -459,6 +477,15 @@
            class="list-group-item list-group-item-action
            ">
           <span class="category-post">VLDB 2023 treeline</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/leopard.html" title="leopard"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">leopard</span>
         </a>
       
     
@@ -522,6 +549,15 @@
            class="list-group-item list-group-item-action
            active">
           <span class="category-post">nebula源码框架</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/opengauss-odbc.html" title="opengauss-odbc安装"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">opengauss-odbc安装</span>
         </a>
       
     
@@ -657,34 +693,110 @@
             
             <div class="markdown-body">
               
-              <h1 id="Nebula编译安装"><a href="#Nebula编译安装" class="headerlink" title="Nebula编译安装"></a>Nebula编译安装</h1><h2 id="源码安装build"><a href="#源码安装build" class="headerlink" title="源码安装build"></a>源码安装build</h2><p>apt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2</p>
-<p>git clone —branch release-3.3 <a target="_blank" rel="noopener" href="https://gitee.com/Codebells/nebula.git">https://gitee.com/Codebells/nebula.git</a></p>
-<p>cd nebula</p>
-<p>mkdir build &amp;&amp; cd build</p>
-<p>cmake -DCMAKE_INSTALL_PREFIX=/usr/local/nebula -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..</p>
-<p>make -j8</p>
-<p>make install</p>
-<h2 id="源码安装的nebula卸载"><a href="#源码安装的nebula卸载" class="headerlink" title="源码安装的nebula卸载"></a>源码安装的nebula卸载</h2><p>rm -rf /usr/local/nebula</p>
-<h2 id="Run-Nebula"><a href="#Run-Nebula" class="headerlink" title="Run Nebula"></a>Run Nebula</h2><p>/usr/local/nebula/scripts/nebula.service start all</p>
-<p>/usr/local/nebula/scripts/nebula.service status all</p>
-<h2 id="安装nebula-console"><a href="#安装nebula-console" class="headerlink" title="安装nebula console"></a>安装nebula console</h2><p>chmod 111 nebula-console</p>
-<p>./nebula-console -addr 127.0.0.1 -port 9669 -u root -p wucaiyi</p>
-<p>ADD HOSTS 127.0.0.1:9779</p>
-<p>show hosts</p>
-<h3 id="nGQL语句"><a href="#nGQL语句" class="headerlink" title="nGQL语句"></a>nGQL语句</h3><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">CREATE SPACE nebula (vid_type &#x3D; FIXED_STRING(30));
+              <h1 id="Nebula编译安装"><a href="#Nebula编译安装" class="headerlink" title="Nebula编译安装"></a>Nebula编译安装</h1><h2 id="源码安装build"><a href="#源码安装build" class="headerlink" title="源码安装build"></a>源码安装build</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">apt-get install -y m4 git wget unzip xz-utils curl lsb-core build-essential libreadline-dev ncurses-dev  bzip2
+git clone --branch release-3.3 https:&#x2F;&#x2F;gitee.com&#x2F;Codebells&#x2F;nebula.git
+cd nebula
+mkdir build &amp;&amp; cd build
+cmake -DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;usr&#x2F;local&#x2F;nebula -DENABLE_TESTING&#x3D;OFF -DCMAKE_BUILD_TYPE&#x3D;Release ..
+
+make -j 30 2&gt;&amp;1 | tee log.txt
+make install
+rename &quot;s&#x2F;.default&#x2F;&#x2F;g&quot; &#x2F;usr&#x2F;local&#x2F;nebula&#x2F;etc&#x2F;*.conf.default <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="源码安装的nebula卸载"><a href="#源码安装的nebula卸载" class="headerlink" title="源码安装的nebula卸载"></a>源码安装的nebula卸载</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">&#x2F;usr&#x2F;local&#x2F;nebula&#x2F;scripts&#x2F;nebula.service stop all
+rm -rf &#x2F;usr&#x2F;local&#x2F;nebula
+ps -aux|grep nebula
+rm -rf &#x2F;usr&#x2F;local&#x2F;nebula&#x2F;data
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="Run-Nebula"><a href="#Run-Nebula" class="headerlink" title="Run Nebula"></a>Run Nebula</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">rename  &#39;s&#x2F;\.default$&#x2F;&#x2F;&#39; *.conf.default
+&#x2F;usr&#x2F;local&#x2F;nebula&#x2F;scripts&#x2F;nebula.service start all
+&#x2F;usr&#x2F;local&#x2F;nebula&#x2F;scripts&#x2F;nebula.service status all
+&#x2F;usr&#x2F;local&#x2F;nebula&#x2F;scripts&#x2F;nebula.service stop all<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="安装nebula-console"><a href="#安装nebula-console" class="headerlink" title="安装nebula console"></a>安装nebula console</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">
+chmod 111 nebula-console
+pushd ~
+.&#x2F;nebula-console -addr 127.0.0.1 -port 9669 -u root -p wucaiyi
+ADD HOSTS 127.0.0.1:9779
+ADD HOSTS 172.31.16.44:9779,172.31.16.45:9779,172.31.16.46:9779
+show hosts
+BALANCE LEADER;
+DROP HOSTS 127.0.0.1:9779
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="nGQL语句"><a href="#nGQL语句" class="headerlink" title="nGQL语句"></a>nGQL语句</h2><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">CREATE SPACE nebula (vid_type &#x3D; FIXED_STRING(30));
 USE nebula;
-CREATE TAG IF NOT EXISTS person (name string, age int);
-INSERT VERTEX person(name,age) VALUES &quot;vid1&quot; :(&quot;wcy&quot;,23);
-INSERT VERTEX person(name,age) VALUES &quot;vid2&quot; :(&quot;hsj&quot;,24);
-INSERT VERTEX person(name,age) VALUES &quot;vid3&quot; :(&quot;ych&quot;,25);
+CREATE TAG IF NOT EXISTS person (name string, age int , tid string);
+CREATE TAG INDEX IF NOT EXISTS person_index on person(name(10));
+INSERT VERTEX person(name,age,tid) VALUES &quot;vid1&quot; :(&quot;wcy&quot;,23,&quot;vid1&quot;);
+INSERT VERTEX person(name,age,tid) VALUES &quot;vid2&quot; :(&quot;hsj&quot;,24,&quot;vid2&quot;);
+INSERT VERTEX person(name,age,tid) VALUES &quot;vid3&quot; :(&quot;ych&quot;,25,&quot;vid3&quot;);
 CREATE EDGE IF NOT EXISTS relate(relation string);
 INSERT EDGE relate(relation) VALUES &quot;vid1&quot;-&gt;&quot;vid2&quot;:(&quot;homate&quot;);
 INSERT EDGE relate(relation) VALUES &quot;vid1&quot;-&gt;&quot;vid3&quot;:(&quot;homate2&quot;);
 FETCH PROP ON person &quot;vid1&quot; YIELD properties(VERTEX);
-CREATE TAG INDEX person_index on person(name(10));
-REBUILD TAG INDEX player_index
+REBUILD TAG INDEX person_index;
 MATCH (v:person&#123;name:&quot;wcy&quot;&#125;)--(v2:person) WHERE id(v) &#x3D;&#x3D;&#39;vid1&#39; RETURN v2 AS AllProp;
-MATCH (v:person&#123;name:&quot;wcy&quot;&#125;)--&gt;(v2:person) RETURN v2 AS AllProp;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+MATCH (v:person&#123;name:&quot;wcy&quot;&#125;)--&gt;(v2:person) RETURN v2 AS AllProp;
+SUBMIT JOB STATS;
+SHOW STATS;
+SHOW JOB $(jobId);
+
+
+CREATE SPACE IF NOT EXISTS stress_test_0331(PARTITION_NUM &#x3D; 24, REPLICA_FACTOR &#x3D; 1, vid_type &#x3D; int64);
+USE stress_test_0331;
+CREATE TAG IF NOT EXISTS &#96;Person&#96;(&#96;firstName&#96; string,&#96;lastName&#96; string,&#96;gender&#96; string,&#96;birthday&#96; string,&#96;creationDate&#96; datetime,&#96;locationIP&#96; string,&#96;browserUsed&#96; string);
+CREATE TAG INDEX IF NOT EXISTS &#96;person_first_name_idx&#96; on &#96;Person&#96;(firstName(10));
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 9333:(&quot;Mahinda&quot;, &quot;Perera&quot;, &quot;male&quot;, &quot;1989-12-03&quot;, datetime(&quot;2010-02-14T15:32:10.447&quot;), &quot;119.235.7.103&quot;, &quot;Firefox&quot;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="安装NebulaGraph-CPP"><a href="#安装NebulaGraph-CPP" class="headerlink" title="安装NebulaGraph-CPP"></a>安装NebulaGraph-CPP</h1><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">git clone --branch release-3.3 https:&#x2F;&#x2F;github.com&#x2F;vesoft-inc&#x2F;nebula-cpp.git
+cd nebula-cpp
+mkdir build &amp;&amp; cd build
+cmake -DCMAKE_INSTALL_PREFIX&#x3D;&#x2F;usr&#x2F;local&#x2F;nebulacpp -DCMAKE_BUILD_TYPE&#x3D;Release ..
+make -j8
+make install
+sudo ldconfig
+export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;nebulacpp&#x2F;lib<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="k6-LDBC测试"><a href="#k6-LDBC测试" class="headerlink" title="k6 LDBC测试"></a>k6 LDBC测试</h1><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">sudo apt-get install -y \
+     git \
+     wget \
+     python3-pip \
+     python \
+     openjdk-8-jdk \
+     maven 
+
+export JAVA_HOME&#x3D;&#x2F;usr&#x2F;lib&#x2F;jvm&#x2F;default-java&#x2F;
+git clone https:&#x2F;&#x2F;github.com&#x2F;vesoft-inc&#x2F;nebula-bench.git 
+cd nebula-bench
+pip3 install --user -r requirements.txt
+python3 run.py --help
+wget https:&#x2F;&#x2F;dl.google.com&#x2F;go&#x2F;go1.17.8.linux-amd64.tar.gz
+tar -xf go1.17.8.linux-amd64.tar.gz -C &#x2F;usr&#x2F;local
+sudo vim &#x2F;etc&#x2F;profile
+
+export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go
+export GOPATH&#x3D;&#x2F;home 
+export GOBIN&#x3D;$GOPATH&#x2F;bin
+export PATH&#x3D;$PATH:$GOROOT&#x2F;bin
+export PATH&#x3D;$PATH:$GOPATH&#x2F;bin
+
+source &#x2F;etc&#x2F;profile
+go version
+export GOPROXY&#x3D;https:&#x2F;&#x2F;goproxy.cn
+&#x2F;bin&#x2F;bash scripts&#x2F;setup.sh
+
+python3 run.py data  -s 1
+
+python3 run.py nebula importer -a 172.31.16.44:9669,172.31.16.45:9669,172.31.16.46:9669
+
+.&#x2F;scripts&#x2F;nebula-importer --config  .&#x2F;importer_config.yaml
+python3 run.py stress scenarios -a 172.31.16.44:9669,172.31.16.45:9669,172.31.16.46:9669
+python3 run.py stress run -scenario  insert.InsertScenario --space&#x3D;&#39;stress_test_0401&#39; --args&#x3D;&#39;-u 50 -d 3s&#39;
+python3 run.py stress run -scenario fetch.FetchEdge --args&#x3D;&#39;-u 50 -d 60s&#39;
+CREATE SPACE IF NOT EXISTS stress_test_0331(PARTITION_NUM &#x3D; 24, REPLICA_FACTOR &#x3D; 1, vid_type &#x3D; int64);
+USE stress_test_0331;
+CREATE TAG IF NOT EXISTS &#96;Person&#96;(&#96;firstName&#96; string,&#96;lastName&#96; string,&#96;gender&#96; string,&#96;birthday&#96; string,&#96;creationDate&#96; datetime,&#96;locationIP&#96; string,&#96;browserUsed&#96; string);
+CREATE TAG INDEX IF NOT EXISTS &#96;person_first_name_idx&#96; on &#96;Person&#96;(firstName(10));
+INSERT VERTEX Person(firstName, lastName, gender, birthday, creationDate, locationIP, browserUsed) VALUES 9333:(&quot;Mahinda&quot;, &quot;Perera&quot;, &quot;male&quot;, &quot;1989-12-03&quot;, datetime(&quot;2010-02-14T15:32:10.447&quot;), &quot;119.235.7.103&quot;, &quot;Firefox&quot;);
+
+ INSERT VERTEX &#96;Tagclass&#96;(&#96;name&#96;,&#96;url&#96;) VALUES  155: (&quot;Royalty&quot;,&quot;http:&#x2F;&#x2F;dbpedia.org&#x2F;ontology&#x2F;Royalty&quot;), 141: (&quot;NascarDriver&quot;,&quot;http:&#x2F;&#x2F;dbpedia.org&#x2F;ontology&#x2F;NascarDriver&quot;), 233: (&quot;EurovisionSongContestEntry&quot;,&quot;http:&#x2F;&#x2F;dbpedia.org&#x2F;ontology&#x2F;EurovisionSongContestEntry&quot;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
 <h2 id="Docker-nebula安装"><a href="#Docker-nebula安装" class="headerlink" title="Docker nebula安装"></a>Docker nebula安装</h2><p>git clone -b release-3.1 <a target="_blank" rel="noopener" href="https://github.com/vesoft-inc/nebula-docker-compose.git">https://github.com/vesoft-inc/nebula-docker-compose.git</a></p>
 <p>cd nebula-docker-compose/</p>
 <p>docker-compose up -d</p>
@@ -860,6 +972,7 @@ MATCH (v:person&#123;name:&quot;wcy&quot;&#125;)--&gt;(v2:person) RETURN v2 AS A
                      MergeableAtomicOp op,
                      KVCallback cb) override;
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>实验服务器和压测机为同一台物理机配置为32 vCPU 64 GiB，测试数据采用 LDBC-SNB SF10数据集，SF10据集大小为 10G，共有 29,987,835 个点以及 176,623,382 条边。测试用的图空间分区数为 24，节点数为 3。vu表示的是 k6 使用的概念“virtual user”，即性能测试中的并发数；测试使用50_vu 表示 50 个并发用户，目前，以Nebula3.3版本性能作为基准，Taas测试为单taas节点连接三台nebula节点，即将nebula看成单机数据库连接同一台taas节点作为分布式事务处理模块，Nebula原始的 InsertVertex的吞吐量在59.1k，平均latency为2.2ms，FetchEdge的吞吐量在101k，latency为1.1ms，加入Taas后，InsertVertex性能为35.3k，平均latency为8.35ms平均性能下降40%，FetchEdge的吞吐量在96.1k，latency为1.03ms，平均性能下降6%左右。</p>
 
               
             </div>
@@ -935,7 +1048,7 @@ MATCH (v:person&#123;name:&quot;wcy&quot;&#125;)--&gt;(v2:person) RETURN v2 AS A
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2023年3月2日</div>
+          <div>2023年5月20日</div>
         </div>
       
       <div class="license-meta-item">

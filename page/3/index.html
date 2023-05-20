@@ -73,8 +73,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -219,6 +219,408 @@
               <div class="col-12 col-md-10 m-auto">
                 
 
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/distribute-transaction.html" target="_self">
+          浅谈分布式事务
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/distribute-transaction.html" target="_self">
+        <div>
+          
+          首先简单回顾事务的定义。事务包含了一个序列的对数据库的读&#x2F;写操作，这些操作构成一个逻辑的整体，这个整体要么都执行成功，要么都执行不成功，数据库从一个一致性状态转移到另一个一致性状态，即事务的操作要么全对数据库产生影响，要么全不对数据库产生影响，事务就是数据库最小的逻辑执行单元。由此引出事务的ACID特性，即原子性，一致性，隔离性，持久性。维基百科对ACID的描述如下：  Atomicity（原子性
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-07-05 10:58" pubdate>
+              2022-07-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/txn/">#txn</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/distribute-basic.html" target="_self">
+          分布式系统中的Data Consistency
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/distribute-basic.html" target="_self">
+        <div>
+          
+          一致性模型很重要，他解释了多数据副本系统的数据可见性的语义和行为。  容错。当系统中某个组件出现故障时，系统仍能正确运行。主要目标就是使用冗余的部件来消除单点故障。 数据复制。通过在系统中维护多个副本来引入冗余，如何快速的原子性的更新多个副本数据成为问题。允许节点之间存在某种程度上的差异，而数据在用户感知下是完全一致。  CAP定理 通常，分布式系统可能会出现故障，而为了系统的高可用，尽可能减少系
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-27 16:43" pubdate>
+              2022-06-27
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/paper-read/">#paper_read</a>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">#并发控制</a>
+            
+              <a href="/tags/OCC/">#OCC</a>
+            
+              <a href="/tags/txn/">#txn</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/natto.html" target="_self">
+          SIGMOD2022 Natto论文阅读
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/natto.html" target="_self">
+        <div>
+          
+          Natto: Providing Distributed Transaction Prioritization for High-Contention Workloads论文阅读记录 Natto，支持事务划分优先级的Geo-distributed database system。每个分片处理事务的顺序不是按照到达的顺序，而是用网络估计事务到最远分片的时刻，根据该时刻来为事务分配时间戳建立全局顺序，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-24 18:56" pubdate>
+              2022-06-24
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/paper-read/">#paper_read</a>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/system/">#system</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/etl-glue.html" target="_self">
+          ETL(Extract,Transform,Load)
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/etl-glue.html" target="_self">
+        <div>
+          
+          ETL就是抽取转换加载，是一个数据集成的过程，它是一个将来自多个数据源的数据组合到单一的，一致的数据存储中，然后再添加到数据仓库或者别的什么系统中的工具。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-21 16:00" pubdate>
+              2022-06-21
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/tech/" class="category-chain-item">tech</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/tools/">#tools</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/raft-mit6-824-2d.html" target="_self">
+          mit6.824 raft实现 2D部分
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/raft-mit6-824-2d.html" target="_self">
+        <div>
+          
+          将lab2最后一个部分结束，经过前三个部分，Raft基本已经实现，还剩一个2D，保存快照，其实实现起来并不困难，但是目前还存在Bug没有找到，仅Pass一个，等有时间再来吧，Debug太痛苦了，完成这一个lab，花了一个多礼拜，期间写代码的时间不长，Debug的时间占据大部分。写完之后，对并发以及raft有了更深的了解。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-16 20:21" pubdate>
+              2022-06-16
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/lab/">#lab</a>
+            
+              <a href="/tags/raft/">#raft</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/raft-mit6-824-2c.html" target="_self">
+          mit6.824 raft实现 2C部分
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/raft-mit6-824-2c.html" target="_self">
+        <div>
+          
+          继续上次，将lab2C部分实现，2C部分C虽然只是持久化，代码量很小，但是测试数据变强了很多，想要通过2C的测试，需要对前两个lab的实验做到基本无错。记录一下踩的坑。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-16 17:03" pubdate>
+              2022-06-16
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/lab/">#lab</a>
+            
+              <a href="/tags/raft/">#raft</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
 
   <div class="row mx-auto index-card">
     
@@ -613,381 +1015,6 @@
               <a href="/tags/database/">#database</a>
             
               <a href="/tags/isolation/">#isolation</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/git.html" target="_self">
-          Git常用指令
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/git.html" target="_self">
-        <div>
-          
-          常用Git命令记录
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-28 12:42" pubdate>
-              2022-05-28
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/tech/" class="category-chain-item">tech</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/tools/">#tools</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/md-shu-xue-fu-hao.html" target="_self">
-          markdown数学符号
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/md-shu-xue-fu-hao.html" target="_self">
-        <div>
-          
-          使用markdown时常用的数学符号代码
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-28 10:42" pubdate>
-              2022-05-28
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/tools/">#tools</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/aurora.html" target="_self">
-          SIGMOD 2017&amp;2018 Aurora 论文阅读
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/aurora.html" target="_self">
-        <div>
-          
-          SIGMOD 2017:Amazon Aurora: Design Considerations for High Throughput Cloud-Native Relational DatabasesSIGMOD 2018:Amazon Aurora: On Avoiding Distributed Consensus for I&#x2F;Os,Commits, and Membership Chan
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-20 16:42" pubdate>
-              2022-05-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/database/" class="category-chain-item">database</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/paper-read/">#paper_read</a>
-            
-              <a href="/tags/database/">#database</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/coco.html" target="_self">
-          VLDB 2021 CoCo论文阅读
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/coco.html" target="_self">
-        <div>
-          
-          阅读Epoch based Commit and Replication in Distributed OLTP笔记。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-19 16:42" pubdate>
-              2022-04-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/database/" class="category-chain-item">database</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/paper-read/">#paper_read</a>
-            
-              <a href="/tags/database/">#database</a>
-            
-              <a href="/tags/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6/">#并发控制</a>
-            
-              <a href="/tags/OCC/">#OCC</a>
-            
-              <a href="/tags/txn/">#txn</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/vegito.html" target="_self">
-          OSDI 2021 VEGITO 论文阅读
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/vegito.html" target="_self">
-        <div>
-          
-          阅读Retrofitting High Availability Mechanism to Tame Hybrid Transaction&#x2F;Analytical Processing笔记。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-01 16:42" pubdate>
-              2022-04-01
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/database/" class="category-chain-item">database</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/paper-read/">#paper_read</a>
-            
-              <a href="/tags/database/">#database</a>
-            
-              <a href="/tags/HTAP/">#HTAP</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/cockroach.html" target="_self">
-          SIGMOD 2020 CockRoach 论文阅读
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/cockroach.html" target="_self">
-        <div>
-          
-          CockroachDB: The Resilient Geo-Distributed SQL Database阅读笔记
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-03-30 16:42" pubdate>
-              2022-03-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/database/" class="category-chain-item">database</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/paper-read/">#paper_read</a>
-            
-              <a href="/tags/database/">#database</a>
-            
-              <a href="/tags/cockroach/">#cockroach</a>
             
           </div>
         

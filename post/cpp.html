@@ -16,17 +16,17 @@
   <meta name="author" content="Codebells">
   <meta name="keywords" content="">
   
-    <meta name="description" content="智能指针C++98&#x2F;03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。 C++ 智能指针底层是采用引用计数的方式实现的。 简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每">
+    <meta name="description" content="CentOS7.6 安装g++ 11 和gcc 11yum install centos-release-scl yum list dev\*gcc &#x2F;&#x2F;用于查看可以安装的版本 yum install devtoolset-11-gcc devtoolset-11-gcc-c++ source &#x2F;opt&#x2F;rh&#x2F;devtoolset-11&#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="cpp随笔">
 <meta property="og:url" content="https://codebells.github.io/post/cpp.html">
 <meta property="og:site_name" content="Codebells">
-<meta property="og:description" content="智能指针C++98&#x2F;03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。 C++ 智能指针底层是采用引用计数的方式实现的。 简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每">
+<meta property="og:description" content="CentOS7.6 安装g++ 11 和gcc 11yum install centos-release-scl yum list dev\*gcc &#x2F;&#x2F;用于查看可以安装的版本 yum install devtoolset-11-gcc devtoolset-11-gcc-c++ source &#x2F;opt&#x2F;rh&#x2F;devtoolset-11&#x2F;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://codebells.github.io/post/cpp/20190419114208815.png">
 <meta property="og:image" content="https://codebells.github.io/post/cpp/0ef3106510e2e1630eb49744362999f8_720w.png">
 <meta property="article:published_time" content="2022-11-01T08:06:00.000Z">
-<meta property="article:modified_time" content="2023-03-02T08:33:51.232Z">
+<meta property="article:modified_time" content="2023-05-01T14:36:35.759Z">
 <meta property="article:author" content="Codebells">
 <meta property="article:tag" content="tech">
 <meta property="article:tag" content="cpp">
@@ -88,8 +88,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
-<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -226,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.6k 字
+          13k 字
         
       </span>
     
@@ -237,7 +237,7 @@
         
         
         
-          56 分钟
+          105 分钟
         
       </span>
     
@@ -295,7 +295,7 @@
         aria-expanded="true"
       >
         tech
-        <span class="list-group-count">(11)</span>
+        <span class="list-group-count">(13)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -372,6 +372,15 @@
     
       
       
+        <a href="/post/ubuntu20env.html" title="ubuntu20env"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">ubuntu20env</span>
+        </a>
+      
+    
+      
+      
         <a href="/post/yaml.html" title="yaml基础"
            class="list-group-item list-group-item-action
            ">
@@ -394,6 +403,15 @@
            class="list-group-item list-group-item-action
            ">
           <span class="category-post">一些没啥用的脚本</span>
+        </a>
+      
+    
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">刷题记录</span>
         </a>
       
     
@@ -422,7 +440,7 @@
         aria-expanded="true"
       >
         cpp
-        <span class="list-group-count">(2)</span>
+        <span class="list-group-count">(3)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -452,6 +470,15 @@
         </a>
       
     
+      
+      
+        <a href="/post/code-solution.html" title="刷题记录"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">刷题记录</span>
+        </a>
+      
+    
   </div>
 
         
@@ -475,7 +502,15 @@
             
             <div class="markdown-body">
               
-              <h1 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h1><p>C++98/03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。</p>
+              <h1 id="CentOS7-6-安装g-11-和gcc-11"><a href="#CentOS7-6-安装g-11-和gcc-11" class="headerlink" title="CentOS7.6 安装g++ 11 和gcc 11"></a>CentOS7.6 安装g++ 11 和gcc 11</h1><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">yum install centos-release-scl
+yum list dev\*gcc &#x2F;&#x2F;用于查看可以安装的版本
+yum install devtoolset-11-gcc devtoolset-11-gcc-c++
+source &#x2F;opt&#x2F;rh&#x2F;devtoolset-11&#x2F;enable
+gcc -v
+g++ -v
+echo &quot;source &#x2F;opt&#x2F;rh&#x2F;devtoolset-11&#x2F;enable&quot; &gt;&gt; &#x2F;etc&#x2F;bashrc
+source &#x2F;etc&#x2F;bashrc <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h1><p>C++98/03 标准中，支持使用 auto_ptr 智能指针来实现堆内存的自动回收；C++11 新标准在废弃 auto_ptr 的同时，增添了 unique_ptr、shared_ptr 以及 weak_ptr 这 3 个智能指针来实现堆内存的自动回收。</p>
 <p>C++ 智能指针底层是采用<strong>引用计数</strong>的方式实现的。</p>
 <p>简单的理解，智能指针在申请堆内存空间的同时，会为其配备一个整形值（初始值为 1），每当有新对象使用此堆内存时，该整形值 +1；反之，每当使用此堆内存的对象被释放时，该整形值减 1。当堆空间对应的整形值为 0 时，即表明不再有对象使用它，该堆空间就会被释放掉。</p>
 <h2 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr\"></a>shared_ptr\<T></h2><p>shared_ptr\<T> 类模板中，提供了多种实用的构造函数</p>
@@ -486,7 +521,9 @@ std::shared_ptr&lt;int&gt; p3 &#x3D; std::make_shared&lt;int&gt;(10);&#x2F;&#x2F
 &#x2F;&#x2F;调用拷贝构造函数
 std::shared_ptr&lt;int&gt; p4(p3);&#x2F;&#x2F;或者 std::shared_ptr&lt;int&gt; p4 &#x3D; p3;
 &#x2F;&#x2F;调用移动构造函数
-std::shared_ptr&lt;int&gt; p5(std::move(p4)); &#x2F;&#x2F;或者 std::shared_ptr&lt;int&gt; p5 &#x3D; std::move(p4);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+std::shared_ptr&lt;int&gt; p5(std::move(p4)); &#x2F;&#x2F;或者 std::shared_ptr&lt;int&gt; p5 &#x3D; std::move(p4);
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
 <p>&amp;(*xxx_ptr\<T>)将智能指针转换为普通指针，与xxx_ptr\<T>.get()相同</p>
 <h1 id="std标准库"><a href="#std标准库" class="headerlink" title="std标准库"></a>std标准库</h1><h2 id="左值右值"><a href="#左值右值" class="headerlink" title="左值右值"></a>左值右值</h2><p>简单意义上来说，左值就是等式左边的值，右值就是等式右边的值。</p>
 <p>一般意义上来说，</p>
@@ -529,7 +566,7 @@ int main()
     std::cout &lt;&lt; &quot;The contents of the vector are \&quot;&quot; &lt;&lt; v[0]
                                          &lt;&lt; &quot;\&quot;, \&quot;&quot; &lt;&lt; v[1] &lt;&lt; &quot;\&quot;\n&quot;;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
-<p>move告诉编译器：我们有一个左值，但我们希望像一个右值一样处理它。我们必须认识到，调用move就意味着：除了对 str 赋值或销毁外，我们再使用它。在调用move之后，我们不能对moved-from对象（即str）做任何假设。</p>
+<p>move告诉编译器：我们有一个左值，但我们希望像一个右值一样处理它。我们必须认识到，调用move就意味着：除了对 str 赋值或销毁外，我们再使用它。<strong>在调用move之后，我们不能对moved-from对象（即str）做任何假设。</strong></p>
 <p>上述程序执行结果为</p>
 <p><img src="cpp/20190419114208815.png" srcset="/img/loading.gif" lazyload alt="move example"></p>
 <h2 id="std-forward"><a href="#std-forward" class="headerlink" title="std::forward"></a>std::forward</h2><p>完美转发</p>
@@ -627,7 +664,36 @@ int main(void)
 <p>定义纯虚函数的目的在于，使派生类仅仅只是继承函数的接口。</p>
 <p>纯虚函数的意义，让所有的类对象（主要是派生类对象）都可以执行纯虚函数的动作，但类无法为纯虚函数提供一个合理的默认实现。所以类纯虚函数的声明就是在告诉子类的设计者，”你必须提供一个纯虚函数的实现，但我不知道你会怎样实现它”。</p>
 <p>类中<strong>至少有一个函数被声明为纯虚函数，则这个类就是抽象类</strong>。纯虚函数是通过在声明中使用 “= 0” 来指定的</p>
-<h1 id="读写IO流"><a href="#读写IO流" class="headerlink" title="读写IO流"></a>读写IO流</h1><h2 id="读文件"><a href="#读文件" class="headerlink" title="读文件"></a>读文件</h2><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">#include &lt;fstream&gt;
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<h1 id="读写文件"><a href="#读写文件" class="headerlink" title="读写文件"></a>读写文件</h1><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">std::string getIp()&#123;
+    ifstream infile; &#x2F;&#x2F;读文件流
+    infile.open(&quot;ip.txt&quot;); 
+    infile&gt;&gt;ipAddress;&#x2F;&#x2F;读一行数据
+    infile.close();
+&#125;
+void Send_ok(std::vector&lt;KV&gt; &amp;kv)&#123;
+    ofstream outfile;&#x2F;&#x2F;写文件流
+    outfile.open(&quot;out.txt&quot;);
+    for(auto it : kv)&#123;
+        outfile&lt;&lt;it.first&lt;&lt;&quot;-----&quot;&lt;&lt;it.second&lt;&lt;endl;&#x2F;&#x2F;写一行数据
+    &#125;
+    outfile&lt;&lt;&quot;------------------------------------&quot;&lt;&lt;endl;
+    outfile.close();
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="读写IO流"><a href="#读写IO流" class="headerlink" title="读写IO流"></a>读写IO流</h1><ul>
+<li>ofstream：该数据类型表示输出文件流，用于创建文件并向文件写入信息。</li>
+<li>ifstream：该数据类型表示输入文件流，用于从文件读取信息。</li>
+<li>fstream：该数据类型通常表示文件流，且同时具有 ofstream 和 ifstream 两种功能，这意味着它可以创建文件，向文件写入信息，从文件读取信息。</li>
+</ul>
+<p>模式</p>
+<ul>
+<li>ios::app：追加模式。所有写入都追加到文件末尾。</li>
+<li>ios::ate：文件打开后定位到文件末尾。</li>
+<li>ios::in：打开文件用于读取。</li>
+<li>ios::out：打开文件用于写入。</li>
+<li>ios::trunc：如果该文件已经存在，其内容将在打开文件之前被截断，即把文件长度设为 0。</li>
+</ul>
+<h2 id="读文件"><a href="#读文件" class="headerlink" title="读文件"></a>读文件</h2><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">#include &lt;fstream&gt;
 #include &lt;iostream&gt;
 ifstream infile; 
 infile.open(&quot;&#x2F;root&#x2F;codetest&#x2F;ip.txt&quot;); 
@@ -645,6 +711,163 @@ outfile.close();<span aria-hidden="true" class="line-numbers-rows"><span></span>
 <h1 id="int-string转换"><a href="#int-string转换" class="headerlink" title="int  string转换"></a>int  string转换</h1><div class="code-wrapper"><pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">sstring s &#x3D; &quot;12&quot;;
 int a &#x3D; atoi(s.c_str());
 s &#x3D; std::to_string(a);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="string-分割"><a href="#string-分割" class="headerlink" title="string 分割"></a>string 分割</h1><h2 id="string-char-转换"><a href="#string-char-转换" class="headerlink" title="string char*转换"></a>string char*转换</h2><div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">string str&#x3D;&quot;abc&quot;;
+&#x2F;&#x2F;char*p&#x3D;(char*)str.data(); 都行
+char *p&#x3D;(char*)str.c_str();
+
+string x &#x3D; p;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="strtok"><a href="#strtok" class="headerlink" title="strtok()"></a>strtok()</h2><p>char <em>strtok(char </em>str, const char *delim)</p>
+<ul>
+<li><strong>str</strong>—要被分解的字符串</li>
+<li><strong>delim</strong>—用作分隔符的字符（可以是一个，也可以是集合）</li>
+</ul>
+<p>该函数返回被分解的<strong>第一个</strong>子字符串，若无可检索的字符串，则返回空指针</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">vector&lt;string&gt; split(const string&amp; str, const string&amp; delim) &#123;
+	vector&lt;string&gt; res;
+	if(&quot;&quot; &#x3D;&#x3D; str) return res;
+	&#x2F;&#x2F;先将要切割的字符串从string类型转换为char*类型
+	char * strs &#x3D; new char[str.length() + 1] ; &#x2F;&#x2F;不要忘了
+	strcpy(strs, str.c_str()); 
+ 
+	char * d &#x3D; new char[delim.length() + 1];
+	strcpy(d, delim.c_str());
+ 
+	char *p &#x3D; strtok(strs, d);
+	while(p) &#123;
+		string s &#x3D; p; &#x2F;&#x2F;分割得到的字符串转换为string类型
+		res.push_back(s); &#x2F;&#x2F;存入结果数组
+		p &#x3D; strtok(NULL, d);
+	&#125;
+ 
+	return res;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="ifdef-ifndef"><a href="#ifdef-ifndef" class="headerlink" title="#ifdef  #ifndef"></a>#ifdef  #ifndef</h1><p>#ifndef和#ifdef都是一种宏定义判断，作用是防止多重定义。</p>
+<p>使用格式如下：</p>
+<div class="code-wrapper"><pre class="language-none"><code class="language-none">#ifdef 标识符
+程序段1
+#else
+程序段2
+#endif
+</code></pre></div><p> 一般的使用场景如下：</p>
+<ol>
+<li>头文件中使用，防止头文件被多重调用</li>
+<li>作为测试使用，省去注释代码的麻烦</li>
+<li>作为不同角色或者场景的判断使用</li>
+</ol>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;iostream&gt;
+#include &quot;A.h&quot;
+#define INIT_B
+using namespace std;
+B::B()
+&#123;
+	#ifdef INIT_B
+	this-&gt;b&#x3D;200;
+	#endif
+&#125;
+&#x2F;&#x2F;有时候当代码比较多的时候，要做测试，但是全部注释很麻烦，这时候使用#ifdef非常好用，如果我不想执行
+&#x2F;&#x2F;this-&gt;b&#x3D;200;这段程序，只需要将上面的#define INIT_B注释就可以了。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h1 id="static-cast、reinterpret-cast、const-cast、dynamic-cast"><a href="#static-cast、reinterpret-cast、const-cast、dynamic-cast" class="headerlink" title="static_cast、reinterpret_cast、const_cast、dynamic_cast"></a>static_cast、reinterpret_cast、const_cast、dynamic_cast</h1><p>C++ 引入了四种功能不同的强制类型转换运算符以进行强制类型转换主要为了克服C语言强制类型转换的以下三个缺点</p>
+<ol>
+<li><p>没有从形式上体现转换功能和风险的不同。</p>
+<p>例如，将 int 强制转换成 double 是没有风险的，而将常量指针转换成非常量指针，将基类指针转换成派生类指针都是高风险的，而且后两者带来的风险不同（即可能引发不同种类的错误），C语言的强制类型转换形式对这些不同并不加以区分。</p>
+</li>
+<li><p>将多态基类指针转换成派生类指针时不检查安全性，即无法判断转换后的指针是否确实指向一个派生类对象。</p>
+</li>
+<li><p>难以在程序中寻找到底什么地方进行了强制类型转换。</p>
+</li>
+</ol>
+<p>用法</p>
+<blockquote>
+<p>强制类型转换运算符 &lt;要转换到的类型&gt; (待转换的表达式)</p>
+</blockquote>
+<h2 id="static-cast"><a href="#static-cast" class="headerlink" title="static_cast"></a>static_cast</h2><p>static_cast 用于进行比较“自然”和低风险的转换，如整型和浮点型、字符型之间的互相转换如果对象所属的类重载了强制类型转换运算符 T（如 T 是 int、int* 或其他类型名），则 static_cast 也能用来进行对象到 T 类型的转换。</p>
+<p>static_cast 不能用于在不同类型的指针之间互相转换，也不能用于整型和指针之间的互相转换，当然也不能用于不同类型的引用之间的转换。因为这些属于风险比较高的转换。</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+class A
+&#123;
+public:
+    operator int() &#123; return 1; &#125;
+    operator char*() &#123; return NULL; &#125;
+&#125;;
+int main()
+&#123;
+    A a;
+    int n;
+    char* p &#x3D; &quot;New Dragon Inn&quot;;
+    n &#x3D; static_cast &lt;int&gt; (3.14);  &#x2F;&#x2F; n 的值变为 3
+    n &#x3D; static_cast &lt;int&gt; (a);  &#x2F;&#x2F;调用 a.operator int，n 的值变为 1
+    p &#x3D; static_cast &lt;char*&gt; (a);  &#x2F;&#x2F;调用 a.operator char*，p 的值变为 NULL
+    n &#x3D; static_cast &lt;int&gt; (p);  &#x2F;&#x2F;编译错误，static_cast不能将指针转换成整型
+    p &#x3D; static_cast &lt;char*&gt; (n);  &#x2F;&#x2F;编译错误，static_cast 不能将整型转换成指针
+    return 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="reinterpret-cast"><a href="#reinterpret-cast" class="headerlink" title="reinterpret_cast"></a>reinterpret_cast</h2><p>reinterpret_cast 用于进行各种不同类型的指针之间、不同类型的引用之间以及指针和能容纳指针的整数类型之间的转换。转换时，执行的是逐个比特复制的操作。这种转换提供了很强的灵活性，但转换的安全性只能由程序员的细心来保证了。</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+class A
+&#123;
+public:
+    int i;
+    int j;
+    A(int n):i(n),j(n) &#123; &#125;
+&#125;;
+int main()
+&#123;
+    A a(100);
+    int &amp;r &#x3D; reinterpret_cast&lt;int&amp;&gt;(a); &#x2F;&#x2F;强行让 r 引用 a
+    r &#x3D; 200;  &#x2F;&#x2F;把 a.i 变成了 200
+    cout &lt;&lt; a.i &lt;&lt; &quot;,&quot; &lt;&lt; a.j &lt;&lt; endl;  &#x2F;&#x2F; 输出 200,100
+    int n &#x3D; 300;
+    A *pa &#x3D; reinterpret_cast&lt;A*&gt; ( &amp; n); &#x2F;&#x2F;强行让 pa 指向 n
+    pa-&gt;i &#x3D; 400;  &#x2F;&#x2F; n 变成 400
+    pa-&gt;j &#x3D; 500;  &#x2F;&#x2F;此条语句不安全，很可能导致程序崩溃
+    cout &lt;&lt; n &lt;&lt; endl;  &#x2F;&#x2F; 输出 400
+    long long la &#x3D; 0x12345678abcdLL;
+    pa &#x3D; reinterpret_cast&lt;A*&gt;(la); &#x2F;&#x2F;la太长，只取低32位0x5678abcd拷贝给pa
+    unsigned int u &#x3D; reinterpret_cast&lt;unsigned int&gt;(pa);&#x2F;&#x2F;pa逐个比特拷贝到u
+    cout &lt;&lt; hex &lt;&lt; u &lt;&lt; endl;  &#x2F;&#x2F;输出 5678abcd
+    typedef void (* PF1) (int);
+    typedef int (* PF2) (int,char *);
+    PF1 pf1;  PF2 pf2;
+    pf2 &#x3D; reinterpret_cast&lt;PF2&gt;(pf1); &#x2F;&#x2F;两个不同类型的函数指针之间可以互相转换
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>第 19 行的代码不安全，因为在编译器看来，pa-&gt;j 的存放位置就是 n 后面的 4 个字节。 本条语句会向这 4 个字节中写入 500。但这 4 个字节不知道是用来存放什么的，贸然向其中写入可能会导致程序错误甚至崩溃。</p>
+<h2 id="const-cast"><a href="#const-cast" class="headerlink" title="const_cast"></a>const_cast</h2><p>const_cast 运算符仅用于进行去除 const 属性的转换，它也是四个强制类型转换运算符中唯一能够去除 const 属性的运算符。</p>
+<p>将 const 引用转换为同类型的非 const 引用，将 const 指针转换为同类型的非 const 指针时可以使用 const_cast 运算符</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">const string s &#x3D; &quot;Inception&quot;;
+string&amp; p &#x3D; const_cast &lt;string&amp;&gt; (s);
+string* ps &#x3D; const_cast &lt;string*&gt; (&amp;s);  &#x2F;&#x2F; &amp;s 的类型是 const string*<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div>
+<h2 id="dynamic-cast"><a href="#dynamic-cast" class="headerlink" title="dynamic_cast"></a>dynamic_cast</h2><p>用 reinterpret_cast 可以将多态基类（包含虚函数的基类）的指针强制转换为派生类的指针，但是这种转换不检查安全性，即不检查转换后的指针是否确实指向一个派生类对象。dynamic_cast专门用于将多态基类的指针或引用强制转换为派生类的指针或引用，而且能够检查转换的安全性。对于不安全的指针转换，转换结果返回 NULL 指针。</p>
+<p>dynamic_cast 是通过“运行时类型检查”来保证安全性的。dynamic_cast 不能用于将非多态基类的指针或引用强制转换为派生类的指针或引用——这种转换没法保证安全性，只好用 reinterpret_cast 来完成。</p>
+<div class="code-wrapper"><pre class="line-numbers language-cpp" data-language="cpp"><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+class Base
+&#123;  &#x2F;&#x2F;有虚函数，因此是多态基类
+public:
+    virtual ~Base() &#123;&#125;
+&#125;;
+class Derived : public Base &#123; &#125;;
+int main()
+&#123;
+    Base b;
+    Derived d;
+    Derived* pd;
+    pd &#x3D; reinterpret_cast &lt;Derived*&gt; (&amp;b);
+    if (pd &#x3D;&#x3D; NULL)
+        &#x2F;&#x2F;此处pd不会为 NULL。reinterpret_cast不检查安全性，总是进行转换
+        cout &lt;&lt; &quot;unsafe reinterpret_cast&quot; &lt;&lt; endl; &#x2F;&#x2F;不会执行
+    pd &#x3D; dynamic_cast &lt;Derived*&gt; (&amp;b);
+    if (pd &#x3D;&#x3D; NULL)  &#x2F;&#x2F;结果会是NULL，因为 &amp;b 不指向派生类对象，此转换不安全
+        cout &lt;&lt; &quot;unsafe dynamic_cast1&quot; &lt;&lt; endl;  &#x2F;&#x2F;会执行
+    pd &#x3D; dynamic_cast &lt;Derived*&gt; (&amp;d);  &#x2F;&#x2F;安全的转换
+    if (pd &#x3D;&#x3D; NULL)  &#x2F;&#x2F;此处 pd 不会为 NULL
+        cout &lt;&lt; &quot;unsafe dynamic_cast2&quot; &lt;&lt; endl;  &#x2F;&#x2F;不会执行
+    return 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div>
+<p>第 20 行，通过判断 pd 的值是否为 NULL，就能知道第 19 行进行的转换是否是安全的。第 23 行同理。</p>
 
               
             </div>
@@ -720,7 +943,7 @@ s &#x3D; std::to_string(a);<span aria-hidden="true" class="line-numbers-rows"><s
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2023年3月2日</div>
+          <div>2023年5月1日</div>
         </div>
       
       <div class="license-meta-item">
