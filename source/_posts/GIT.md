@@ -76,7 +76,7 @@ git config --global --unset https.proxy
 配置ssh
 ```shell
 git config --global user.name "Codebells"
-git config --global user.email 1347103071@qq.com
+git config --global user.email "1347103071@qq.com"
 #生成rsa密钥
 ssh-keygen -t rsa -C "1347103071@qq.com"
 #查看公钥
@@ -138,5 +138,22 @@ git branch --set-upstream-to localBranch origin/branch
 git clone -b SourceCode https://github.com/Codebells/Codebells.github.io.git
 npm install
 git pull origin SourceCode
+```
+
+# CentOS升级
+
+```shell
+yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel asciidoc
+yum install  gcc perl-ExtUtils-MakeMaker
+yum remove git
+cd /usr/local/src/
+wget https://www.kernel.org/pub/software/scm/git/git-2.37.1.tar.xz
+tar -vxf git-2.37.1.tar.xz
+cd git-2.37.1/
+make prefix=/usr/local/git all
+make prefix=/usr/local/git install
+echo "export PATH=$PATH:/usr/local/git/bin" >> /etc/profile
+source /etc/profile
+git --version
 ```
 
