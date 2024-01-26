@@ -1,5 +1,5 @@
 ---
-title: ubuntu20env
+title: ubuntu20从0开始安装环境
 date: 2023-05-05 19:48:06
 categories: 
   - [tech]

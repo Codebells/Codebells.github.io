@@ -16,7 +16,7 @@ category_bar: true
 
 提出一种新的负载均衡的方法，提高缓存命中率以及降低内部节点缓存失效频率
 
-## 传统方法
+## 传统方法 
 
 >In [19], incoming transactions of the rush class are spread across all nodes in a round-robin fashion. On the other hand, in [7],transactions are routed to the least loaded node.
 

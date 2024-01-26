@@ -1,5 +1,5 @@
 ---
-title: leopard
+title: leopard论文阅读记录
 date: 2023-04-03 20:01:53
 categories: 
   - [database]
