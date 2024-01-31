@@ -73,8 +73,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="stylesheet" href="/css/prism.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="Codebells" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
 
 
 <body>
@@ -226,8 +226,207 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/post/scalable-gc-for-in-memory-mvcc-sys.html" target="_self">
+          scalable gc for in-memory mvcc sys
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/scalable-gc-for-in-memory-mvcc-sys.html" target="_self">
+        <div>
+          
+          现有问题在使用MVCC技术的数据库上，通常是在存储达到一定阈值或定时根据watermark来gc掉比它更旧版本的数据，所以会存在长时间运行的事务可能导致历史版本垃圾不能被及时回收，同时不断有新事务产生新的数据版本，从而导致版本链越来越长，版本链变长又会导致检索速度变慢，进而让原本就long-live的事务变得更长。从而成为一种恶性循环，令数据库性能大幅下降，特别是对于HTAP workload，G
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-01-29 14:47" pubdate>
+              2024-01-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/paper-read/">#paper_read</a>
+            
+              <a href="/tags/database/">#database</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/adaptive-hybrid-indexes.html" target="_self">
+          adaptive-hybrid-indexes
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/adaptive-hybrid-indexes.html" target="_self">
+        <div>
+          
+          index 是查询处理系统中性能影响的关键部分，DBMS 广泛采用 B-tree、trie、hash table，特别是 OLTP 系统的索引的存储开销非常大（一些场景下，一半以上的内存是由索引结构消耗的）。内存在现代数据库上加速效果非常明显，但很多场景下将所有数据放入内存已不可能。 作者把索引优化技术按介入的时间分为三个阶段：  development-time：单类型数据结构   设计 sta
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-01-26 14:24" pubdate>
+              2024-01-26
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/paper-read/">#paper_read</a>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/storage/">#storage</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/post/graph-database-interface.html" target="_self">
+          graph-database-interface
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/post/graph-database-interface.html" target="_self">
+        <div>
+          
+          首先定义了一个图数据库接口，然后用这个图数据库接口，为分布式RDMA架构设计一个图数据库，利用RDMA架构单边通信以及集合通信操作，提供高可扩展性，能够线性扩展十万核 挑战 数据集大而复杂 目前业界既有OLTP数据库也有OLAP，OLSP，即OLTP(online transactional processing)、OLAP(online analytical processing)、OLSP(o
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-12 15:27" pubdate>
+              2023-12-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/database/" class="category-chain-item">database</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/database/">#database</a>
+            
+              <a href="/tags/graphdb/">#graphdb</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/post/ubuntu20env.html" target="_self">
-          ubuntu20env
+          ubuntu20从0开始安装环境
         </a>
       </h1>
 
@@ -357,7 +556,7 @@
       <h1 class="index-header">
         
         <a href="/post/leopard.html" target="_self">
-          leopard
+          leopard论文阅读记录
         </a>
       </h1>
 
@@ -805,202 +1004,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/protobuf.html" target="_self">
-          protobuf
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/protobuf.html" target="_self">
-        <div>
-          
-          安装的是c++版本protobuf 到下面去下载想要的版本  https:&#x2F;&#x2F;github.com&#x2F;protocolbuffers&#x2F;protobuf&#x2F;releases  我下载的是protobuf-cpp-3.20.1.tar.gz sudo apt-get install autoconf automake libtool curl make g++ unzip tar xvfz protobu
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-11-05 10:42" pubdate>
-              2022-11-05
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/tech/" class="category-chain-item">tech</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/tech/">#tech</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/cmake.html" target="_self">
-          cmake日常
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/cmake.html" target="_self">
-        <div>
-          
-          ubuntu20.04 cmake 升级阿里云自带的是3.16的， 有坑！ 不要升级内核 sudo apt install build-essential libssl-dev不推荐执行，升级内核有可能造成服务器异常 apt-get autoremove cmake不推荐执行,会把之前安装的一些库包都删除了，以后如果要卸载什么包，最好用命令：sudo apt remove package_name
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-11-04 21:40" pubdate>
-              2022-11-04
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/tech/" class="category-chain-item">tech</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/tech/">#tech</a>
-            
-              <a href="/tags/cpp/">#cpp</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/post/mit6-824-lab3.html" target="_self">
-          mit6-824-lab3
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/post/mit6-824-lab3.html" target="_self">
-        <div>
-          
-          对于3A来说的话，整体实现并不是很难，在paper中主要对应的是 section8。这次的实验就是实现在lab2中raft服务层的上一层service与client的交互。   我们需要进行在client中去编写make,put&#x2F;get&#x2F;append等关于RPC又或者clerk初始化的函数。 然后这个函数的RPC会传到server中对应的put&#x2F;get&#x2F;append函数中，再由这些函数调用raft
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-11-03 20:49" pubdate>
-              2022-11-03
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/database/" class="category-chain-item">database</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/database/">#database</a>
-            
-              <a href="/tags/lab/">#lab</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#board">5</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

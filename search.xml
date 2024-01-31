@@ -4,7 +4,98 @@
   
     
     <entry>
-      <title>ubuntu20env</title>
+      <title>scalable gc for in-memory mvcc sys</title>
+      <link href="//post/scalable-gc-for-in-memory-mvcc-sys.html"/>
+      <url>//post/scalable-gc-for-in-memory-mvcc-sys.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="现有问题"><a href="#现有问题" class="headerlink" title="现有问题"></a>现有问题</h1><p>在使用MVCC技术的数据库上，通常是在存储达到一定阈值或定时根据watermark来gc掉比它更旧版本的数据，所以会存在长时间运行的事务可能导致历史版本垃圾不能被及时回收，同时不断有新事务产生新的数据版本，从而导致版本链越来越长，版本链变长又会导致检索速度变慢，进而让原本就long-live的事务变得更长。从而成为一种恶性循环，令数据库性能大幅下降，特别是对于HTAP workload，GC通常是其中的瓶颈。所以论文提出了一个叫Steam的垃圾回收方式来应对这种场景。</p><p>将垃圾回收工作分散在不同的组件和工作线程中，尽可能以去中心化方式进行 GC</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240129145957966.png" alt="image-20240129145957966"></p><p>下面这个图直观展示了长事务对于GC的影响</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240129151048539.png" alt="image-20240129151048539"></p><p>对于mvcc版本可见性，B、C事务于v4提交之前开始，所以BC智能读到v1版本的数据，如果按通常的GC方式去维护一个watermark，那么就会导致v2-v999的版本都无法回收，而实际上可能这些版本早就无人问津。所以为了解决这个问题，论文提出一个Steam的垃圾回收策略</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240129152234793.png" alt="image-20240129152234793"></p><h1 id="GC实际影响"><a href="#GC实际影响" class="headerlink" title="GC实际影响"></a>GC实际影响</h1><p>当出现长事务的时候，version record就会堆积。当reader结束的时候，writer才能开始清理这些元组，并且在GC的时候新的事务不能进行写操作。并且随着版本的增多，读事务会越来越慢，导致更多的长事务</p><p>总结起来传统GC有3个缺点</p><ol><li>scalability due to global synchronization</li><li>vulnerability to long-living transactions</li><li>inaccuracy in garbage identification</li></ol><p>1我理解是多机器之间的gc版本同步问题？导致需要同步开销导致扩展性降低？（其实是线程之间的同步问题）</p><p>2为长事务导致版本过多</p><p>3太多无用版本未被回收</p><h1 id="GC策略调研"><a href="#GC策略调研" class="headerlink" title="GC策略调研"></a>GC策略调研</h1><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240129161820350.png" alt="image-20240129161820350"></p><p>steam是基于HyPer做的，也借鉴了<strong>HANA</strong>的部分思路，只不过steam的GC不是在后台完成，而是在事务处理时完成GC</p><p><strong>Hekaton的GC</strong>也是在事务处理时完成，但是他只GC事务处理中扫描过的那部分版本，而Steam会在reader可能读到过时版本之前就GC掉他</p><p>从几个角度去评估GC策略</p><h2 id="Tracking-Level"><a href="#Tracking-Level" class="headerlink" title="Tracking Level"></a>Tracking Level</h2><p>就是GC粒度</p><p>最细粒度的方法是<strong>tuple-level</strong>，GC线程会扫描每一个元组并识别他们是不是过期的元组</p><p>我们可以每过一段时间开启这个线程（bg），也可以在运行txn的时候去检查这些过时的元组（fg）</p><p>系统也可有以<strong>transaction</strong>为粒度去清理，因为一个txn中创建的所有版本都共享着同一个commit timestamp，所以如果他们不可见的时候，应该是同时不可见的。所以我们可以一次性识别并清除同一个txn中的版本。相比于tuple-level，这种粒度可能会导致某些版本删除的时间更晚一些。因为这个事务的所有相关数据的该版本不需要了才会被删除。</p><p><strong>Epoch-based</strong>的方法是让若干个事务成为一个Epoch，这样我们就可以一个Epoch一个Epoch的清理</p><p>最粗粒度的方法就是<strong>table-level</strong>，当整个table不再使用的时候我们会清理他，或者说是一次锁住一整个表，然后清理，然后释放。很少见，目前了解只有HANA</p><h2 id="Frequency-and-Precision"><a href="#Frequency-and-Precision" class="headerlink" title="Frequency and Precision"></a>Frequency and Precision</h2><h3 id="频率"><a href="#频率" class="headerlink" title="频率"></a>频率</h3><p>epoch based系统控制GC一般通过阈值来决定，当达到阈值就进行一次GC</p><p>也有很常见的GC后台线程。每过一段时间就开启一次去进行GC，例如HANA、Hekaton</p><p>还有batch-level的，每个batch结束都会确定这个batch的txn已经结束了，我们就可以安全的回收那些老版本，例如BOHM</p><h3 id="thoroughness"><a href="#thoroughness" class="headerlink" title="thoroughness"></a>thoroughness</h3><p>timestamp-based 目前大部分是这种策略，根据watermark来gc掉比它更旧版本的数据，所以会被长事务影响。</p><p>interval-based只会保留需要的版本数据。</p><h2 id="Version-Storage"><a href="#Version-Storage" class="headerlink" title="Version Storage"></a>Version Storage</h2><p>大部分系统会将数据存储在类似哈希表的全局数据结构中，这样就允许系统去精准独立的回收某一个版本数据。但是缺点就需要在这个全局区域扫描过时版本。意思就是如果想以事务纬度来做精准地回收比较困难</p><p>所以HyPer和Steam直接将这个版本与事务一同存储到undo log中，一旦一个事务的时间戳比watermark小，那就将整个事务的版本数据全部删除掉，并且，单个版本也可以被独立的回收。同时undo log并不是一个额外的工作，在数据库回滚时是都需要的。</p><p>总而言之全局数据结构的好处是GC时可以独立地回收每个单独的版本；但如果想以事务纬度来做精准地回收比较困难。比如说，现在想回收事务A产生的所有历史版本。在全局数据结构里就不好做，需要全局扫描，但如果是存在事务内部，很容易就能找到这个事务产生了哪些垃圾。</p><p>O2N(oldest to newest)，版本链的顺序从旧到新，必须先访问旧的在访问新的</p><p>FULL/DELTA(全量/增量)，即一行有多个数据时，只存储改变的数据，对于其他数据不存储，或完整的存储整行的数据</p><h2 id="Identification"><a href="#Identification" class="headerlink" title="Identification"></a>Identification</h2><p>如何找到过时版本数据。</p><p>常见的方式global txn map。虽然能快速找到某一个过时版本，并且简化了GC操作（比较timestamp与watermark），但是清理不干净。</p><p>Steam和HANA这种更细粒度的清理方法，能够对每一个版本链都做检查。</p><p>更加粗粒度的方法则是用Epoch来确定版本是否过期，类似watermark。但是epoch方法会让我们的memory management更加轻松。Epoch guard会等待这个epoch内所有的线程离开这个epoch后，才会回收这个epoch使用的内存</p><p>BG/FG 后台执行/前台执行</p><h2 id="Removal"><a href="#Removal" class="headerlink" title="Removal"></a>Removal</h2><p>HANA：后台线程定期触发GC</p><p>Hekaton：事务提交前执行GC，cleans all versions on-the-fly，就是只GC事务涉及到的数据版本（only works for O2N），同时存在后台线程定时扫描整个数据库，将需要GC的数据放到下次事务处理阶段的GC中清除</p><p>epoch-based systems：常见的方式是把该epoch之前已经提交的版本放在free list，当事务更新数据版本的时候，会检查是否可以GC</p><p>interspersing：事务执行阶段执行GC</p><p>Steam，则是在创建的时候就去检查是否可以回收，同时在commit的时候也会检查是否可以回收Undo buffer</p><h1 id="Steam-GC"><a href="#Steam-GC" class="headerlink" title="Steam GC"></a>Steam GC</h1><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130160037529.png" alt="image-20240130160037529"></p><p>Steam的实现是基于HyPer的</p><p>存在两个list</p><p>active transactions list：事务开始时加入</p><p>committed transactions：事务提交时从active list移除，加入commit list，如果是只读事务就直接从活跃事务中移除。</p><p>两个链表都是O2N，可以很快找到最老那个活跃事务的start_ts。然后去提交事务链表中遍历回收每一个事务的垃圾数据，直到遇到事务的commit ts &gt; min start ts，就停下来</p><p>最主要解决三个问题Scalability，HTAP workload，历史数据的内存优化</p><h2 id="Scalable-Synchronization"><a href="#Scalable-Synchronization" class="headerlink" title="Scalable Synchronization"></a>Scalable Synchronization</h2><p>常规方法（watermark+ global txn map）虽然可以在常数时间内进行GC，但是他需要全局的txn map。从而导致无法scale，锁竞争、数据同步的问题。Hekaton使用无锁的txn map解决锁竞争的问题但是仍需要同步，Steam用了一种无需同步的方式。</p><p>Steam中每一个线程都维护了目前线程txn最小。每个thread只会把他的thread-local minimum共享出来（通过64bit atomic integer）。其他的线程就可以读这个值，从而获取全局最小值</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130155721731.png" alt="image-20240130155721731"></p><p>local minimum对应的是第一个活跃事务的时间戳。如果没有的话就设为一个极大值。要确定全局最小值，我们需要扫描每个线程的局部最小。</p><p>和latch free的txn map区别在于每个线程无需再维护全局最小，但是仍需要扫描全部线程以计算全局最小，<strong>感觉仍存在多核的一致性问题</strong>导致清理没那么干净完美</p><h2 id="Eager-Pruning-of-Obsolete-Versions（EPO）"><a href="#Eager-Pruning-of-Obsolete-Versions（EPO）" class="headerlink" title="Eager Pruning of Obsolete Versions（EPO）"></a>Eager Pruning of Obsolete Versions（EPO）</h2><p>前面的方案只是避免了全局同步，但是没有处理long running txn的问题</p><p>难点：如何解决长事务带来的问题？</p><p>这里提出来EPO，可以移除掉所有的不需要的版本</p><p>每个线程定期将活跃事务的timestamp存储到sorted list（N2O）中，当遇到版本链的时候，就执行以下算法</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130170121228.png" alt="image-20240130170121228"></p><p>例子：</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130171027765.png" alt="image-20240130171027765"></p><p>为什么要压缩成A25？而不是A50，因为sorted list是从大到小，当最新active txn都看不到A50了，那后面的更看不到，所以合并成A25</p><p>对于没有长事务运行的workload来说，平常使用的GC就已经够用了，使用EPO还会额外的增加负担</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130185411334.png" alt="image-20240130185411334"></p><h2 id="Layout-of-Version-Records"><a href="#Layout-of-Version-Records" class="headerlink" title="Layout of Version Records"></a>Layout of Version Records</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130185822997.png" alt="image-20240130185822997"></p><p>原子提交，Version中有一个lock bit，用来保证提交是原子的</p><p>然后用AttributeMask可以加速我们检查一个attribute是否在另一个中。并且还节省了存储attributeID的空间</p><p>这里的结构应该和HyPer是一样的，就是原始的表中有数据，然后一个指针指向version vector，表示他这次的操作</p><h1 id="EVALUATION"><a href="#EVALUATION" class="headerlink" title="EVALUATION"></a>EVALUATION</h1><p>在HyPer的基础上实现了5种GC方案，在只改变GC策略的条件下，进行性能测试对比，配置如下</p><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130191530528.png" alt="image-20240130191530528"></p><h2 id="CH-benchmark"><a href="#CH-benchmark" class="headerlink" title="CH benchmark"></a>CH benchmark</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130200728720.png" alt="image-20240130200728720"></p><p>前两个曲线以及steam base的曲线很像，因为都是基于watermark的，唯一的区别就是前两个是epoch based，而steam是txn based</p><p>而Hana是后台独立GC线程，GC时对于版本链是独占的，不允许读，所以这就导致quick write和slow read之间的gap。所以就导致版本记录增加的特别快，一个线程GC不过来了。</p><p>Hekaton中，后台线程负责更新全局最小值，并识别过期的版本。然后把任务分配给worker线程让他们去清理这些版本。这种操作让GC时间增加太多了，所以导致版本数量增加特别快</p><p>读性能差的原因，我认为是这两个GC太慢了，并且使用的是global mutex，没有去中心化</p><p>为什么写吞吐量提高了3x多，EPO的作用就是在long live txn存在的情况下，将无用的rec清除，这使得这一段数据的GC被分摊到多个事务处理结束时，这样虽然增加了每个事务处理的gc时间，却减少了对版本链占用的时间。而读吞吐量没怎么变，说明一个问题，长版本链影响最大的是GC的效率，而不是读的效率。GC速度变慢，导致写性能无法提升</p><h2 id="TPCC"><a href="#TPCC" class="headerlink" title="TPCC"></a>TPCC</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130212914127.png" alt="image-20240130212914127"></p><p>HANA 是global mutex，没有去中心化。</p><p>Hekaton也被这种 coordinate 限制，后台GC线程周期性的从global txn map 检索全局最小，维护watermark，然后分配给所有worker线程执行清理操作</p><h2 id="Scalability-in-Mixed-Workloads"><a href="#Scalability-in-Mixed-Workloads" class="headerlink" title="Scalability in Mixed Workloads"></a>Scalability in Mixed Workloads</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130214210166.png" alt="image-20240130214210166"></p><p>扩展性相当好，因为GC开销分摊给所有workerD</p><h2 id="Garbage-Collection-Frequency"><a href="#Garbage-Collection-Frequency" class="headerlink" title="Garbage Collection Frequency"></a>Garbage Collection Frequency</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130220533561.png" alt="image-20240130220533561"></p><p>按时间间隔GC远不如按epoch来GC，推断出按工作量划分GC间隔是最合理的，而Steam更进一步，把GC融入到事务处理中。</p><h2 id="Skew"><a href="#Skew" class="headerlink" title="Skew"></a>Skew</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130221006763.png" alt="image-20240130221006763"></p><h2 id="Varying-Read-Write-Ratios"><a href="#Varying-Read-Write-Ratios" class="headerlink" title="Varying Read-Write Ratios"></a>Varying Read-Write Ratios</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130221037694.png" alt="image-20240130221037694"></p><h2 id="Eager-Pruning-of-Obsolete-Versions"><a href="#Eager-Pruning-of-Obsolete-Versions" class="headerlink" title="Eager Pruning of Obsolete Versions"></a>Eager Pruning of Obsolete Versions</h2><p><img src="./scalable-gc-for-in-memory-mvcc-sys/image-20240130221300513.png" alt="image-20240130221300513"></p><p>用了EPO性能提升5x</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> database </category>
+          
+          <category> paper_read </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> paper_read </tag>
+            
+            <tag> database </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>adaptive-hybrid-indexes</title>
+      <link href="//post/adaptive-hybrid-indexes.html"/>
+      <url>//post/adaptive-hybrid-indexes.html</url>
+      
+        <content type="html"><![CDATA[<p>index 是查询处理系统中性能影响的关键部分，DBMS 广泛采用 B-tree、trie、hash table，特别是 OLTP 系统的索引的存储开销非常大（一些场景下，一半以上的内存是由索引结构消耗的）。内存在现代数据库上加速效果非常明显，但很多场景下将所有数据放入内存已不可能。</p><p>作者把索引优化技术按介入的时间分为三个阶段：</p><ol><li><p>development-time：单类型数据结构</p></li><li><ol><li>设计 state-of-the-art 数据结构满足 CRUD 操作，整体均衡，重点对主要操作做优化。</li><li>compact index 技术，减少内存空间，通常比 state-of-the-art index 要慢。例如 succinct index 通过减少数据结构上的 pointer 并在运行时计算 offset，在 lookup、scan、udpate 上性能差一些。</li></ol></li><li><p>build-time：在一个 index（不同的数据块）上使用多种 encoding 组合，根据数据特征，在写入时选择数据结构。</p></li><li><p>run-time：build-time 是一种静态组合，单不考虑动态的 workload（工况），run-time 时可以拿到更多的 工况信息帮助优化索引结构。</p></li></ol><p>论文提出一个框架：workload-adaptive hybrid index，将 encoding 决策时机延后到 run-time 进行。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> database </category>
+          
+          <category> paper_read </category>
+          
+          <category> storage </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> paper_read </tag>
+            
+            <tag> database </tag>
+            
+            <tag> storage </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>graph-database-interface</title>
+      <link href="//post/graph-database-interface.html"/>
+      <url>//post/graph-database-interface.html</url>
+      
+        <content type="html"><![CDATA[<p>首先定义了一个图数据库接口，然后用这个图数据库接口，为分布式RDMA架构设计一个图数据库，利用RDMA架构单边通信以及集合通信操作，提供高可扩展性，能够线性扩展十万核</p><h1 id="挑战"><a href="#挑战" class="headerlink" title="挑战"></a>挑战</h1><ol><li>数据集大而复杂</li><li>目前业界既有OLTP数据库也有OLAP，OLSP，即OLTP(online transactional processing)、OLAP(online analytical processing)、OLSP(online serving processing)，如何满足高性能、可扩展的数据库的同时可以同时支持这三种工作环境</li><li>portability可移植性，将数据库代码移植到有不同硬件环境的机器的代价非常昂贵</li><li>满足上述所有条件的数据库很难理解、debug、维护、扩展，如何解决？</li></ol><h2 id="方式"><a href="#方式" class="headerlink" title="方式"></a>方式</h2><ol><li><p>分析Neo4j、TinkerPop、JanusGraph的源码，规范出了一套可移植、可编程的图数据库接口（GDI）</p><ul><li>数据存储层：包括事务、索引、数据、数据源信息等</li></ul><p>为什么可移植性高？因为解耦出了信息传递接口(MPI)，用于数据交互</p></li><li><p>给出了一套高性能实现方案，RDMA实现分布式内存。</p><ul><li>RDMA在云数据中心以及超级计算领域一直是可扩展性问题的很好的解决方案</li><li>分布式存储层</li><li>one-sided non-blocking RDMA communication</li><li>collective communication</li></ul></li></ol><p>利用HPC(高性能计算)的技术，例如collectives，one-sided RDMA</p><h1 id="贡献"><a href="#贡献" class="headerlink" title="贡献"></a>贡献</h1><h2 id="第一"><a href="#第一" class="headerlink" title="第一"></a>第一</h2><p>分析Neo4j、TinkerPop、JanusGraph的源码，将其规范成了一套可移植、可编程的图数据库接口（GDI）</p><ul><li>数据存储层：包括事务、索引、数据、数据源信息等</li></ul><p>为什么可移植性高？因为解耦出了信息传递接口(MPI)，用于数据交互</p><h2 id="第二"><a href="#第二" class="headerlink" title="第二"></a>第二</h2><p>给出了一套高性能实现方案，RDMA实现分布式内存。</p><ul><li>RDMA在云数据中心以及超级计算领域一直是可扩展性问题的很好的解决方案</li><li>分布式存储层</li><li>one-sided non-blocking RDMA communication</li><li>collective communication</li></ul><p>利用HPC(高性能计算)的技术，例如collectives，one-sided RDMA</p><h2 id="第三"><a href="#第三" class="headerlink" title="第三"></a>第三</h2><p>支持几乎所有function，并且可以提供独立的底层硬件的理论性能分析</p><h2 id="第四"><a href="#第四" class="headerlink" title="第四"></a>第四</h2><p>描述了怎么用GDI来跑一些工作负载，如LDBC，LinkBench</p><h2 id="第五"><a href="#第五" class="headerlink" title="第五"></a>第五</h2><p>开发了一个可以根据配置生成内存数据的工具，可以快速生成具有label、属性的图数据</p><h2 id="第六"><a href="#第六" class="headerlink" title="第六"></a>第六</h2><p>可扩展性，实验评估做了超大规模的实验</p><h2 id="第七"><a href="#第七" class="headerlink" title="第七"></a>第七</h2><p>开源！</p><h1 id="GDI"><a href="#GDI" class="headerlink" title="GDI"></a>GDI</h1><h2 id="GDI和图数据库的关系"><a href="#GDI和图数据库的关系" class="headerlink" title="GDI和图数据库的关系"></a>GDI和图数据库的关系</h2><p>查询从<strong>Client</strong>发起时，<strong>数据库中间层</strong>会将其分散成子查询到多个机器并收集多个机器的结果返回，这个中间层依赖于GDI所在的<strong>存储事务引擎</strong>。这部分直接与数据交互，所以GDI这一层会提供大部分如增删改查的接口，最后后端存储提供真实存储，如RAM、CSV、JSON</p><p><img src="./graph-database-interface/image-20231218150553781.png" alt="image-20231218150553781"></p><h2 id="GDI的结构与功能"><a href="#GDI的结构与功能" class="headerlink" title="GDI的结构与功能"></a>GDI的结构与功能</h2><ol><li>灰色为基础模块，必须被初始化</li><li>蓝色为CRUD标签与属性</li><li>紫色为CRUD节点与边 </li><li>绿色为事务处理</li><li>橙色为索引处理</li><li>暗红色为约束条件检查</li><li>红色为错误处理</li></ol><p><img src="./graph-database-interface/image-20231218151821164.png" alt="image-20231218151821164"></p><p>C(Collective)：所有存活协程都作为一个参与者进行集合通信(Collective communications)</p><p>L(Local)：无需通信，本机即可完成操作</p><h2 id="高性能事务"><a href="#高性能事务" class="headerlink" title="高性能事务"></a>高性能事务</h2><p>不对事务做任何限制</p><p>Collective transaction：涉及到多个处理的事务，类似分片2pc事务处理</p><p>Local transaction：单个processor即可处理，涉及少量数据</p><h2 id="快速高效存取数据"><a href="#快速高效存取数据" class="headerlink" title="快速高效存取数据"></a>快速高效存取数据</h2><p>GDI对存储层的节点id/边id等会进行内部重新编id，使得其更加portable，independent</p><p>volatileID：临时使用，用于图数据负载均衡</p><p>permanentID：减少远程操作数量，但是妨碍数据动态负载均衡</p><h2 id="句柄"><a href="#句柄" class="headerlink" title="句柄"></a>句柄</h2><p>提高可用性，使用句柄可以直接0拷贝使用数据</p><h2 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h2><p>提供了不同的一致性模型，为index以及meta数据提供最终一致性，为数据提供线性一致性。</p><p>更灵活，清晰定义了每种数据的一致性</p><h1 id="可伸缩性GDI-RDMA的实现"><a href="#可伸缩性GDI-RDMA的实现" class="headerlink" title="可伸缩性GDI RDMA的实现"></a>可伸缩性GDI RDMA的实现</h1><p>基于MPI并且利用RDMA单边通信（一个进程直接读取另一个进程的内存数据而不需要显式的通信），这让通信性能以及可伸缩性得到很大提升</p><p><img src="./graph-database-interface/image-20231219103622361.png" alt="image-20231219103622361"></p><p>实现内存图数据库</p><p>GMC三部分是在每个分片上都存在全副本的，其他数据是分片的</p><h2 id="Graph-data"><a href="#Graph-data" class="headerlink" title="Graph data"></a>Graph data</h2><h3 id="Logical-Layout"><a href="#Logical-Layout" class="headerlink" title="Logical Layout"></a>Logical Layout</h3><p>抽象出来的接口层，方便开发人员写代码，与BGDL存在地址映射</p><h3 id="Blocked-Graph-Data-Layout"><a href="#Blocked-Graph-Data-Layout" class="headerlink" title="Blocked Graph Data Layout"></a>Blocked Graph Data Layout</h3><p>一个节点的相关数据不要求存储在同一个节点，因为RDMA，可以低代价访问远端内存。</p><p>性能优化可以直接在这完成，而不需要修改上层代码</p><p>轻型边：每条边最多带一个lable</p><h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>抽象出一个模块，专门执行2pl，2pc，保存了当前事务的状态，GDA可编程性不会有影响</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>每个模块都可以单独分析性能，并且依赖深度并不深，即一个数据/事务不会涉及到非常多个模块，都是常数级，最多也就10-20个</p><h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><p>环境：瑞士国家超级计算机中心，1813台XC40（2x18 vcpu，64GB RAM） 5704台XC50（12vcpu，64GB RAM）</p><p><img src="./graph-database-interface/image-20231219160803809.png" alt="image-20231219160803809"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> database </category>
+          
+          <category> graphdb </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> database </tag>
+            
+            <tag> graphdb </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>ubuntu20从0开始安装环境</title>
       <link href="//post/ubuntu20env.html"/>
       <url>//post/ubuntu20env.html</url>
       
@@ -62,7 +153,7 @@
     
     
     <entry>
-      <title>leopard</title>
+      <title>leopard论文阅读记录</title>
       <link href="//post/leopard.html"/>
       <url>//post/leopard.html</url>
       
